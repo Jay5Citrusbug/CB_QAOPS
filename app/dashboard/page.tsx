@@ -23,10 +23,10 @@ export default async function Dashboard() {
   ]);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-slate-900">Morning, {session?.user?.name}!</h1>
-        <p className="text-slate-500">Here's what's happening today in your QA portal.</p>
+    <div className="space-y-8">
+      <div className="page-header">
+        <h1 className="page-title">Morning, {session?.user?.name}!</h1>
+        <p className="page-desc">Here's what's happening today in your QA portal.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -84,7 +84,7 @@ export default async function Dashboard() {
           <CheckSquare className="w-5 h-5 text-green-500" /> Upcoming Tasks
         </h2>
         <div className="space-y-3">
-          {tasks.map((task) => (
+          {tasks.map((task: { id: string; title: string; dueDate: Date }) => (
             <div key={task.id} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border border-transparent hover:border-slate-100">
               <div className="flex items-center gap-4">
                 <div className="w-2 h-2 bg-blue-400 rounded-full" />

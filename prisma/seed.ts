@@ -1,22 +1,25 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { createClient } from "@libsql/client";
 import bcrypt from "bcryptjs";
 import "dotenv/config";
 
-const prisma = new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
-});
+const adapter = new PrismaLibSql({ url: "file:prisma/dev.db" });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const adminEmail = "jay5.citrusbug@gmail.com";
   const hashedPassword = await bcrypt.hash("Jayqa@1234", 10);
 
-  const existingAdmin = await prisma.user.findUnique({
-    where: { email: adminEmail },
+  const adminId = "admin-id-123";
+  const existingAdmin = await prisma.user.findFirst({
+    where: { OR: [{ email: adminEmail }, { id: adminId }] },
   });
 
   if (!existingAdmin) {
     await prisma.user.create({
       data: {
+        id: adminId,
         name: "Admin User",
         email: adminEmail,
         password: hashedPassword,

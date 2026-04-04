@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
@@ -19,18 +20,33 @@ model User {
   @@map("users")
 }
 
+model Project {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  tlName       String        @map("tl_name")
+  assigneeName String        @map("assignee_name")
+  devName      String        @map("dev_name")
+  status       String        @default("ACTIVE")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  dailyStatuses DailyStatus[]
+
+  @@map("projects")
+}
+
 model DailyStatus {
   id          String   @id @default(cuid())
   userId      String   @map("user_id")
+  projectId   String   @map("project_id")
   date        DateTime
   workDone    String   @map("work_done")
   plannedWork String   @map("planned_work")
   blockers    String?
   createdAt   DateTime @default(now()) @map("created_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, date])
+  @@unique([userId, date, projectId])
   @@map("daily_statuses")
 }
 
