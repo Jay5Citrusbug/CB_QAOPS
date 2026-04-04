@@ -6,11 +6,11 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Use an absolute path to ensure all Next.js server components and CLI tools point to the SAME database file.
-const databasePath = "D:/Automation/Playwright/CB QOps/prisma/dev.db";
+// Use a relative path for local development to ensure cross-OS compatibility.
+const databaseUrl = process.env.DATABASE_URL || "file:./prisma/dev.db";
 
 const adapter = new PrismaLibSql({
-  url: `file:${databasePath}`,
+  url: databaseUrl,
 });
 
 export const prisma =
