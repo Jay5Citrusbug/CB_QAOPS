@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String        @id @default(cuid())
+  name          String
+  email         String        @unique
+  password      String
+  role          String        @default("USER")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  dailyStatuses DailyStatus[]
+  tasks         Task[]
+
+  @@map("users")
+}
+
+model DailyStatus {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  date        DateTime
+  workDone    String   @map("work_done")
+  plannedWork String   @map("planned_work")
+  blockers    String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("daily_statuses")
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String
+  dueDate   DateTime @map("due_date")
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
