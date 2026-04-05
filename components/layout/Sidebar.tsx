@@ -22,7 +22,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
       <div className="p-6 text-xl font-bold border-b border-slate-700 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-3 group">
            <img src="/logo.png" alt="CB QOps Logo" className="w-10 h-10 rounded-xl object-contain shadow-lg group-hover:scale-105 transition-transform" />
-           <span className="text-xl font-bold tracking-tight text-white group-hover:text-[#f97316] transition-colors">CB QOps</span>
+           <span className="text-xl font-bold tracking-tight text-white group-hover:text-[#ed5c37] transition-colors">CB QOps</span>
         </Link>
         <button onClick={onClose} className="lg:hidden p-2 -mr-2 text-slate-400 hover:text-white">
            <X className="w-6 h-6" />
@@ -47,7 +47,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                   : "text-slate-400 hover:text-white hover:bg-[#273449]/50"
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? "text-[#f97316]" : "group-hover:text-[#f97316]"} transition-colors`} />
+              <Icon className={`w-5 h-5 ${isActive ? "text-[#ed5c37]" : "group-hover:text-[#ed5c37]"} transition-colors`} />
               <span className="font-semibold text-sm">{item.name}</span>
             </Link>
           );
@@ -66,3 +66,4 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
     </div>
   );
 }
+

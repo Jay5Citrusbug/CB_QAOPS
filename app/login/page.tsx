@@ -34,12 +34,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-hidden">
       {/* Decorative Orbs */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#F97316]/5 rounded-full -mr-20 -mt-20 blur-3xl" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#ed5c37]/5 rounded-full -mr-20 -mt-20 blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#1e293b]/5 rounded-full -ml-20 -mb-20 blur-3xl" />
 
       <div className="w-full max-w-md p-8 bg-white/70 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl z-10 animate-in fade-in zoom-in duration-500">
         <div className="text-center mb-8">
-          <div className="inline-flex w-14 h-14 bg-[#F97316] rounded-2xl items-center justify-center text-white font-mono text-2xl shadow-lg mb-4">
+          <div className="inline-flex w-14 h-14 bg-[#ed5c37] rounded-2xl items-center justify-center text-white font-mono text-2xl shadow-lg mb-4">
             K
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Welcome Back</h1>
@@ -52,7 +52,7 @@ export default function LoginPage() {
             <input
               type="email"
               required
-              className="w-full px-4 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-[#F97316]/20 transition-all outline-none"
+              className="w-full px-4 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-[#ed5c37]/20 transition-all outline-none"
               placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -65,7 +65,7 @@ export default function LoginPage() {
               type="password"
               required
               minLength={6}
-              className="w-full px-4 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-[#F97316]/20 transition-all outline-none"
+              className="w-full px-4 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-[#ed5c37]/20 transition-all outline-none"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -84,7 +84,7 @@ export default function LoginPage() {
             className={`w-full py-3 px-4 rounded-xl font-bold text-white shadow-xl flex items-center justify-center transition-all ${
               loading 
                 ? "bg-slate-400 cursor-not-allowed" 
-                : "bg-gradient-to-r from-[#F97316] to-[#ea580c] hover:shadow-orange-200/50 hover:-translate-y-0.5 active:translate-y-0"
+                : "bg-gradient-to-r from-[#ed5c37] to-[#ea580c] hover:shadow-orange-200/50 hover:-translate-y-0.5 active:translate-y-0"
             }`}
           >
             {loading ? (
@@ -102,3 +102,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

@@ -35,7 +35,7 @@ export default async function Dashboard() {
             <h2 className="text-lg font-bold flex items-center gap-2">
               <Calendar className="w-5 h-5 text-blue-500" /> Today's Status
             </h2>
-            <Link href="/daily-status" className="text-sm font-medium text-[#F97316] hover:underline flex items-center gap-1">
+            <Link href="/daily-status" className="text-sm font-medium text-[#ed5c37] hover:underline flex items-center gap-1">
               {todayStatus ? "View full list" : "Submit now"} <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -64,7 +64,7 @@ export default async function Dashboard() {
         <div className="premium-card">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold flex items-center gap-2">
-              <Activity className="w-5 h-5 text-[#F97316]" /> Stats
+              <Activity className="w-5 h-5 text-[#ed5c37]" /> Stats
             </h2>
           </div>
           <div className="space-y-4">
@@ -73,7 +73,7 @@ export default async function Dashboard() {
               <span className="text-2xl font-bold">{tasks.length}</span>
             </div>
             <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-               <div className="bg-[#F97316] h-full" style={{ width: `${Math.min(tasks.length * 10, 100)}%` }} />
+               <div className="bg-[#ed5c37] h-full" style={{ width: `${Math.min(tasks.length * 10, 100)}%` }} />
             </div>
           </div>
         </div>
@@ -84,14 +84,14 @@ export default async function Dashboard() {
           <CheckSquare className="w-5 h-5 text-green-500" /> Upcoming Tasks
         </h2>
         <div className="space-y-3">
-          {tasks.map((task: { id: string; title: string; dueDate: Date }) => (
+          {tasks.map((task: { id: string; title: string; dueDate: Date | null }) => (
             <div key={task.id} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border border-transparent hover:border-slate-100">
               <div className="flex items-center gap-4">
                 <div className="w-2 h-2 bg-blue-400 rounded-full" />
                 <span className="font-medium text-slate-700">{task.title}</span>
               </div>
               <span className="text-xs font-semibold text-slate-400">
-                {task.dueDate.toLocaleDateString()}
+                {task.dueDate ? task.dueDate.toLocaleDateString() : 'No due date'}
               </span>
             </div>
           ))}
@@ -101,3 +101,4 @@ export default async function Dashboard() {
     </div>
   );
 }
+

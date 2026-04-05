@@ -56,13 +56,13 @@ export default function AdminUsersPage() {
       <div className="premium-card !p-0 overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
            <div className="relative w-full md:w-96 group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#f97316] transition-colors" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#ed5c37] transition-colors" />
               <input 
                 type="text" 
                 placeholder="Search by name or email..." 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-medium focus:ring-4 focus:ring-[#f97316]/5 focus:border-[#f97316]/20 outline-none transition-all shadow-sm" 
+                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-medium focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm" 
               />
            </div>
            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm">{filteredUsers.length} total users</span>
@@ -152,7 +152,7 @@ export default function AdminUsersPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                    <label className="text-xs font-bold text-slate-500 ml-1">Full Name</label>
-                   <input type="text" name="name" required placeholder="User Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#f97316]/5 focus:border-[#f97316]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" />
+                   <input type="text" name="name" required placeholder="User Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" />
                 </div>
                 <div className="space-y-1.5">
                    <label className="text-xs font-bold text-slate-500 ml-1">Role</label>
@@ -165,12 +165,12 @@ export default function AdminUsersPage() {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 ml-1">Email Address</label>
-                <input type="email" name="email" required placeholder="email@qops.com" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#f97316]/5 focus:border-[#f97316]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" />
+                <input type="email" name="email" required placeholder="email@qops.com" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" />
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 ml-1">Password</label>
-                <input type="password" name="password" required minLength={6} placeholder="••••••••" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#f97316]/5 focus:border-[#f97316]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" />
+                <input type="password" name="password" required minLength={6} placeholder="••••••••" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" />
               </div>
 
               {error && <div className="text-[10px] font-bold text-red-500 uppercase tracking-widest text-center">{error}</div>}
@@ -188,3 +188,4 @@ export default function AdminUsersPage() {
     </div>
   );
 }
+

@@ -40,6 +40,7 @@ model DailyStatus {
   date        DateTime
   workDone    String   @map("work_done")
   plannedWork String   @map("planned_work")
+  hours       Float    @default(0)
   blockers    String?
   createdAt   DateTime @default(now()) @map("created_at")
 
@@ -51,14 +52,32 @@ model DailyStatus {
 }
 
 model Task {
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  title     String
-  dueDate   DateTime @map("due_date")
-  status    String   @default("PENDING")
-  createdAt DateTime @default(now()) @map("created_at")
+  id          String     @id @default(cuid())
+  userId      String     @map("user_id")
+  title       String
+  dueDate     DateTime?  @map("due_date")
+  status      String     @default("PENDING")
+  isImportant Boolean    @default(false) @map("is_important")
+  myDay       Boolean    @default(false) @map("my_day")
+  notes       String?
+  remindAt    DateTime?  @map("remind_at")
+  repeat      String?
+  createdAt   DateTime   @default(now()) @map("created_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  steps TaskStep[]
 
   @@map("tasks")
 }
+
+model TaskStep {
+  id          String  @id @default(cuid())
+  taskId      String  @map("task_id")
+  title       String
+  isCompleted Boolean @default(false) @map("is_completed")
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("task_steps")
+}
+

@@ -62,55 +62,102 @@ export async function addDailyStatus(formData: FormData) {
   const session = await getServerSession(authOptions);
   if (!session?.user) throw new Error("Unauthorized");
 
-  const projectId = formData.get("projectId") as string;
+  const projectIds = formData.getAll("projectId") as string[];
   const date = new Date(formData.get("date") as string);
   const workDone = formData.get("workDone") as string;
   const plannedWork = formData.get("plannedWork") as string;
   const blockers = formData.get("blockers") as string || null;
+  const hoursMap = formData.getAll("hours") as string[]; // These should align with projectIds index
 
   try {
-    await prisma.dailyStatus.create({
-      data: {
-        projectId,
-        date,
-        workDone,
-        plannedWork,
-        blockers,
-        userId: (session.user as any).id,
-      },
+    const userId = (session.user as any).id;
+    
+    // Create status for each project
+    const operations = projectIds.map((projectId, index) => {
+      const hours = parseFloat(hoursMap[index] || "0");
+      return prisma.dailyStatus.upsert({
+        where: {
+          userId_date_projectId: {
+            userId,
+            date,
+            projectId,
+          }
+        },
+        update: {
+          workDone,
+          plannedWork,
+          blockers,
+          hours,
+        },
+        create: {
+          projectId,
+          date,
+          workDone,
+          plannedWork,
+          blockers,
+          hours,
+          userId,
+        }
+      });
     });
+
+    await Promise.all(operations);
+
     revalidatePath("/daily-status");
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error: any) {
     console.error("DEBUG: addDailyStatus error:", error);
-    if (error.code === 'P2002') return { error: "A status report for this project and date already exists." };
-    return { error: "Failed to save status" };
+    return { error: `Failed to save status reports: ${error.message}` };
   }
 }
 
-export async function updateDailyStatus(statusId: string, formData: FormData) {
+export async function updateGroupedDailyStatus(oldDateStr: string, formData: FormData) {
   const session = await getServerSession(authOptions);
   if (!session?.user) throw new Error("Unauthorized");
+  const userId = (session.user as any).id;
 
+  const projectIds = formData.getAll("projectId") as string[];
+  const oldDate = new Date(oldDateStr);
+  const newDate = new Date(formData.get("date") as string);
   const workDone = formData.get("workDone") as string;
   const plannedWork = formData.get("plannedWork") as string;
   const blockers = formData.get("blockers") as string || null;
+  const hoursMap = formData.getAll("hours") as string[];
 
-  await prisma.dailyStatus.update({
-    where: { id: statusId },
-    data: { workDone, plannedWork, blockers },
-  });
+  try {
+    await prisma.dailyStatus.deleteMany({
+      where: { userId, date: oldDate }
+    });
 
-  revalidatePath("/daily-status");
-  return { success: true };
+    const operations = projectIds.map((projectId, index) => {
+      const hours = parseFloat(hoursMap[index] || "0");
+      return prisma.dailyStatus.upsert({
+        where: { userId_date_projectId: { userId, date: newDate, projectId } },
+        update: { workDone, plannedWork, blockers, hours },
+        create: { projectId, date: newDate, workDone, plannedWork, blockers, hours, userId }
+      });
+    });
+
+    await Promise.all(operations);
+
+    revalidatePath("/daily-status");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error: any) {
+    return { error: `Failed to update status reports: ${error.message}` };
+  }
 }
 
-export async function deleteDailyStatus(statusId: string) {
+export async function deleteGroupedDailyStatus(dateStr: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user) throw new Error("Unauthorized");
+  const userId = (session.user as any).id;
 
-  await prisma.dailyStatus.delete({ where: { id: statusId } });
+  await prisma.dailyStatus.deleteMany({
+    where: { userId, date: new Date(dateStr) }
+  });
+  
   revalidatePath("/daily-status");
   revalidatePath("/dashboard");
   return { success: true };
@@ -141,36 +188,115 @@ export async function createUser(formData: FormData) {
 }
 
 // --- TASK ACTIONS ---
-export async function createTask(formData: FormData) {
+export async function createTask(formData: FormData, targetUserId?: string) {
   const session = await getServerSession(authOptions);
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) return { error: "Unauthorized" };
 
   const title = formData.get("title") as string;
-  const dueDate = new Date(formData.get("dueDate") as string);
+  if (!title) return { error: "Task title is required" };
 
-  await prisma.task.create({
-    data: {
-      title,
-      dueDate,
-      userId: (session.user as any).id,
-    },
-  });
+  const userId = ((session.user as any).role === "ADMIN" && targetUserId) 
+    ? targetUserId 
+    : (session.user as any).id;
 
-  revalidatePath("/tasks");
-  revalidatePath("/dashboard");
+  try {
+    const task = await (prisma.task as any).create({
+      data: {
+        title,
+        status: "PENDING",
+        userId: userId,
+      },
+    });
+
+    revalidatePath("/tasks");
+    revalidatePath("/dashboard");
+    return task;
+  } catch (error: any) {
+    console.error("DEBUG: createTask error details:", error);
+    return { error: error.message || "Failed to create task in database" };
+  }
+}
+
+export async function updateTask(taskId: string, data: any) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: "Unauthorized" };
+
+  try {
+    const updatedTask = await prisma.task.update({
+      where: { id: taskId },
+      data,
+    });
+
+    revalidatePath("/tasks");
+    revalidatePath("/dashboard");
+    return updatedTask;
+  } catch (error: any) {
+    console.error("DEBUG: updateTask error:", error);
+    return { error: error.message || "Failed to update task" };
+  }
 }
 
 export async function toggleTaskStatus(taskId: string, currentStatus: string) {
   const newStatus = currentStatus === "COMPLETED" ? "PENDING" : "COMPLETED";
-  await prisma.task.update({
-    where: { id: taskId },
-    data: { status: newStatus },
-  });
-  revalidatePath("/tasks");
-  revalidatePath("/dashboard");
+  try {
+    await prisma.task.update({
+      where: { id: taskId },
+      data: { status: newStatus },
+    });
+    revalidatePath("/tasks");
+    revalidatePath("/dashboard");
+  } catch (error) {
+    console.error("DEBUG: toggleTaskStatus error:", error);
+  }
 }
 
 export async function deleteTask(taskId: string) {
-  await prisma.task.delete({ where: { id: taskId } });
-  revalidatePath("/tasks");
+  try {
+    await prisma.task.delete({ where: { id: taskId } });
+    revalidatePath("/tasks");
+    revalidatePath("/dashboard");
+  } catch (error) {
+    console.error("DEBUG: deleteTask error:", error);
+  }
 }
+
+export async function addTaskStep(taskId: string, title: string) {
+  try {
+    // @ts-ignore
+    await prisma.taskStep.create({
+      data: { 
+        title,
+        task: { connect: { id: taskId } }
+      },
+    });
+    revalidatePath("/tasks");
+  } catch (error) {
+    console.error("DEBUG: addTaskStep error:", error);
+  }
+}
+
+export async function toggleTaskStep(stepId: string, currentStatus: boolean) {
+  try {
+    // @ts-ignore
+    await prisma.taskStep.update({
+      where: { id: stepId },
+      data: { isCompleted: !currentStatus },
+    });
+    revalidatePath("/tasks");
+  } catch (error) {
+    console.error("DEBUG: toggleTaskStep error:", error);
+  }
+}
+
+export async function deleteTaskStep(stepId: string) {
+  try {
+    // @ts-ignore
+    await prisma.taskStep.delete({ where: { id: stepId } });
+    revalidatePath("/tasks");
+  } catch (error) {
+    console.error("DEBUG: deleteTaskStep error:", error);
+  }
+}
+
+
+

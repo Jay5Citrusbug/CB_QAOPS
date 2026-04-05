@@ -20,7 +20,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-[#f97316] border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-[#ed5c37] border-t-transparent rounded-full animate-spin"></div>
           <p className="text-slate-500 font-medium animate-pulse text-sm">Loading portal...</p>
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Mobile Navbar */}
         <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200">
            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-[#f97316] rounded-lg flex items-center justify-center text-white font-black text-sm">K</div>
+              <div className="w-8 h-8 bg-[#ed5c37] rounded-lg flex items-center justify-center text-white font-black text-sm">K</div>
               <span className="font-bold text-slate-900">CB QOps</span>
            </div>
            <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-500 hover:bg-slate-50 rounded-lg">
@@ -56,3 +56,4 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+

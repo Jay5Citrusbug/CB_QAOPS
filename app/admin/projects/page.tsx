@@ -74,13 +74,13 @@ export default function ProjectHubPage() {
       <div className="premium-card !p-0 overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
            <div className="relative w-full md:w-96 group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#f97316] transition-colors" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#ed5c37] transition-colors" />
               <input 
                 type="text" 
                 placeholder="Search projects, TLs..." 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-medium focus:ring-4 focus:ring-[#f97316]/5 focus:border-[#f97316]/20 outline-none transition-all shadow-sm" 
+                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-medium focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm" 
               />
            </div>
            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm">{filteredProjects.length} entities tracked</span>
@@ -102,7 +102,7 @@ export default function ProjectHubPage() {
                 <tr key={project.id} className="hover:bg-slate-50 transition-all group">
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs group-hover:bg-[#f97316] transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs group-hover:bg-[#ed5c37] transition-colors">
                         {project.name.substring(0, 2).toUpperCase()}
                       </div>
                       <span className="font-bold text-slate-900">{project.name}</span>
@@ -111,7 +111,7 @@ export default function ProjectHubPage() {
                   <td className="px-6 py-5">
                     <div className="space-y-1">
                        <div className="flex items-center gap-2 text-slate-900 font-bold text-xs uppercase tracking-tight">
-                          <Shield className="w-3.5 h-3.5 text-[#f97316]" />
+                          <Shield className="w-3.5 h-3.5 text-[#ed5c37]" />
                           {project.tlName}
                        </div>
                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{project.assigneeName}</div>
@@ -180,23 +180,23 @@ export default function ProjectHubPage() {
             }} className="p-6 space-y-5">
               <div className="space-y-1.5">
                  <label className="text-xs font-bold text-slate-500 ml-1">Project Name</label>
-                 <input type="text" name="name" required defaultValue={currentProject?.name} placeholder="Nexus QA Portal" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#f97316]/5 focus:border-[#f97316]/30 rounded-xl font-bold text-sm text-slate-700 transition-all outline-none" />
+                 <input type="text" name="name" required defaultValue={currentProject?.name} placeholder="Nexus QA Portal" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 transition-all outline-none" />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                    <label className="text-xs font-bold text-slate-500 ml-1">TL Name</label>
-                   <input type="text" name="tlName" required defaultValue={currentProject?.tlName} placeholder="Lead Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#f97316]/5 focus:border-[#f97316]/30 rounded-xl font-bold text-sm text-slate-700 transition-all outline-none" />
+                   <input type="text" name="tlName" required defaultValue={currentProject?.tlName} placeholder="Lead Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 transition-all outline-none" />
                 </div>
                 <div className="space-y-1.5">
                    <label className="text-xs font-bold text-slate-500 ml-1">QA/Assignee</label>
-                   <input type="text" name="assigneeName" required defaultValue={currentProject?.assigneeName} placeholder="QA Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#f97316]/5 focus:border-[#f97316]/30 rounded-xl font-bold text-sm text-slate-700 transition-all outline-none" />
+                   <input type="text" name="assigneeName" required defaultValue={currentProject?.assigneeName} placeholder="QA Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 transition-all outline-none" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
                  <label className="text-xs font-bold text-slate-500 ml-1">Developer Lead</label>
-                 <input type="text" name="devName" required defaultValue={currentProject?.devName} placeholder="Lead Dev" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#f97316]/5 focus:border-[#f97316]/30 rounded-xl font-bold text-sm text-slate-700 transition-all outline-none" />
+                 <input type="text" name="devName" required defaultValue={currentProject?.devName} placeholder="Lead Dev" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 transition-all outline-none" />
               </div>
 
               {isEditing && (
@@ -224,3 +224,4 @@ export default function ProjectHubPage() {
     </div>
   );
 }
+
