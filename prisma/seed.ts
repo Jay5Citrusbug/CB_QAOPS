@@ -1,10 +1,12 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
-import { createClient } from "@libsql/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 import "dotenv/config";
 
-const adapter = new PrismaLibSql({ url: "file:prisma/dev.db" });
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
