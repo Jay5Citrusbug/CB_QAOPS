@@ -8,7 +8,6 @@ import { signOut, useSession } from "next-auth/react";
 const menuItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Daily Status", href: "/daily-status", icon: Calendar },
-  { name: "Tasks", href: "/tasks", icon: CheckSquare },
   { name: "Project Hub", href: "/admin/projects", icon: Briefcase, adminOnly: true },
   { name: "Team Hub", href: "/admin/users", icon: Users, adminOnly: true },
 ];
@@ -21,7 +20,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
     <div className="h-full w-full bg-[#1e293b] text-white flex flex-col border-r border-slate-800 shadow-2xl lg:shadow-none">
       <div className="p-6 text-xl font-bold border-b border-slate-700 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-3 group">
-           <img src="/logo.png" alt="CB QOps Logo" className="w-10 h-10 rounded-xl object-contain shadow-lg group-hover:scale-105 transition-transform" />
+           <img src="/logo.svg" alt="CB QOps Logo" className="w-10 h-10 rounded-xl object-contain shadow-lg group-hover:scale-105 transition-transform bg-white" />
            <span className="text-xl font-bold tracking-tight text-white group-hover:text-[#ed5c37] transition-colors">CB QOps</span>
         </Link>
         <button onClick={onClose} className="lg:hidden p-2 -mr-2 text-slate-400 hover:text-white">
