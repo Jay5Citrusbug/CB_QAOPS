@@ -39,8 +39,8 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md p-8 bg-white/70 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl z-10 animate-in fade-in zoom-in duration-500">
         <div className="text-center mb-8">
-          <div className="inline-flex w-16 h-16 rounded-2xl items-center justify-center shadow-lg mb-4 overflow-hidden relative border border-slate-100">
-            <Image src="/logo.svg" alt="CB QOps Logo" fill className="object-contain" priority />
+          <div className="inline-flex w-16 h-16 rounded-2xl items-center justify-center shadow-lg mb-4 overflow-hidden relative border border-slate-100 bg-white">
+            <Image src="/logo.svg" alt="CB QOps Logo" fill className="object-contain" priority unoptimized />
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Welcome Back</h1>
           <p className="text-slate-500 text-sm mt-2">Sign in to your CB QOps portal</p>
