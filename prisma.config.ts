@@ -7,6 +7,6 @@ export default defineConfig({
     seed: "npx tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env.DATABASE_URL || "file:./prisma/dev.db",
+    url: env("DIRECT_URL") || env("DATABASE_URL"),
   },
 });
