@@ -6,15 +6,20 @@ import { useSession } from "next-auth/react";
 
 export default function Home() {
   const router = useRouter();
-  const { status } = useSession();
+  const { status, data: session } = useSession();
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/dashboard");
+      const role = (session?.user as any)?.role;
+      if (role === "TL" || role === "DEV") {
+        router.push("/test-cases");
+      } else {
+        router.push("/dashboard");
+      }
     } else if (status === "unauthenticated") {
       router.push("/login");
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-slate-50">

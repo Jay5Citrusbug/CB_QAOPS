@@ -91,8 +91,9 @@ export default function ProjectHubPage() {
             <thead className="bg-slate-50 border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-500">
               <tr>
                 <th className="px-6 py-4">Project Stream</th>
-                <th className="px-6 py-4">Lead & QA</th>
-                <th className="px-6 py-4">Engineering</th>
+                <th className="px-6 py-4">TL Name</th>
+                <th className="px-6 py-4">QA Name</th>
+                <th className="px-6 py-4">Developer</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
@@ -109,18 +110,21 @@ export default function ProjectHubPage() {
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <div className="space-y-1">
-                       <div className="flex items-center gap-2 text-slate-900 font-bold text-xs uppercase tracking-tight">
-                          <Shield className="w-3.5 h-3.5 text-[#ed5c37]" />
-                          {project.tlName}
-                       </div>
-                       <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{project.assigneeName}</div>
+                    <div className="flex items-center gap-2 text-slate-900 font-bold text-xs uppercase tracking-tight">
+                      <Shield className="w-3.5 h-3.5 text-[#ed5c37]" />
+                      {project.tlName}
                     </div>
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-2 text-slate-600 font-medium">
-                       <User className="w-4 h-4 text-slate-300" />
-                       {project.devName}
+                      <User className="w-4 h-4 text-[#ed5c37]/60" />
+                      {project.assigneeName}
+                    </div>
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className="flex items-center gap-2 text-slate-600 font-medium">
+                      <User className="w-4 h-4 text-slate-300" />
+                      {project.devName}
                     </div>
                   </td>
                   <td className="px-6 py-5">

@@ -44,6 +44,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             email: user.email,
             role: user.role,
+            projectId: user.projectId,
           };
         } catch (error) {
           console.error("NextAuth: Critical Authorize Error ->", error);
@@ -57,13 +58,15 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as { role?: string }).role;
         token.id = user.id;
+        token.projectId = (user as { projectId?: string }).projectId;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as { role?: string; id?: string }).role = token.role as string;
-        (session.user as { role?: string; id?: string }).id = token.id as string;
+        (session.user as { role?: string; id?: string; projectId?: string }).role = token.role as string;
+        (session.user as { role?: string; id?: string; projectId?: string }).id = token.id as string;
+        (session.user as { role?: string; id?: string; projectId?: string }).projectId = token.projectId as string;
       }
       return session;
     },

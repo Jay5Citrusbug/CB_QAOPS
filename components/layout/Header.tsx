@@ -31,7 +31,11 @@ export default function Header() {
               {session?.user?.name || "User Name"}
             </p>
             <p className="text-xs text-slate-500 capitalize mt-1">
-              {(session?.user as any)?.role?.toLowerCase() || "guest"}
+              {(() => {
+                const role = (session?.user as any)?.role;
+                const roleMap: Record<string, string> = { USER: "QA Engineer", ADMIN: "Admin", TL: "Team Lead", DEV: "Developer" };
+                return roleMap[role] || role?.toLowerCase() || "guest";
+              })()}
             </p>
           </div>
           <div className="w-10 h-10 rounded-full bg-[#1E293B] text-white flex items-center justify-center font-bold text-sm border-2 border-slate-100 ring-2 ring-[#ed5c37]/10">

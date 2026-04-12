@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Calendar, CheckSquare, Users, LogOut, Briefcase, X } from "lucide-react";
+import { LayoutDashboard, Calendar, CheckSquare, Users, LogOut, Briefcase, X, FlaskConical } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
 const menuItems = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Daily Status", href: "/daily-status", icon: Calendar },
-  { name: "Project Hub", href: "/admin/projects", icon: Briefcase, adminOnly: true },
-  { name: "Team Hub", href: "/admin/users", icon: Users, adminOnly: true },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, allowedRoles: ["ADMIN", "USER"] },
+  { name: "Daily Status", href: "/daily-status", icon: Calendar, allowedRoles: ["ADMIN", "USER"] },
+  { name: "Test Cases", href: "/test-cases", icon: FlaskConical, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },
+  { name: "Project Hub", href: "/admin/projects", icon: Briefcase, allowedRoles: ["ADMIN"] },
+  { name: "Team Hub", href: "/admin/users", icon: Users, allowedRoles: ["ADMIN"] },
 ];
 
 export default function Sidebar({ onClose }: { onClose?: () => void }) {
@@ -30,7 +31,8 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
       
       <nav className="flex-1 mt-6 px-3 space-y-1">
         {menuItems.map((item) => {
-          if (item.adminOnly && (session?.user as any)?.role !== "ADMIN") return null;
+          const userRole = (session?.user as any)?.role || "USER";
+          if (item.allowedRoles && !item.allowedRoles.includes(userRole)) return null;
           
           const isActive = pathname === item.href;
           const Icon = item.icon;

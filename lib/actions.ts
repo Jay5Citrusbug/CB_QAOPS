@@ -172,18 +172,78 @@ export async function createUser(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const role = formData.get("role") as string;
+  const projectId = formData.get("projectId") as string || null;
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     await prisma.user.create({
-      data: { name, email, password: hashedPassword, role },
+      data: { 
+        name, 
+        email, 
+        password: hashedPassword, 
+        role,
+        projectId: (role === "DEV" && projectId) ? projectId : null
+      },
     });
     revalidatePath("/admin/users");
     return { success: true };
   } catch (error: any) {
     if (error.code === 'P2002') return { error: "Email already exists" };
     return { error: "Failed to create user" };
+  }
+}
+
+export async function updateUser(userId: string, formData: FormData) {
+  const session = await getServerSession(authOptions);
+  if ((session?.user as any)?.role !== "ADMIN") throw new Error("Unauthorized");
+
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const role = formData.get("role") as string;
+  const projectId = formData.get("projectId") as string || null;
+
+  try {
+    const data: any = { 
+      name, 
+      email, 
+      role,
+      projectId: (role === "DEV" && projectId) ? projectId : null
+    };
+
+    if (password && password.length >= 6) {
+      data.password = await bcrypt.hash(password, 10);
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data,
+    });
+
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (error: any) {
+    if (error.code === 'P2002') return { error: "Email already exists" };
+    return { error: "Failed to update user" };
+  }
+}
+
+export async function deleteUser(userId: string) {
+  const session = await getServerSession(authOptions);
+  if ((session?.user as any)?.role !== "ADMIN") throw new Error("Unauthorized");
+
+  try {
+    // Check if trying to delete yourself
+    if (session?.user && (session.user as any).id === userId) {
+      return { error: "Cannot delete your own account" };
+    }
+
+    await prisma.user.delete({ where: { id: userId } });
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to delete user" };
   }
 }
 

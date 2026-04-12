@@ -1,23 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createUser } from "@/lib/actions";
-import { Users, Plus, X, Search, Shield, User, Mail, MoreHorizontal, Clock } from "lucide-react";
+import { createUser, updateUser, deleteUser } from "@/lib/actions";
+import { Users, Plus, X, Search, Shield, User, Mail, MoreHorizontal, Clock, Eye, EyeOff, Edit2, Trash2, AlertTriangle } from "lucide-react";
 
 interface UserData {
   id: string;
   name: string;
   email: string;
   role: string;
+  projectId?: string | null;
   createdAt: string;
+}
+
+interface Project {
+  id: string;
+  name: string;
 }
 
 export default function AdminUsersPage() {
   const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [users, setUsers] = useState<UserData[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Form states
+  const [selectedRole, setSelectedRole] = useState("USER");
 
   const fetchUsers = async () => {
     try {
@@ -29,9 +41,39 @@ export default function AdminUsersPage() {
     }
   };
 
+  const fetchProjects = async () => {
+    try {
+      const res = await fetch("/api/projects");
+      const data = await res.json();
+      setProjects(data);
+    } catch (err) {
+      console.error("Failed to fetch projects", err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchProjects();
   }, []);
+
+  const handleOpenModal = (user: UserData | null = null) => {
+    setEditingUser(user);
+    setSelectedRole(user ? user.role : "USER");
+    setError("");
+    setShowPassword(false);
+    setShowModal(true);
+  };
+
+  const handleDelete = async (userId: string) => {
+    if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      const res = await deleteUser(userId);
+      if (res?.error) {
+        alert(res.error);
+      } else {
+        fetchUsers();
+      }
+    }
+  };
 
   const filteredUsers = users.filter(u => 
     u.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -43,10 +85,10 @@ export default function AdminUsersPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="page-header !mb-0">
           <h1 className="page-title">Team Hub</h1>
-          <p className="page-desc">Manage QA Analysts and Permissions</p>
+          <p className="page-desc">Manage Team Members and Permissions</p>
         </div>
         <button 
-          onClick={() => setShowModal(true)}
+          onClick={() => handleOpenModal()}
           className="btn-primary"
         >
           <Plus className="w-5 h-5" /> Onboard New
@@ -97,21 +139,45 @@ export default function AdminUsersPage() {
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border ${
-                      user.role === 'ADMIN' 
-                        ? 'bg-purple-50 text-purple-700 border-purple-100' 
-                        : 'bg-green-50 text-green-700 border-green-100'
-                    }`}>
-                      <Shield className="w-3 h-3" /> {user.role}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border w-fit ${
+                        user.role === 'ADMIN' 
+                          ? 'bg-purple-50 text-purple-700 border-purple-100' 
+                          : user.role === 'TL'
+                          ? 'bg-blue-50 text-blue-700 border-blue-100'
+                          : user.role === 'DEV'
+                          ? 'bg-orange-50 text-orange-700 border-orange-100'
+                          : 'bg-green-50 text-green-700 border-green-100'
+                      }`}>
+                        <Shield className="w-3 h-3" /> {user.role === 'USER' ? 'QA ENGINEER' : user.role === 'DEV' ? 'DEVELOPER' : user.role}
+                      </span>
+                      {user.role === 'DEV' && user.projectId && (
+                        <span className="text-[9px] font-bold text-slate-400 ml-1 uppercase truncate max-w-[120px]">
+                          Proj: {projects.find(p => p.id === user.projectId)?.name || user.projectId}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-5 text-slate-400 font-bold text-[10px] uppercase tracking-wider">
                     {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="px-6 py-5 text-right">
-                     <button className="p-2 text-slate-300 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all">
-                        <MoreHorizontal className="w-4 h-4" />
-                     </button>
+                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleOpenModal(user)}
+                        className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-all"
+                        title="Edit User"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(user.id)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        title="Delete User"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -125,8 +191,8 @@ export default function AdminUsersPage() {
           <div className="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-400 border border-slate-100">
             <div className="p-6 border-b border-slate-50 flex items-center justify-between">
               <div className="page-header !mb-0">
-                <h2 className="page-title text-xl">Onboard User</h2>
-                <p className="page-desc">Setup team access permissions</p>
+                <h2 className="page-title text-xl">{editingUser ? "Edit User" : "Onboard User"}</h2>
+                <p className="page-desc">{editingUser ? "Update team access permissions" : "Setup team access permissions"}</p>
               </div>
               <button 
                 onClick={() => setShowModal(false)} 
@@ -138,7 +204,10 @@ export default function AdminUsersPage() {
             
             <form action={async (formData) => {
               setLoading(true);
-              const res = await createUser(formData);
+              const res = editingUser 
+                ? await updateUser(editingUser.id, formData)
+                : await createUser(formData);
+              
               if (res?.error) {
                 setError(res.error);
                 setLoading(false);
@@ -152,25 +221,83 @@ export default function AdminUsersPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                    <label className="text-xs font-bold text-slate-500 ml-1">Full Name</label>
-                   <input type="text" name="name" required placeholder="User Name" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" />
+                   <input 
+                    type="text" 
+                    name="name" 
+                    required 
+                    defaultValue={editingUser?.name || ""}
+                    placeholder="User Name" 
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" 
+                   />
                 </div>
                 <div className="space-y-1.5">
                    <label className="text-xs font-bold text-slate-500 ml-1">Role</label>
-                   <select name="role" required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl font-bold text-sm text-slate-700 outline-none transition-all appearance-none">
-                      <option value="USER">QA Analyst</option>
+                   <select 
+                    name="role" 
+                    required 
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl font-bold text-sm text-slate-700 outline-none transition-all appearance-none"
+                   >
+                      <option value="USER">QA Engineer</option>
+                      <option value="TL">Team Lead (TL)</option>
+                      <option value="DEV">Developer</option>
                       <option value="ADMIN">System Admin</option>
                    </select>
                 </div>
               </div>
 
+              {selectedRole === "DEV" && (
+                <div className="space-y-1.5 animate-in slide-in-from-top-2 duration-300">
+                  <label className="text-xs font-bold text-slate-500 ml-1">Assigned Project</label>
+                  <select 
+                    name="projectId" 
+                    required={selectedRole === "DEV"}
+                    defaultValue={editingUser?.projectId || ""}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl font-bold text-sm text-slate-700 outline-none transition-all appearance-none"
+                  >
+                    <option value="">Select a project...</option>
+                    {projects.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-slate-400 ml-1 mt-1">Developers will only see their assigned project in the Test Cases portal.</p>
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 ml-1">Email Address</label>
-                <input type="email" name="email" required placeholder="email@qops.com" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" />
+                <input 
+                  type="email" 
+                  name="email" 
+                  required 
+                  defaultValue={editingUser?.email || ""}
+                  placeholder="email@qops.com" 
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" 
+                />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 ml-1">Password</label>
-                <input type="password" name="password" required minLength={6} placeholder="••••••••" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" />
+                <label className="text-xs font-bold text-slate-500 ml-1">
+                  {editingUser ? "Password (leave blank to keep current)" : "Password"}
+                </label>
+                <div className="relative">
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    name="password" 
+                    required={!editingUser} 
+                    minLength={6} 
+                    placeholder="••••••••" 
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all pr-12" 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
 
               {error && <div className="text-[10px] font-bold text-red-500 uppercase tracking-widest text-center">{error}</div>}
@@ -178,7 +305,7 @@ export default function AdminUsersPage() {
               <div className="pt-2 flex gap-3">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 px-4 rounded-xl font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all text-sm">Cancel</button>
                 <button type="submit" disabled={loading} className="flex-1 btn-primary justify-center shadow-lg shadow-orange-500/20">
-                  {loading ? <Clock className="w-4 h-4 animate-spin" /> : "Invite User"}
+                  {loading ? <Clock className="w-4 h-4 animate-spin" /> : editingUser ? "Update User" : "Invite User"}
                 </button>
               </div>
             </form>
@@ -188,4 +315,3 @@ export default function AdminUsersPage() {
     </div>
   );
 }
-

@@ -1,10 +1,11 @@
 generator client {
-  provider   = "prisma-client-js"
-  engineType = "binary"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -13,9 +14,11 @@ model User {
   email         String        @unique
   password      String
   role          String        @default("USER")
+  projectId     String?       @map("project_id")
   createdAt     DateTime      @default(now()) @map("created_at")
   dailyStatuses DailyStatus[]
   tasks         Task[]
+  assignedProject Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   @@map("users")
 }
@@ -29,6 +32,7 @@ model Project {
   status       String        @default("ACTIVE")
   createdAt    DateTime      @default(now()) @map("created_at")
   dailyStatuses DailyStatus[]
+  users        User[]
 
   @@map("projects")
 }
