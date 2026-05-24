@@ -1,0 +1,150 @@
+{
+  "users": [
+    {
+      "id": "user_001",
+      "name": "Admin User",
+      "email": "admin@test.com",
+      "role": "ADMIN",
+      "project_id": null,
+      "created_at": "2026-05-20T10:00:00.000Z"
+    },
+    {
+      "id": "user_002",
+      "name": "TL User",
+      "email": "tl@test.com",
+      "role": "TL",
+      "project_id": null,
+      "created_at": "2026-05-20T10:15:00.000Z"
+    },
+    {
+      "id": "user_003",
+      "name": "Dev User",
+      "email": "dev@test.com",
+      "role": "DEV",
+      "project_id": "proj_001",
+      "created_at": "2026-05-20T10:30:00.000Z"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj_001",
+      "name": "Playwright Automation",
+      "tl_name": "TL User",
+      "assignee_name": "QA Lead",
+      "dev_name": "Dev User",
+      "status": "ACTIVE",
+      "created_at": "2026-05-21T08:00:00.000Z"
+    },
+    {
+      "id": "proj_002",
+      "name": "Next.js Migration",
+      "tl_name": "TL User",
+      "assignee_name": "QA Lead",
+      "dev_name": "Dev User",
+      "status": "ACTIVE",
+      "created_at": "2026-05-21T08:30:00.000Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task_001",
+      "user_id": "user_003",
+      "title": "Configure Firebase Auth Router",
+      "status": "PENDING",
+      "is_important": true,
+      "my_day": true,
+      "notes": "Verify authorization callbacks and JWT validation inside NextAuth route",
+      "due_date": "2026-05-28T18:00:00.000Z",
+      "remind_at": "2026-05-28T09:00:00.000Z",
+      "repeat": "none",
+      "created_at": "2026-05-22T09:00:00.000Z"
+    },
+    {
+      "id": "task_002",
+      "user_id": "user_003",
+      "title": "Implement seed script",
+      "status": "PENDING",
+      "is_important": false,
+      "my_day": false,
+      "notes": "Must handle nested structures, batch transactions, and support clean re-runs",
+      "due_date": "2026-05-25T18:00:00.000Z",
+      "remind_at": null,
+      "repeat": "none",
+      "created_at": "2026-05-22T09:30:00.000Z"
+    },
+    {
+      "id": "task_003",
+      "user_id": "user_002",
+      "title": "Review Pull Request for Seeding Automation",
+      "status": "COMPLETED",
+      "is_important": true,
+      "my_day": false,
+      "notes": "Ensure that safety controls and idempotency are strictly preserved",
+      "due_date": null,
+      "remind_at": null,
+      "repeat": "none",
+      "created_at": "2026-05-23T11:00:00.000Z"
+    }
+  ],
+  "task_steps": [
+    {
+      "id": "step_001",
+      "task_id": "task_001",
+      "title": "Install firebase packages",
+      "is_completed": true,
+      "created_at": "2026-05-22T09:05:00.000Z"
+    },
+    {
+      "id": "step_002",
+      "task_id": "task_001",
+      "title": "Set up environment variables",
+      "is_completed": true,
+      "created_at": "2026-05-22T09:10:00.000Z"
+    },
+    {
+      "id": "step_003",
+      "task_id": "task_001",
+      "title": "Test user session redirection",
+      "is_completed": false,
+      "created_at": "2026-05-22T09:15:00.000Z"
+    },
+    {
+      "id": "step_004",
+      "task_id": "task_002",
+      "title": "Draft JSON seed format",
+      "is_completed": true,
+      "created_at": "2026-05-22T09:35:00.000Z"
+    },
+    {
+      "id": "step_005",
+      "task_id": "task_002",
+      "title": "Write TypeScript script",
+      "is_completed": false,
+      "created_at": "2026-05-22T09:40:00.000Z"
+    }
+  ],
+  "daily_statuses": [
+    {
+      "id": "status_001",
+      "user_id": "user_003",
+      "project_id": "proj_001",
+      "date": "2026-05-23T00:00:00.000Z",
+      "work_done": "Configured standard Next.js route handlers with Firebase Admin SDK",
+      "planned_work": "Integrate seed automation and run verification tests",
+      "hours": 6.5,
+      "blockers": null,
+      "created_at": "2026-05-23T17:30:00.000Z"
+    },
+    {
+      "id": "status_002",
+      "user_id": "user_003",
+      "project_id": "proj_001",
+      "date": "2026-05-24T00:00:00.000Z",
+      "work_done": "Created complete Firestore schema mapping and validated composite index configurations",
+      "planned_work": "Deploy production firestore.rules and conduct automated test coverage validations",
+      "hours": 8.0,
+      "blockers": "Minor delay in service account credentials access",
+      "created_at": "2026-05-24T18:00:00.000Z"
+    }
+  ]
+}

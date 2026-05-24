@@ -1,0 +1,54 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is logged in
+    function loggedIn() {
+      return request.auth != null;
+    }
+
+    // Helper to get user data from 'users' collection
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Helper to check if user is an admin
+    function isAdmin() {
+      return loggedIn() && getUserData().role == 'ADMIN';
+    }
+
+    // Helper to check if a document belongs to the authenticated user
+    function isOwner(userId) {
+      return loggedIn() && request.auth.uid == userId;
+    }
+
+    // Rules for 'users' collection
+    match /users/{userId} {
+      allow read, write: if isAdmin() || isOwner(userId);
+    }
+
+    // Rules for 'projects' collection
+    match /projects/{projectId} {
+      allow read: if loggedIn();
+      allow write: if isAdmin() || (loggedIn() && getUserData().role == 'TL');
+    }
+
+    // Rules for 'tasks' collection
+    match /tasks/{taskId} {
+      allow read, write: if isAdmin() || isOwner(resource.data.user_id) || (loggedIn() && request.resource.data.user_id == request.auth.uid);
+    }
+
+    // Rules for 'task_steps' collection
+    match /task_steps/{stepId} {
+      allow read, write: if loggedIn();
+    }
+
+    // Rules for 'daily_statuses' collection
+    match /daily_statuses/{statusId} {
+      allow read: if loggedIn();
+      allow create: if loggedIn() && request.resource.data.user_id == request.auth.uid;
+      allow update: if isAdmin() || isOwner(resource.data.user_id);
+      allow delete: if isAdmin() || (loggedIn() && getUserData().role == 'TL');
+    }
+  }
+}

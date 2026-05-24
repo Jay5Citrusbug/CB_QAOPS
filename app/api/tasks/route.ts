@@ -1,52 +1,81 @@
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { adminDb } from '@/lib/firebase-admin';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { searchParams } = new URL(request.url);
-  const targetUserId = searchParams.get("userId");
-
-  let userIdFilter = (session.user as any).id;
-  
-  if ((session.user as any).role === "ADMIN") {
-    if (targetUserId) {
-      userIdFilter = targetUserId;
-    } else {
-      // If admin and no specific userId, optionally fetch all or just self
-      // For ToDo style, maybe we want to see ALL tasks if no filter selected
-      // But the requirement says "Once click on it Open interface... as admin I can see all"
-      // I'll return ALL tasks if admin and no targetUserId is specified, 
-      // or maybe there's a "Global" view.
-      // Let's stick to the current user's tasks by default, but allow fetching all.
-      // Wait, requirement: "as admin I can see all given register user data todo list"
-      // I'll fetch ALL tasks if admin and no targetUserId, but the front-end will handle filtering.
-      // Actually, better for performance to filter here.
-      const tasks = await prisma.task.findMany({
-        include: {
-          steps: {
-            orderBy: { id: "asc" }
-          }
-        },
-        orderBy: { createdAt: "desc" }
-      });
-      return NextResponse.json(tasks);
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-  }
 
-  const tasks = await prisma.task.findMany({
-    where: { userId: userIdFilter },
-    include: {
-      steps: {
-        orderBy: { id: "asc" }
+    const { searchParams } = new URL(request.url);
+    const targetUserId = searchParams.get('userId');
+    const currentUserId = (session.user as any).id;
+    const isAdmin = (session.user as any).role === 'ADMIN';
+
+    let tasksQuery: FirebaseFirestore.Query = adminDb.collection('tasks');
+
+    if (!(isAdmin && !targetUserId)) {
+      const uid = isAdmin && targetUserId ? targetUserId : currentUserId;
+      tasksQuery = tasksQuery.where('user_id', '==', uid);
+    }
+    
+    const tasksSnapshot = await tasksQuery.get();
+    const tasks = tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+
+    tasks.sort((a, b) => {
+      const aTime = a.created_at?.toDate ? a.created_at.toDate().getTime() : 0;
+      const bTime = b.created_at?.toDate ? b.created_at.toDate().getTime() : 0;
+      return bTime - aTime;
+    });
+
+    const taskIds = tasks.map((t: any) => t.id);
+    let steps: any[] = [];
+    
+    if (taskIds.length > 0) {
+      // Firestore 'in' queries are limited to 10 items.
+      const chunks = [];
+      for (let i = 0; i < taskIds.length; i += 10) {
+        chunks.push(taskIds.slice(i, i + 10));
       }
-    },
-    orderBy: { createdAt: "desc" }
-  });
+      
+      const stepPromises = chunks.map(chunk => 
+        adminDb.collection('task_steps').where('task_id', 'in', chunk).get()
+      );
+      
+      const stepSnapshots = await Promise.all(stepPromises);
+      stepSnapshots.forEach(snap => {
+        snap.docs.forEach(doc => steps.push({ id: doc.id, ...doc.data() as any }));
+      });
 
-  return NextResponse.json(tasks);
+      steps.sort((a, b) => {
+        const aTime = a.created_at?.toDate ? a.created_at.toDate().getTime() : 0;
+        const bTime = b.created_at?.toDate ? b.created_at.toDate().getTime() : 0;
+        return aTime - bTime;
+      });
+    }
+
+    const normalized = tasks.map((t: any) => ({
+      id: t.id,
+      title: t.title,
+      status: t.status ?? 'PENDING',
+      isImportant: t.is_important ?? false,
+      myDay: t.my_day ?? false,
+      notes: t.notes ?? null,
+      dueDate: t.due_date ? t.due_date.toDate().toISOString() : null,
+      remindAt: t.remind_at ? t.remind_at.toDate().toISOString() : null,
+      repeat: t.repeat ?? null,
+      userId: t.user_id,
+      createdAt: t.created_at ? t.created_at.toDate().toISOString() : null,
+      steps: steps
+        .filter((s) => s.task_id === t.id)
+        .map((s) => ({ id: s.id, title: s.title, isCompleted: s.is_completed ?? false })),
+    }));
+
+    return NextResponse.json(normalized);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }
-

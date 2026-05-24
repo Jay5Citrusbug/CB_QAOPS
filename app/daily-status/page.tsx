@@ -92,19 +92,30 @@ export default function DailyStatusPage() {
 
   // Fetch data
   const fetchData = async () => {
+    setLoading(true);
     try {
       const [statusRes, projectRes] = await Promise.all([
         fetch("/api/daily-status"),
         fetch("/api/projects")
       ]);
-      const [statusData, projectData] = await Promise.all([
-        statusRes.json(),
-        projectRes.json()
-      ]);
-      setStatuses(statusData);
-      setProjects(projectData);
+      
+      const statusData = await statusRes.json();
+      const projectData = await projectRes.json();
+
+      if (Array.isArray(statusData)) {
+        setStatuses(statusData);
+      } else if (statusData.error) {
+        setError(statusData.error);
+      }
+
+      if (Array.isArray(projectData)) {
+        setProjects(projectData);
+      }
     } catch (err) {
       console.error("Failed to fetch data", err);
+      setError("Failed to connect to the server");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,6 +125,7 @@ export default function DailyStatusPage() {
 
   // Filter logic
   const filteredStatuses = useMemo(() => {
+    if (!Array.isArray(statuses)) return [];
     return statuses.filter(s => {
       const matchesSearch = 
         s.project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -127,7 +139,10 @@ export default function DailyStatusPage() {
     });
   }, [statuses, searchQuery, filterDate, filterProject]);
 
-  const activeProjects = projects.filter(p => p.status === "ACTIVE");
+  const activeProjects = useMemo(() => {
+    if (!Array.isArray(projects)) return [];
+    return projects.filter(p => p.status === "ACTIVE");
+  }, [projects]);
 
   const groupedStatuses = useMemo(() => {
     const map: Record<string, GroupedStatus> = {};
