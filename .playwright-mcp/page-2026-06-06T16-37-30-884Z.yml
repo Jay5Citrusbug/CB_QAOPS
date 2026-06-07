@@ -1,0 +1,112 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e16]:
+      - link "CB QOps Logo CB QOps" [ref=e18] [cursor=pointer]:
+        - /url: /dashboard
+        - img "CB QOps Logo" [ref=e19]
+        - generic [ref=e20]: CB QOps
+      - navigation [ref=e21]:
+        - link "Dashboard" [ref=e22] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e23]
+          - generic [ref=e28]: Dashboard
+        - link "Daily Status" [ref=e29] [cursor=pointer]:
+          - /url: /daily-status
+          - img [ref=e30]
+          - generic [ref=e32]: Daily Status
+        - link "Test Cases" [ref=e33] [cursor=pointer]:
+          - /url: /test-cases
+          - img [ref=e34]
+          - generic [ref=e36]: Test Cases
+      - button "Logout" [ref=e38]:
+        - img [ref=e39]
+        - generic [ref=e42]: Logout
+    - main [ref=e44]:
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - link [ref=e48] [cursor=pointer]:
+              - /url: /test-cases
+              - img [ref=e49]
+            - generic [ref=e51]:
+              - heading "Playwright Automation Google Sheet Mode" [level=1] [ref=e52]:
+                - text: Playwright Automation
+                - generic [ref=e53]:
+                  - img [ref=e54]
+                  - text: Google Sheet Mode
+              - paragraph [ref=e58]: Google Sheet Two-Way Synchronization & Execution Tracking
+          - generic [ref=e59]:
+            - button "Sync Now" [ref=e60] [cursor=pointer]:
+              - img [ref=e61]
+              - text: Sync Now
+            - button "Disconnect Google Sheet" [ref=e66] [cursor=pointer]:
+              - img [ref=e67]
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - button "Test Case Repository" [ref=e73] [cursor=pointer]:
+              - img [ref=e74]
+              - text: Test Case Repository
+            - button "Sync History" [ref=e78] [cursor=pointer]:
+              - img [ref=e79]
+              - text: Sync History
+            - button "Audit Logs" [ref=e82] [cursor=pointer]:
+              - img [ref=e83]
+              - text: Audit Logs
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - generic [ref=e88]:
+                - generic [ref=e89]:
+                  - img [ref=e90]
+                  - textbox "Search ID, Title, JIRA Ticket..." [ref=e93]
+                - button "Add Test Case" [ref=e94] [cursor=pointer]:
+                  - img [ref=e95]
+                  - text: Add Test Case
+                - generic [ref=e96]: 0 cases
+              - generic [ref=e97]:
+                - generic [ref=e98]:
+                  - img [ref=e99]
+                  - generic [ref=e101]: "Filter:"
+                - button "All Modules" [ref=e104]:
+                  - generic [ref=e105]: All Modules
+                  - img [ref=e106]
+                - button "All Prioritys" [ref=e110]:
+                  - generic [ref=e111]: All Prioritys
+                  - img [ref=e112]
+                - button "All Dev Statuss" [ref=e116]:
+                  - generic [ref=e117]: All Dev Statuss
+                  - img [ref=e118]
+                - button "All QA Statuss" [ref=e122]:
+                  - generic [ref=e123]: All QA Statuss
+                  - img [ref=e124]
+                - button "All Cross Browsers" [ref=e128]:
+                  - generic [ref=e129]: All Cross Browsers
+                  - img [ref=e130]
+            - table [ref=e133]:
+              - rowgroup [ref=e134]:
+                - row "Test case ID Module Test Case Title Pre-Conditions Test Steps Test Data Expected Result Dev Status Dev Date Executed Dev Notes QA Status cross browser Verfied ? Priority JIRA Ticket Actions" [ref=e135]:
+                  - columnheader [ref=e136]:
+                    - checkbox [ref=e137] [cursor=pointer]
+                  - columnheader "Test case ID" [ref=e138]
+                  - columnheader "Module" [ref=e139]
+                  - columnheader "Test Case Title" [ref=e140]
+                  - columnheader "Pre-Conditions" [ref=e141]
+                  - columnheader "Test Steps" [ref=e142]
+                  - columnheader "Test Data" [ref=e143]
+                  - columnheader "Expected Result" [ref=e144]
+                  - columnheader "Dev Status" [ref=e145]
+                  - columnheader "Dev Date Executed" [ref=e146]
+                  - columnheader "Dev Notes" [ref=e147]
+                  - columnheader "QA Status" [ref=e148]
+                  - columnheader "cross browser Verfied ?" [ref=e149]
+                  - columnheader "Priority" [ref=e150]
+                  - columnheader "JIRA Ticket" [ref=e151]
+                  - columnheader "Actions" [ref=e152]
+              - rowgroup [ref=e153]:
+                - row "No test cases match filter criteria." [ref=e154]:
+                  - cell "No test cases match filter criteria." [ref=e155]:
+                    - generic [ref=e156]:
+                      - img [ref=e157]
+                      - paragraph [ref=e159]: No test cases match filter criteria.
+  - button "Open Next.js Dev Tools" [ref=e11] [cursor=pointer]:
+    - img [ref=e12]
+  - alert [ref=e160]

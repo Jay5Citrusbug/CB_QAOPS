@@ -40,7 +40,40 @@ export async function addDailyStatus(formData: FormData) {
       });
     }
     await batch.commit();
+
+    // Fetch user profile for logging/discord
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const userData = userDoc.data() || {};
+    const userName = userData.name || session.user.name || "Unknown User";
+
+    // Write Audit Log for Status Submitted
+    await adminDb.collection('audit_logs').add({
+      user: userName,
+      action: 'Status Submitted',
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      details: {
+        date,
+        projectIds,
+        hours: hours.map(h => parseFloat(h || '0')),
+      }
+    });
+
+    // Send Discord Notification
+    const warning = await sendDiscordNotification(
+      userId,
+      projectIds,
+      hours,
+      date,
+      workDone,
+      plannedWork,
+      blockers,
+      false
+    );
+
     revalidatePath('/daily-status');
+    if (warning) {
+      return { success: true, warning };
+    }
     return { success: true };
   } catch (error: any) {
     return { error: error?.message || 'Failed to add status' };
@@ -72,7 +105,9 @@ export async function updateGroupedDailyStatus(dateStr: string, formData: FormDa
     const filteredDocs = snapshot.docs.filter((doc) => {
       const dateVal = doc.data().date;
       if (!dateVal) return false;
-      const d = (dateVal as admin.firestore.Timestamp).toDate();
+      const d = (dateVal && typeof (dateVal as any).toDate === 'function')
+        ? (dateVal as admin.firestore.Timestamp).toDate()
+        : new Date(String(dateVal));
       return d >= start && d <= end;
     });
 
@@ -96,7 +131,40 @@ export async function updateGroupedDailyStatus(dateStr: string, formData: FormDa
     }
 
     await batch.commit();
+
+    // Fetch user profile for logging/discord
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const userData = userDoc.data() || {};
+    const userName = userData.name || session.user.name || "Unknown User";
+
+    // Write Audit Log for Status Updated
+    await adminDb.collection('audit_logs').add({
+      user: userName,
+      action: 'Status Updated',
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      details: {
+        date,
+        projectIds,
+        hours: hours.map(h => parseFloat(h || '0')),
+      }
+    });
+
+    // Send Discord Notification
+    const warning = await sendDiscordNotification(
+      userId,
+      projectIds,
+      hours,
+      date,
+      workDone,
+      plannedWork,
+      blockers,
+      true
+    );
+
     revalidatePath('/daily-status');
+    if (warning) {
+      return { success: true, warning };
+    }
     return { success: true };
   } catch (error: any) {
     return { error: error?.message || 'Failed to update status' };
@@ -122,7 +190,9 @@ export async function deleteGroupedDailyStatus(dateStr: string) {
     const filteredDocs = snapshot.docs.filter((doc) => {
       const dateVal = doc.data().date;
       if (!dateVal) return false;
-      const d = (dateVal as admin.firestore.Timestamp).toDate();
+      const d = (dateVal && typeof (dateVal as any).toDate === 'function')
+        ? (dateVal as admin.firestore.Timestamp).toDate()
+        : new Date(String(dateVal));
       return d >= start && d <= end;
     });
 
@@ -347,27 +417,248 @@ export async function deleteUser(userId: string) {
 
 // ─── PROJECTS ─────────────────────────────────────────────────────────────────
 
+async function getUserInfoByEmail(email: string) {
+  if (!email) return null;
+  try {
+    const snapshot = await adminDb.collection('users').where('email', '==', email).limit(1).get();
+    if (snapshot.empty) return null;
+    const doc = snapshot.docs[0];
+    const data = doc.data();
+    return {
+      id: doc.id,
+      name: data.name || email,
+      email: data.email || email,
+    };
+  } catch (err) {
+    console.error('Error fetching user by email:', err);
+    return null;
+  }
+}
+
+async function getUsersInfoByEmails(emails: string[]) {
+  if (!emails || emails.length === 0) return [];
+  const list = [];
+  for (const email of emails) {
+    const info = await getUserInfoByEmail(email);
+    if (info) {
+      list.push(info);
+    }
+  }
+  return list;
+}
+
+async function logProjectAudit(userName: string, projectId: string, action: string, details: Record<string, any>) {
+  try {
+    await adminDb.collection('audit_logs').add({
+      user: userName,
+      action,
+      project_id: projectId,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      details,
+    });
+  } catch (err) {
+    console.error('Failed to write project audit log:', err);
+  }
+}
+
+export async function markNotificationsAsRead() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: 'Unauthorized' };
+  const userId = (session.user as any).id;
+  try {
+    const snapshot = await adminDb.collection('notifications')
+      .where('userId', '==', userId)
+      .where('read', '==', false)
+      .get();
+    const batch = adminDb.batch();
+    snapshot.docs.forEach((doc) => {
+      batch.update(doc.ref, { read: true });
+    });
+    await batch.commit();
+    revalidatePath('/my-projects');
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to mark notifications as read' };
+  }
+}
+
+async function createNotification(userId: string, message: string) {
+  try {
+    await adminDb.collection('notifications').add({
+      userId,
+      message,
+      read: false,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (err) {
+    console.error('Failed to create notification:', err);
+  }
+}
+
+async function notifyProjectTeam(projectId: string, message: string, excludeUserEmail?: string) {
+  try {
+    const projDoc = await adminDb.collection('projects').doc(projectId).get();
+    if (!projDoc.exists) return;
+    const project = projDoc.data() || {};
+    
+    const emails = new Set<string>();
+    if (project.primaryQaEmail) emails.add(project.primaryQaEmail);
+    if (project.supportingQaEmail) emails.add(project.supportingQaEmail);
+    if (project.teamLeadEmail) emails.add(project.teamLeadEmail);
+    if (project.developerEmails) {
+      project.developerEmails.forEach((e: string) => emails.add(e));
+    }
+    
+    if (excludeUserEmail) {
+      emails.delete(excludeUserEmail);
+    }
+    
+    if (emails.size === 0) return;
+    
+    const usersSnap = await adminDb.collection('users')
+      .where('email', 'in', Array.from(emails))
+      .get();
+      
+    if (usersSnap.empty) return;
+
+    const batch = adminDb.batch();
+    usersSnap.docs.forEach((doc) => {
+      const newNotifRef = adminDb.collection('notifications').doc();
+      batch.set(newNotifRef, {
+        userId: doc.id,
+        message,
+        read: false,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+    await batch.commit();
+  } catch (err) {
+    console.error('Failed to notify project team:', err);
+  }
+}
+
 export async function createProject(formData: FormData) {
   const session = await getServerSession(authOptions);
-  if ((session?.user as any)?.role !== 'ADMIN') return { error: 'Unauthorized' };
+  if (!session?.user || (session.user as any).role !== 'ADMIN') return { error: 'Unauthorized' };
 
   const name = formData.get('name') as string;
-  const tlName = formData.get('tlName') as string;
-  const assigneeName = formData.get('assigneeName') as string;
-  const devName = formData.get('devName') as string;
+  let code = formData.get('code') as string || '';
+  const status = (formData.get('status') as string) || 'ACTIVE';
+  const description = formData.get('description') as string || '';
+  const scope = formData.get('scope') as string || '';
+  const requirements = formData.get('requirements') as string || '';
+  const startDate = formData.get('startDate') as string || '';
+  const targetReleaseDate = formData.get('targetReleaseDate') as string || '';
+  
+  const primaryQaEmail = formData.get('primaryQaEmail') as string || '';
+  const supportingQaEmail = formData.get('supportingQaEmail') as string || '';
+  const teamLeadEmail = formData.get('teamLeadEmail') as string || '';
+  
+  let devEmails: string[] = [];
+  const devEmailsRaw = formData.getAll('developerEmails');
+  if (devEmailsRaw.length === 1 && typeof devEmailsRaw[0] === 'string' && devEmailsRaw[0].includes(',')) {
+    devEmails = devEmailsRaw[0].split(',').map((e: string) => e.trim()).filter(Boolean);
+  } else {
+    devEmails = devEmailsRaw.map((e: any) => String(e).trim()).filter(Boolean);
+  }
 
-  if (!name || !tlName || !assigneeName || !devName) return { error: 'Missing required fields' };
+  if (!name || !primaryQaEmail || !status) {
+    return { error: 'Project Name, Primary QA, and Status are required.' };
+  }
 
   try {
-    await adminDb.collection('projects').add({ 
-      name, 
-      tl_name: tlName, 
-      assignee_name: assigneeName, 
-      dev_name: devName, 
-      status: 'ACTIVE',
+    const adminUserDoc = await adminDb.collection('users').doc((session.user as any).id).get();
+    const adminUserName = adminUserDoc.data()?.name || session.user.name || 'Admin';
+
+    if (!code) {
+      let unique = false;
+      while (!unique) {
+        const candidate = 'PROJ-' + Math.floor(1000 + Math.random() * 9000);
+        const snap = await adminDb.collection('projects').where('code', '==', candidate).get();
+        if (snap.empty) {
+          code = candidate;
+          unique = true;
+        }
+      }
+    } else {
+      // Check code uniqueness if code was supplied
+      const codeSnap = await adminDb.collection('projects').where('code', '==', code).get();
+      if (!codeSnap.empty) {
+        return { error: 'Project Code must be unique.' };
+      }
+    }
+
+    // Resolve QA, Team Lead & Developer details
+    const primaryQa = await getUserInfoByEmail(primaryQaEmail);
+    const supportingQa = await getUserInfoByEmail(supportingQaEmail);
+    const teamLead = await getUserInfoByEmail(teamLeadEmail);
+    const devs = await getUsersInfoByEmails(devEmails);
+
+    const newProjectData: any = {
+      code,
+      name,
+      status,
+      description,
+      scope,
+      requirements,
+      startDate: startDate || null,
+      targetReleaseDate: targetReleaseDate || null,
+      primaryQaEmail: primaryQa ? primaryQa.email : primaryQaEmail,
+      primaryQaName: primaryQa ? primaryQa.name : primaryQaEmail.split('@')[0],
+      supportingQaEmail: supportingQa ? supportingQa.email : supportingQaEmail,
+      supportingQaName: supportingQa ? supportingQa.name : (supportingQaEmail ? supportingQaEmail.split('@')[0] : ''),
+      teamLeadEmail: teamLead ? teamLead.email : teamLeadEmail,
+      teamLeadName: teamLead ? teamLead.name : (teamLeadEmail ? teamLeadEmail.split('@')[0] : ''),
+      developerEmails: devs.map(d => d.email),
+      developerNames: devs.map(d => d.name),
+      documents: [],
+      timeline: {
+        smokeTesting: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        testCaseWriting: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        designValidation: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        integrationTesting: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        regressionTesting: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        uatSupport: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        releaseVerification: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        postReleaseValidation: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+      },
+      notesAndFlags: [],
       created_at: admin.firestore.FieldValue.serverTimestamp(),
-    });
-    return { success: true };
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      // Backward compatibility fields:
+      tl_name: primaryQa ? primaryQa.name : (teamLead ? teamLead.name : ''),
+      assignee_name: primaryQa ? primaryQa.name : '',
+      dev_name: devs.map(d => d.name).join(', ') || '',
+    };
+
+    const docRef = await adminDb.collection('projects').add(newProjectData);
+    const projectId = docRef.id;
+
+    // Create Audit Logs
+    await logProjectAudit(adminUserName, projectId, 'Project Created', { name, code });
+    if (primaryQa) {
+      await logProjectAudit(adminUserName, projectId, 'Primary QA Changed', {
+        newPrimaryQa: primaryQa.email,
+      });
+      await createNotification(primaryQa.id, `You have been assigned as Primary QA for ${name}`);
+    }
+    if (supportingQa) {
+      await logProjectAudit(adminUserName, projectId, 'Supporting QA Changed', {
+        newSupportingQa: supportingQa.email,
+      });
+      await createNotification(supportingQa.id, `You have been assigned as Supporting QA for ${name}`);
+    }
+    for (const dev of devs) {
+      await logProjectAudit(adminUserName, projectId, 'Developer Added', {
+        developer: dev.email,
+      });
+      await createNotification(dev.id, `You have been assigned to project ${name}`);
+    }
+
+    revalidatePath('/my-projects');
+    revalidatePath('/admin/projects');
+
+    return { success: true, projectId };
   } catch (error: any) {
     return { error: error?.message || 'Failed to create project' };
   }
@@ -375,22 +666,184 @@ export async function createProject(formData: FormData) {
 
 export async function updateProject(projectId: string, formData: FormData) {
   const session = await getServerSession(authOptions);
-  if ((session?.user as any)?.role !== 'ADMIN') return { error: 'Unauthorized' };
+  if (!session?.user || (session.user as any).role !== 'ADMIN') return { error: 'Unauthorized' };
 
   const name = formData.get('name') as string;
-  const tlName = formData.get('tlName') as string;
-  const assigneeName = formData.get('assigneeName') as string;
-  const devName = formData.get('devName') as string;
   const status = (formData.get('status') as string) || 'ACTIVE';
+  const description = formData.get('description') as string || '';
+  const requirements = formData.get('requirements') as string || '';
+  const startDate = formData.get('startDate') as string || '';
+  const targetReleaseDate = formData.get('targetReleaseDate') as string || '';
+  
+  const primaryQaEmail = formData.get('primaryQaEmail') as string || '';
+  const supportingQaEmail = formData.get('supportingQaEmail') as string || '';
+  const teamLeadEmail = formData.get('teamLeadEmail') as string || '';
+  
+  let devEmails: string[] = [];
+  const devEmailsRaw = formData.getAll('developerEmails');
+  if (devEmailsRaw.length === 1 && typeof devEmailsRaw[0] === 'string' && devEmailsRaw[0].includes(',')) {
+    devEmails = devEmailsRaw[0].split(',').map((e: string) => e.trim()).filter(Boolean);
+  } else {
+    devEmails = devEmailsRaw.map((e: any) => String(e).trim()).filter(Boolean);
+  }
+
+  if (!name || !primaryQaEmail) {
+    return { error: 'Project Name and Primary QA are required.' };
+  }
 
   try {
-    await adminDb.collection('projects').doc(projectId).update({ 
-      name, 
-      tl_name: tlName, 
-      assignee_name: assigneeName, 
-      dev_name: devName, 
-      status 
-    });
+    const adminUserDoc = await adminDb.collection('users').doc((session.user as any).id).get();
+    const adminUserName = adminUserDoc.data()?.name || session.user.name || 'Admin';
+
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const oldSnap = await projectRef.get();
+    if (!oldSnap.exists) return { error: 'Project not found' };
+    const oldData = oldSnap.data() || {};
+
+    const code = (formData.get('code') !== null) ? (formData.get('code') as string || '') : (oldData.code || '');
+    const scope = (formData.get('scope') !== null) ? (formData.get('scope') as string || '') : (oldData.scope || '');
+
+    // Check unique project code during update
+    if (code && code !== oldData.code) {
+      const codeSnap = await adminDb.collection('projects').where('code', '==', code).get();
+      if (!codeSnap.empty) {
+        return { error: 'Project Code must be unique.' };
+      }
+    }
+
+    const hasDeveloperEmailsField = formData.has('developerEmails');
+    let finalDevs = { emails: oldData.developerEmails || [], names: oldData.developerNames || [], devNameStr: oldData.dev_name || '' };
+    if (hasDeveloperEmailsField) {
+      const devs = await getUsersInfoByEmails(devEmails);
+      finalDevs = {
+        emails: devs.map(d => d.email),
+        names: devs.map(d => d.name),
+        devNameStr: devs.map(d => d.name).join(', '),
+      };
+    }
+
+    const primaryQa = await getUserInfoByEmail(primaryQaEmail);
+    const supportingQa = await getUserInfoByEmail(supportingQaEmail);
+    const teamLead = await getUserInfoByEmail(teamLeadEmail);
+
+    const updateData: any = {
+      code,
+      name,
+      status,
+      description,
+      scope,
+      requirements,
+      startDate: startDate || null,
+      targetReleaseDate: targetReleaseDate || null,
+      primaryQaEmail: primaryQa ? primaryQa.email : primaryQaEmail,
+      primaryQaName: primaryQa ? primaryQa.name : primaryQaEmail.split('@')[0],
+      supportingQaEmail: supportingQa ? supportingQa.email : supportingQaEmail,
+      supportingQaName: supportingQa ? supportingQa.name : (supportingQaEmail ? supportingQaEmail.split('@')[0] : ''),
+      teamLeadEmail: teamLead ? teamLead.email : teamLeadEmail,
+      teamLeadName: teamLead ? teamLead.name : (teamLeadEmail ? teamLeadEmail.split('@')[0] : ''),
+      developerEmails: finalDevs.emails,
+      developerNames: finalDevs.names,
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      // Backward compatibility fields:
+      tl_name: primaryQa ? primaryQa.name : (teamLead ? teamLead.name : ''),
+      assignee_name: primaryQa ? primaryQa.name : '',
+      dev_name: finalDevs.devNameStr,
+    };
+
+    // Ensure timeline and notesAndFlags exist for old projects
+    if (!oldData.timeline) {
+      updateData.timeline = {
+        smokeTesting: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        testCaseWriting: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        designValidation: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        integrationTesting: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        regressionTesting: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        uatSupport: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        releaseVerification: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+        postReleaseValidation: { status: 'Not Started', owner: '', plannedDate: null, completedDate: null, notes: '' },
+      };
+    }
+    if (!oldData.notesAndFlags) {
+      updateData.notesAndFlags = [];
+    }
+
+    await projectRef.update(updateData);
+
+    // Audit logs & Notifications comparisons
+    // 1. Status Changed
+    if (oldData.status !== status) {
+      await logProjectAudit(adminUserName, projectId, 'Project Status Changed', {
+        oldStatus: oldData.status || '',
+        newStatus: status,
+      });
+      await notifyProjectTeam(projectId, `Project "${name}" status updated to ${status}`);
+    }
+
+    // 2. Primary QA Changed
+    const qaChanged = oldData.primaryQaEmail !== (primaryQa ? primaryQa.email : primaryQaEmail);
+    if (qaChanged) {
+      await logProjectAudit(adminUserName, projectId, 'Primary QA Changed', {
+        oldPrimaryQa: oldData.primaryQaEmail || '',
+        newPrimaryQa: primaryQa ? primaryQa.email : primaryQaEmail,
+      });
+
+      if (primaryQa) {
+        await createNotification(primaryQa.id, `You have been assigned as Primary QA for ${name}`);
+      }
+    }
+
+    // 3. Supporting QA Changed
+    const supportingQaChanged = oldData.supportingQaEmail !== (supportingQa ? supportingQa.email : supportingQaEmail);
+    if (supportingQaChanged) {
+      await logProjectAudit(adminUserName, projectId, 'Supporting QA Changed', {
+        oldSupportingQa: oldData.supportingQaEmail || '',
+        newSupportingQa: supportingQa ? supportingQa.email : supportingQaEmail,
+      });
+
+      if (supportingQa) {
+        await createNotification(supportingQa.id, `You have been assigned as Supporting QA for ${name}`);
+      }
+    }
+
+    // 4. Expected Delivery Date Changed
+    if (oldData.targetReleaseDate !== targetReleaseDate) {
+      const formattedDate = targetReleaseDate ? new Date(targetReleaseDate).toLocaleDateString() : 'N/A';
+      await notifyProjectTeam(projectId, `Expected delivery date for project "${name}" has changed to ${formattedDate}`);
+    }
+
+    // 5. Developer Assignment Changed
+    if (hasDeveloperEmailsField) {
+      const oldDevEmails = oldData.developerEmails || [];
+      const newDevEmails = finalDevs.emails;
+      
+      const addedDevs = newDevEmails.filter((e: string) => !oldDevEmails.includes(e));
+      const removedDevs = oldDevEmails.filter((e: string) => !newDevEmails.includes(e));
+
+      for (const email of addedDevs) {
+        await logProjectAudit(adminUserName, projectId, 'Developer Added', { developer: email });
+        const devInfo = await getUserInfoByEmail(email);
+        if (devInfo) {
+          await createNotification(devInfo.id, `You have been assigned to project ${name}`);
+        }
+      }
+
+      for (const email of removedDevs) {
+        await logProjectAudit(adminUserName, projectId, 'Developer Removed', { developer: email });
+        const devInfo = await getUserInfoByEmail(email);
+        if (devInfo) {
+          await createNotification(devInfo.id, `You have been removed from project ${name}`);
+        }
+      }
+    }
+
+    // Generic Project Updated audit log
+    await logProjectAudit(adminUserName, projectId, 'Project Updated', { name, code });
+    await notifyProjectTeam(projectId, `Project "${name}" details have been updated`);
+
+    revalidatePath('/my-projects');
+    revalidatePath(`/my-projects/${projectId}`);
+    revalidatePath('/admin/projects');
+
     return { success: true };
   } catch (error: any) {
     return { error: error?.message || 'Failed to update project' };
@@ -399,9 +852,21 @@ export async function updateProject(projectId: string, formData: FormData) {
 
 export async function deleteProject(projectId: string) {
   const session = await getServerSession(authOptions);
-  if ((session?.user as any)?.role !== 'ADMIN') return { error: 'Unauthorized' };
+  if (!session?.user || (session.user as any).role !== 'ADMIN') return { error: 'Unauthorized' };
 
   try {
+    const adminUserDoc = await adminDb.collection('users').doc((session.user as any).id).get();
+    const adminUserName = adminUserDoc.data()?.name || session.user.name || 'Admin';
+
+    const docRef = adminDb.collection('projects').doc(projectId);
+    const docSnap = await docRef.get();
+    if (docSnap.exists) {
+      const data = docSnap.data();
+      const name = data?.name || '';
+      const code = data?.code || '';
+      await logProjectAudit(adminUserName, projectId, 'Project Deleted', { name, code });
+    }
+
     // Cascade-delete linked daily statuses
     const linkedSnapshot = await adminDb.collection('daily_statuses').where('project_id', '==', projectId).get();
     const batch = adminDb.batch();
@@ -409,8 +874,528 @@ export async function deleteProject(projectId: string) {
     batch.delete(adminDb.collection('projects').doc(projectId));
     await batch.commit();
 
+    revalidatePath('/my-projects');
+    revalidatePath('/admin/projects');
+
     return { success: true };
   } catch (error: any) {
     return { error: error?.message || 'Failed to delete project' };
+  }
+}
+
+/**
+ * Helper to format and send a Daily Status report to Discord via a configured Webhook.
+ */
+async function sendDiscordNotification(
+  userId: string,
+  projectIds: string[],
+  hours: string[],
+  date: string,
+  workDone: string,
+  plannedWork: string,
+  blockers: string | null,
+  isUpdate: boolean = false
+): Promise<string> {
+  try {
+    const settingsDoc = await adminDb.collection('settings').doc('discord').get();
+    const settings = settingsDoc.data();
+
+    if (!settings || !settings.enabled || !settings.webhookUrl) {
+      return "";
+    }
+
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const userData = userDoc.data() || {};
+    const userName = userData.name || "Unknown User";
+    const userRole = userData.role || "USER";
+
+    const projectsMap: Record<string, string> = {};
+    for (const pid of projectIds) {
+      const pDoc = await adminDb.collection('projects').doc(pid).get();
+      if (pDoc.exists) {
+        projectsMap[pid] = pDoc.data()?.name || "Unknown Project";
+      }
+    }
+
+    const projectHoursList = projectIds.map((pid, idx) => {
+      const pName = projectsMap[pid] || "Unknown Project";
+      const pHours = parseFloat(hours[idx] || '0');
+      return `• ${pName}: ${pHours} hrs`;
+    }).join('\n');
+
+    const timeFormatted = new Date().toLocaleString();
+    const actionLabel = isUpdate ? "Updated" : "Submitted";
+
+    let discordMessage = `📋 **Daily Status ${actionLabel} by ${userName}** (${userRole === 'USER' ? 'QA ENGINEER' : userRole === 'DEV' ? 'DEVELOPER' : userRole})\n\n`;
+    discordMessage += `📅 **Date**: ${date}\n\n`;
+    discordMessage += `📂 **Projects & Hours**:\n${projectHoursList}\n\n`;
+    discordMessage += `✅ **Work Done**:\n${workDone}\n\n`;
+    discordMessage += `🎯 **Next Planned Work**:\n${plannedWork}\n\n`;
+    discordMessage += `🚧 **Blockers**:\n${blockers || "None"}\n\n`;
+    discordMessage += `🕒 **${actionLabel} At**: ${timeFormatted}`;
+
+    const discRes = await fetch(settings.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: discordMessage }),
+    });
+
+    if (!discRes.ok) {
+      throw new Error(`Discord API returned status ${discRes.status}`);
+    }
+
+    // Log Discord notification success
+    await adminDb.collection("audit_logs").add({
+      user: "System",
+      action: "Discord Notification Sent",
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      details: { userName, date }
+    });
+
+    return "";
+  } catch (err: any) {
+    console.error("Discord Notification Failed:", err);
+    // Log Discord notification failure
+    try {
+      await adminDb.collection("audit_logs").add({
+        user: "System",
+        action: "Discord Notification Failed",
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        details: { date, error: err.message || "Unknown error" }
+      });
+    } catch (logErr) {
+      console.error("Failed to write failure log:", logErr);
+    }
+    return `Daily status saved, but Discord notification failed: ${err.message || "Unknown error"}`;
+  }
+}
+
+/**
+ * Server Action to fetch current Discord integration settings.
+ */
+export async function getDiscordSettings() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || (session.user as any).role !== 'ADMIN') {
+    return { error: 'Unauthorized' };
+  }
+  try {
+    const doc = await adminDb.collection('settings').doc('discord').get();
+    if (!doc.exists) {
+      return { webhookUrl: '', enabled: false };
+    }
+    const data = doc.data() || {};
+    return {
+      webhookUrl: data.webhookUrl || '',
+      enabled: !!data.enabled,
+      updatedBy: data.updatedBy || '',
+      updatedAt: data.updatedAt && typeof data.updatedAt.toDate === 'function' 
+        ? data.updatedAt.toDate().toISOString() 
+        : (data.updatedAt ? String(data.updatedAt) : null)
+    };
+  } catch (err: any) {
+    return { error: err.message || 'Failed to fetch settings' };
+  }
+}
+
+/**
+ * Server Action to save Discord integration settings.
+ */
+export async function saveDiscordSettings(webhookUrl: string, enabled: boolean) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || (session.user as any).role !== 'ADMIN') {
+    return { error: 'Unauthorized' };
+  }
+
+  if (!webhookUrl) {
+    return { error: 'Webhook URL is required' };
+  }
+  const regex = /^https:\/\/(?:ptb\.|canary\.)?discord(?:app)?\.com\/api\/webhooks\/\d+\/[a-zA-Z0-9-_]+$/;
+  if (!regex.test(webhookUrl)) {
+    return { error: 'Invalid Discord webhook URL format' };
+  }
+
+  try {
+    await adminDb.collection('settings').doc('discord').set({
+      webhookUrl,
+      enabled,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedBy: session.user.email,
+    });
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message || 'Failed to save settings' };
+  }
+}
+
+/**
+ * Server Action to test connection to a Discord webhook.
+ */
+export async function testDiscordConnection(webhookUrl: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || (session.user as any).role !== 'ADMIN') {
+    return { error: 'Unauthorized' };
+  }
+
+  if (!webhookUrl) {
+    return { error: 'Webhook URL is required' };
+  }
+  const regex = /^https:\/\/(?:ptb\.|canary\.)?discord(?:app)?\.com\/api\/webhooks\/\d+\/[a-zA-Z0-9-_]+$/;
+  if (!regex.test(webhookUrl)) {
+    return { error: 'Invalid Discord webhook URL format' };
+  }
+
+  try {
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: '🧪 **CB QOps Integration Test**: Connection successful! Discord Daily Status notifications are configured correctly.',
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Discord returned status ${res.status}`);
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message || 'Failed to send test message' };
+  }
+}
+
+export async function updateProjectMilestone(projectId: string, milestoneKey: string, data: {
+  status: 'Not Started' | 'In Progress' | 'Completed' | 'Blocked';
+  owner: string;
+  plannedDate: string | null;
+  completedDate: string | null;
+  notes: string;
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  try {
+    const userId = (session.user as any).id;
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const userName = userDoc.data()?.name || session.user.name || 'User';
+
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const snap = await projectRef.get();
+    if (!snap.exists) return { error: 'Project not found' };
+    const project = snap.data() || {};
+    const timeline = project.timeline || {};
+    const oldMilestone = timeline[milestoneKey] || {};
+
+    const updatedTimeline = {
+      ...timeline,
+      [milestoneKey]: {
+        status: data.status || 'Not Started',
+        owner: data.owner || '',
+        plannedDate: data.plannedDate || null,
+        completedDate: data.completedDate || null,
+        notes: data.notes || '',
+      }
+    };
+
+    await projectRef.update({ timeline: updatedTimeline });
+
+    if (oldMilestone.status !== data.status) {
+      await logProjectAudit(userName, projectId, 'Timeline Updated', {
+        milestone: milestoneKey,
+        oldStatus: oldMilestone.status || 'Not Started',
+        newStatus: data.status,
+      });
+      
+      const milestoneNames: Record<string, string> = {
+        smokeTesting: 'Smoke Testing',
+        testCaseWriting: 'Test Case Writing',
+        designValidation: 'Design Validation',
+        integrationTesting: 'Integration Testing',
+        regressionTesting: 'Regression Testing',
+        uatSupport: 'UAT Support',
+        releaseVerification: 'Release Verification',
+        postReleaseValidation: 'Post Release Validation'
+      };
+
+      const mName = milestoneNames[milestoneKey] || milestoneKey;
+      await notifyProjectTeam(projectId, `Milestone "${mName}" status in project "${project.name}" updated to ${data.status}`);
+    }
+
+    revalidatePath(`/my-projects/${projectId}`);
+    revalidatePath('/my-projects');
+
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to update milestone' };
+  }
+}
+
+export async function addProjectNote(projectId: string, noteData: {
+  id: string;
+  type: 'Note' | 'Risk' | 'Blocker' | 'Dependency';
+  title: string;
+  description: string;
+  priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  status: 'Open' | 'Resolved';
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  try {
+    const userId = (session.user as any).id;
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const userName = userDoc.data()?.name || session.user.name || 'User';
+
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const snap = await projectRef.get();
+    if (!snap.exists) return { error: 'Project not found' };
+    const project = snap.data() || {};
+    const notesAndFlags = project.notesAndFlags || [];
+
+    const newNote = {
+      id: noteData.id || `note_${Date.now()}`,
+      type: noteData.type,
+      title: noteData.title,
+      description: noteData.description || '',
+      createdBy: userName,
+      createdDate: new Date().toISOString(),
+      priority: noteData.priority || 'Medium',
+      status: noteData.status || 'Open',
+    };
+
+    const updatedNotes = [...notesAndFlags, newNote];
+    await projectRef.update({ notesAndFlags: updatedNotes });
+
+    // Track Audit Log & Send Notifications
+    if (noteData.type === 'Risk') {
+      await logProjectAudit(userName, projectId, 'Risk Added', { title: noteData.title });
+      await notifyProjectTeam(projectId, `⚠️ New Risk added to project "${project.name}": ${noteData.title}`);
+    } else if (noteData.type === 'Blocker') {
+      await logProjectAudit(userName, projectId, 'Blocker Added', { title: noteData.title });
+      await notifyProjectTeam(projectId, `🛑 New Blocker added to project "${project.name}": ${noteData.title}`);
+    } else if (noteData.type === 'Dependency') {
+      await logProjectAudit(userName, projectId, 'Dependency Added', { title: noteData.title });
+      await notifyProjectTeam(projectId, `🔗 New Dependency added to project "${project.name}": ${noteData.title}`);
+    } else {
+      await logProjectAudit(userName, projectId, 'Project Updated', { note: noteData.title });
+    }
+
+    revalidatePath(`/my-projects/${projectId}`);
+    revalidatePath('/my-projects');
+
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to add note' };
+  }
+}
+
+export async function updateProjectNoteStatus(projectId: string, noteId: string, status: 'Open' | 'Resolved') {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  try {
+    const userId = (session.user as any).id;
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const userName = userDoc.data()?.name || session.user.name || 'User';
+
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const snap = await projectRef.get();
+    if (!snap.exists) return { error: 'Project not found' };
+    const project = snap.data() || {};
+    const notesAndFlags = project.notesAndFlags || [];
+
+    let noteTitle = '';
+    let noteType = 'Note';
+    const updatedNotes = notesAndFlags.map((note: any) => {
+      if (note.id === noteId) {
+        noteTitle = note.title;
+        noteType = note.type;
+        return { ...note, status };
+      }
+      return note;
+    });
+
+    await projectRef.update({ notesAndFlags: updatedNotes });
+
+    await logProjectAudit(userName, projectId, 'Project Updated', { noteId, status, title: noteTitle });
+    
+    if (status === 'Resolved' && (noteType === 'Risk' || noteType === 'Blocker')) {
+      await notifyProjectTeam(projectId, `✅ ${noteType} "${noteTitle}" in project "${project.name}" has been resolved.`);
+    }
+
+    revalidatePath(`/my-projects/${projectId}`);
+    revalidatePath('/my-projects');
+
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to update note status' };
+  }
+}
+
+export async function deleteProjectNote(projectId: string, noteId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  try {
+    const userId = (session.user as any).id;
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const userName = userDoc.data()?.name || session.user.name || 'User';
+
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const snap = await projectRef.get();
+    if (!snap.exists) return { error: 'Project not found' };
+    const project = snap.data() || {};
+    const notesAndFlags = project.notesAndFlags || [];
+
+    const targetNote = notesAndFlags.find((n: any) => n.id === noteId);
+    if (!targetNote) return { error: 'Note not found' };
+
+    const updatedNotes = notesAndFlags.filter((note: any) => note.id !== noteId);
+    await projectRef.update({ notesAndFlags: updatedNotes });
+
+    await logProjectAudit(userName, projectId, 'Project Updated', { deletedNoteId: noteId, title: targetNote.title });
+
+    revalidatePath(`/my-projects/${projectId}`);
+    revalidatePath('/my-projects');
+
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to delete note' };
+  }
+}
+
+export async function addProjectMilestone(projectId: string, label: string) {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as any)?.role;
+  if (!session?.user || (role !== 'ADMIN' && role !== 'TL')) return { error: 'Unauthorized' };
+
+  if (!label.trim()) return { error: 'Label is required' };
+
+  try {
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const snap = await projectRef.get();
+    if (!snap.exists) return { error: 'Project not found' };
+
+    const project = snap.data() || {};
+    const timeline = project.timeline || {};
+
+    const key = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/(^_|_$)/g, '');
+    if (!key) return { error: 'Invalid label' };
+
+    if (timeline[key]) return { error: 'Milestone already exists in this project' };
+
+    // Find max order
+    let maxOrder = 0;
+    Object.values(timeline).forEach((m: any) => {
+      if (m.order !== undefined && m.order > maxOrder) {
+        maxOrder = m.order;
+      }
+    });
+
+    const updatedTimeline = {
+      ...timeline,
+      [key]: {
+        label: label.trim(),
+        status: 'Not Started',
+        owner: '',
+        plannedDate: null,
+        completedDate: null,
+        notes: '',
+        order: maxOrder + 1
+      }
+    };
+
+    await projectRef.update({ timeline: updatedTimeline });
+    revalidatePath(`/my-projects/${projectId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to add milestone' };
+  }
+}
+
+export async function editProjectMilestone(projectId: string, milestoneKey: string, newLabel: string) {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as any)?.role;
+  if (!session?.user || (role !== 'ADMIN' && role !== 'TL')) return { error: 'Unauthorized' };
+
+  if (!newLabel.trim()) return { error: 'Label is required' };
+
+  try {
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const snap = await projectRef.get();
+    if (!snap.exists) return { error: 'Project not found' };
+
+    const project = snap.data() || {};
+    const timeline = project.timeline || {};
+
+    if (!timeline[milestoneKey]) return { error: 'Milestone not found' };
+
+    const updatedTimeline = {
+      ...timeline,
+      [milestoneKey]: {
+        ...timeline[milestoneKey],
+        label: newLabel.trim()
+      }
+    };
+
+    await projectRef.update({ timeline: updatedTimeline });
+    revalidatePath(`/my-projects/${projectId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to edit milestone' };
+  }
+}
+
+export async function deleteProjectMilestone(projectId: string, milestoneKey: string) {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as any)?.role;
+  if (!session?.user || (role !== 'ADMIN' && role !== 'TL')) return { error: 'Unauthorized' };
+
+  try {
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const snap = await projectRef.get();
+    if (!snap.exists) return { error: 'Project not found' };
+
+    const project = snap.data() || {};
+    const timeline = { ...(project.timeline || {}) };
+
+    if (!timeline[milestoneKey]) return { error: 'Milestone not found' };
+
+    delete timeline[milestoneKey];
+
+    await projectRef.update({ timeline });
+    revalidatePath(`/my-projects/${projectId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to delete milestone' };
+  }
+}
+
+export async function reorderProjectMilestones(projectId: string, orders: { key: string; order: number }[]) {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as any)?.role;
+  if (!session?.user || (role !== 'ADMIN' && role !== 'TL')) return { error: 'Unauthorized' };
+
+  try {
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const snap = await projectRef.get();
+    if (!snap.exists) return { error: 'Project not found' };
+
+    const project = snap.data() || {};
+    const timeline = { ...(project.timeline || {}) };
+
+    orders.forEach(item => {
+      if (timeline[item.key]) {
+        timeline[item.key] = {
+          ...timeline[item.key],
+          order: item.order
+        };
+      }
+    });
+
+    await projectRef.update({ timeline });
+    revalidatePath(`/my-projects/${projectId}`);
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to reorder milestones' };
   }
 }

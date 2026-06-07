@@ -1,0 +1,1105 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e17]:
+      - link "CB QOps Logo CB QOps" [ref=e19] [cursor=pointer]:
+        - /url: /dashboard
+        - img "CB QOps Logo" [ref=e20]
+        - generic [ref=e21]: CB QOps
+      - navigation [ref=e22]:
+        - link "Dashboard" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e24]
+          - generic [ref=e29]: Dashboard
+        - link "Daily Status" [ref=e30] [cursor=pointer]:
+          - /url: /daily-status
+          - img [ref=e31]
+          - generic [ref=e33]: Daily Status
+        - link "Test Cases" [ref=e34] [cursor=pointer]:
+          - /url: /test-cases
+          - img [ref=e35]
+          - generic [ref=e37]: Test Cases
+      - button "Logout" [ref=e39]:
+        - img [ref=e40]
+        - generic [ref=e43]: Logout
+    - main [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - link [ref=e49] [cursor=pointer]:
+              - /url: /test-cases
+              - img [ref=e50]
+            - generic [ref=e52]:
+              - heading "Playwright Automation Google Sheet Mode" [level=1] [ref=e93]:
+                - text: Playwright Automation
+                - generic [ref=e94]:
+                  - img [ref=e95]
+                  - text: Google Sheet Mode
+              - paragraph [ref=e54]: Google Sheet Two-Way Synchronization & Execution Tracking
+          - generic [ref=e99]:
+            - button "Sync Now" [ref=e100] [cursor=pointer]:
+              - img [ref=e101]
+              - text: Sync Now
+            - button "Disconnect Google Sheet" [ref=e106] [cursor=pointer]:
+              - img [ref=e107]
+        - generic [ref=e111]:
+          - img [ref=e112]
+          - generic [ref=e115]: Google Sheet connected and imported successfully! Imported 20 test cases.
+          - button "✕" [ref=e116] [cursor=pointer]
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e119]:
+              - generic [ref=e120]:
+                - generic [ref=e121]: Total Cases
+                - generic [ref=e122]: "20"
+                - img [ref=e124]
+              - generic [ref=e128]:
+                - generic [ref=e129]: Passed
+                - generic [ref=e130]: "0"
+                - generic [ref=e131]: 0%
+              - generic [ref=e132]:
+                - generic [ref=e133]: Failed
+                - generic [ref=e134]: "1"
+                - generic [ref=e135]: 5%
+              - generic [ref=e136]:
+                - generic [ref=e137]: Blocked
+                - generic [ref=e138]: "0"
+                - generic [ref=e139]: 0%
+              - generic [ref=e140]:
+                - generic [ref=e141]: Not Run
+                - generic [ref=e142]: "19"
+                - generic [ref=e143]: 95%
+              - generic [ref=e144]:
+                - generic [ref=e145]: Completion
+                - generic [ref=e146]: 5%
+            - generic [ref=e149]:
+              - generic [ref=e150]:
+                - generic [ref=e151]:
+                  - img [ref=e152]
+                  - text: QA Execution Progress
+                - generic [ref=e155]: 1 of 20 Executed
+              - generic [ref=e156]:
+                - 'generic "Failed: 1" [ref=e157] [cursor=pointer]'
+                - 'generic "Not Run: 19" [ref=e158] [cursor=pointer]'
+          - generic [ref=e159]:
+            - button "Test Case Repository" [ref=e160] [cursor=pointer]:
+              - img [ref=e161]
+              - text: Test Case Repository
+            - button "Sync History" [ref=e165] [cursor=pointer]:
+              - img [ref=e166]
+              - text: Sync History
+            - button "Audit Logs" [ref=e169] [cursor=pointer]:
+              - img [ref=e170]
+              - text: Audit Logs
+          - generic [ref=e173]:
+            - generic [ref=e174]:
+              - generic [ref=e175]:
+                - generic [ref=e176]:
+                  - img [ref=e177]
+                  - textbox "Search ID, Title, JIRA Ticket..." [ref=e180]
+                - button "Add Test Case" [ref=e181] [cursor=pointer]:
+                  - img [ref=e182]
+                  - text: Add Test Case
+                - generic [ref=e183]: 20 cases
+              - generic [ref=e184]:
+                - generic [ref=e185]:
+                  - img [ref=e186]
+                  - generic [ref=e188]: "Filter:"
+                - button "All Modules" [ref=e191]:
+                  - generic [ref=e192]: All Modules
+                  - img [ref=e193]
+                - button "All Prioritys" [ref=e197]:
+                  - generic [ref=e198]: All Prioritys
+                  - img [ref=e199]
+                - button "All Dev Statuss" [ref=e203]:
+                  - generic [ref=e204]: All Dev Statuss
+                  - img [ref=e205]
+                - button "All QA Statuss" [ref=e209]:
+                  - generic [ref=e210]: All QA Statuss
+                  - img [ref=e211]
+                - button "All Cross Browsers" [ref=e215]:
+                  - generic [ref=e216]: All Cross Browsers
+                  - img [ref=e217]
+            - table [ref=e220]:
+              - rowgroup [ref=e221]:
+                - row "Test case ID Module Test Case Title Pre-Conditions Test Steps Test Data Expected Result Dev Status Dev Date Executed Dev Notes QA Status cross browser Verfied ? Priority JIRA Ticket Actions" [ref=e222]:
+                  - columnheader [ref=e223]:
+                    - checkbox [ref=e224] [cursor=pointer]
+                  - columnheader "Test case ID" [ref=e225]
+                  - columnheader "Module" [ref=e226]
+                  - columnheader "Test Case Title" [ref=e227]
+                  - columnheader "Pre-Conditions" [ref=e228]
+                  - columnheader "Test Steps" [ref=e229]
+                  - columnheader "Test Data" [ref=e230]
+                  - columnheader "Expected Result" [ref=e231]
+                  - columnheader "Dev Status" [ref=e232]
+                  - columnheader "Dev Date Executed" [ref=e233]
+                  - columnheader "Dev Notes" [ref=e234]
+                  - columnheader "QA Status" [ref=e235]
+                  - columnheader "cross browser Verfied ?" [ref=e236]
+                  - columnheader "Priority" [ref=e237]
+                  - columnheader "JIRA Ticket" [ref=e238]
+                  - columnheader "Actions" [ref=e239]
+              - rowgroup [ref=e240]:
+                - row "LOGIN-001 Login Verify login with valid credentials User account exists and is active 1. Navigate to Login page2. Enter valid email3. Enter valid password4. Click Login Valid Email, Valid Password User should be logged in successfully and redirected to Dashboard/Home page Passed Failed No High Details" [ref=e241]:
+                  - cell [ref=e242]:
+                    - checkbox [ref=e243] [cursor=pointer]
+                  - cell "LOGIN-001" [ref=e244]:
+                    - generic [ref=e245]: LOGIN-001
+                  - cell "Login" [ref=e246]:
+                    - textbox "—" [ref=e247]: Login
+                  - cell "Verify login with valid credentials" [ref=e248]:
+                    - textbox "—" [ref=e249]: Verify login with valid credentials
+                  - cell "User account exists and is active" [ref=e250]:
+                    - textbox "—" [ref=e251]: User account exists and is active
+                  - cell "1. Navigate to Login page2. Enter valid email3. Enter valid password4. Click Login" [ref=e252]:
+                    - textbox "—" [ref=e253]: 1. Navigate to Login page2. Enter valid email3. Enter valid password4. Click Login
+                  - cell "Valid Email, Valid Password" [ref=e254]:
+                    - textbox "—" [ref=e255]: Valid Email, Valid Password
+                  - cell "User should be logged in successfully and redirected to Dashboard/Home page" [ref=e256]:
+                    - textbox "—" [ref=e257]: User should be logged in successfully and redirected to Dashboard/Home page
+                  - cell "Passed" [ref=e258]:
+                    - combobox [ref=e259] [cursor=pointer]:
+                      - option "Not Started"
+                      - option "Passed" [selected]
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e260]:
+                    - textbox [ref=e261] [cursor=pointer]
+                  - cell [ref=e262]:
+                    - textbox "—" [ref=e263]
+                  - cell "Failed" [ref=e264]:
+                    - combobox [ref=e265] [cursor=pointer]:
+                      - option "Not Run"
+                      - option "Passed"
+                      - option "Failed" [selected]
+                      - option "Blocked"
+                  - cell "No" [ref=e266]:
+                    - combobox [ref=e267] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "High" [ref=e268]:
+                    - combobox [ref=e269] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium"
+                      - option "High" [selected]
+                      - option "Critical"
+                  - cell [ref=e270]:
+                    - textbox [ref=e272]
+                  - cell "Details" [ref=e273]:
+                    - button "Details" [ref=e274] [cursor=pointer]
+                - row "LOGIN-002 Login Verify login with invalid password User account exists 1. Navigate to Login page2. Enter valid email3. Enter invalid password4. Click Login Valid Email, Invalid Password Error message should be displayed and login should fail Not Started Not Run No High Details" [ref=e275]:
+                  - cell [ref=e276]:
+                    - checkbox [ref=e277] [cursor=pointer]
+                  - cell "LOGIN-002" [ref=e278]:
+                    - generic [ref=e279]: LOGIN-002
+                  - cell "Login" [ref=e280]:
+                    - textbox "—" [ref=e281]: Login
+                  - cell "Verify login with invalid password" [ref=e282]:
+                    - textbox "—" [ref=e283]: Verify login with invalid password
+                  - cell "User account exists" [ref=e284]:
+                    - textbox "—" [ref=e285]: User account exists
+                  - cell "1. Navigate to Login page2. Enter valid email3. Enter invalid password4. Click Login" [ref=e286]:
+                    - textbox "—" [ref=e287]: 1. Navigate to Login page2. Enter valid email3. Enter invalid password4. Click Login
+                  - cell "Valid Email, Invalid Password" [ref=e288]:
+                    - textbox "—" [ref=e289]: Valid Email, Invalid Password
+                  - cell "Error message should be displayed and login should fail" [ref=e290]:
+                    - textbox "—" [ref=e291]: Error message should be displayed and login should fail
+                  - cell "Not Started" [ref=e292]:
+                    - combobox [ref=e293] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e294]:
+                    - textbox [ref=e295] [cursor=pointer]
+                  - cell [ref=e296]:
+                    - textbox "—" [ref=e297]
+                  - cell "Not Run" [ref=e298]:
+                    - combobox [ref=e299] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e300]:
+                    - combobox [ref=e301] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "High" [ref=e302]:
+                    - combobox [ref=e303] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium"
+                      - option "High" [selected]
+                      - option "Critical"
+                  - cell [ref=e304]:
+                    - textbox [ref=e306]
+                  - cell "Details" [ref=e307]:
+                    - button "Details" [ref=e308] [cursor=pointer]
+                - row "LOGIN-003 Login Verify login with unregistered email User is on Login page 1. Enter unregistered email2. Enter any password3. Click Login Invalid Email, Password Error message indicating invalid credentials should be displayed Not Started Not Run No High Details" [ref=e309]:
+                  - cell [ref=e310]:
+                    - checkbox [ref=e311] [cursor=pointer]
+                  - cell "LOGIN-003" [ref=e312]:
+                    - generic [ref=e313]: LOGIN-003
+                  - cell "Login" [ref=e314]:
+                    - textbox "—" [ref=e315]: Login
+                  - cell "Verify login with unregistered email" [ref=e316]:
+                    - textbox "—" [ref=e317]: Verify login with unregistered email
+                  - cell "User is on Login page" [ref=e318]:
+                    - textbox "—" [ref=e319]: User is on Login page
+                  - cell "1. Enter unregistered email2. Enter any password3. Click Login" [ref=e320]:
+                    - textbox "—" [ref=e321]: 1. Enter unregistered email2. Enter any password3. Click Login
+                  - cell "Invalid Email, Password" [ref=e322]:
+                    - textbox "—" [ref=e323]: Invalid Email, Password
+                  - cell "Error message indicating invalid credentials should be displayed" [ref=e324]:
+                    - textbox "—" [ref=e325]: Error message indicating invalid credentials should be displayed
+                  - cell "Not Started" [ref=e326]:
+                    - combobox [ref=e327] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e328]:
+                    - textbox [ref=e329] [cursor=pointer]
+                  - cell [ref=e330]:
+                    - textbox "—" [ref=e331]
+                  - cell "Not Run" [ref=e332]:
+                    - combobox [ref=e333] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e334]:
+                    - combobox [ref=e335] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "High" [ref=e336]:
+                    - combobox [ref=e337] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium"
+                      - option "High" [selected]
+                      - option "Critical"
+                  - cell [ref=e338]:
+                    - textbox [ref=e340]
+                  - cell "Details" [ref=e341]:
+                    - button "Details" [ref=e342] [cursor=pointer]
+                - row "LOGIN-004 Login Verify login with empty email and password fields User is on Login page 1. Leave email field blank2. Leave password field blank3. Click Login Blank Fields Required field validation messages should be displayed Not Started Not Run No High Details" [ref=e343]:
+                  - cell [ref=e344]:
+                    - checkbox [ref=e345] [cursor=pointer]
+                  - cell "LOGIN-004" [ref=e346]:
+                    - generic [ref=e347]: LOGIN-004
+                  - cell "Login" [ref=e348]:
+                    - textbox "—" [ref=e349]: Login
+                  - cell "Verify login with empty email and password fields" [ref=e350]:
+                    - textbox "—" [ref=e351]: Verify login with empty email and password fields
+                  - cell "User is on Login page" [ref=e352]:
+                    - textbox "—" [ref=e353]: User is on Login page
+                  - cell "1. Leave email field blank2. Leave password field blank3. Click Login" [ref=e354]:
+                    - textbox "—" [ref=e355]: 1. Leave email field blank2. Leave password field blank3. Click Login
+                  - cell "Blank Fields" [ref=e356]:
+                    - textbox "—" [ref=e357]: Blank Fields
+                  - cell "Required field validation messages should be displayed" [ref=e358]:
+                    - textbox "—" [ref=e359]: Required field validation messages should be displayed
+                  - cell "Not Started" [ref=e360]:
+                    - combobox [ref=e361] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e362]:
+                    - textbox [ref=e363] [cursor=pointer]
+                  - cell [ref=e364]:
+                    - textbox "—" [ref=e365]
+                  - cell "Not Run" [ref=e366]:
+                    - combobox [ref=e367] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e368]:
+                    - combobox [ref=e369] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "High" [ref=e370]:
+                    - combobox [ref=e371] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium"
+                      - option "High" [selected]
+                      - option "Critical"
+                  - cell [ref=e372]:
+                    - textbox [ref=e374]
+                  - cell "Details" [ref=e375]:
+                    - button "Details" [ref=e376] [cursor=pointer]
+                - row "LOGIN-005 Login Verify login with empty email field User is on Login page 1. Leave email field blank2. Enter valid password3. Click Login Blank Email, Valid Password Email required validation message should be displayed Not Started Not Run No Medium Details" [ref=e377]:
+                  - cell [ref=e378]:
+                    - checkbox [ref=e379] [cursor=pointer]
+                  - cell "LOGIN-005" [ref=e380]:
+                    - generic [ref=e381]: LOGIN-005
+                  - cell "Login" [ref=e382]:
+                    - textbox "—" [ref=e383]: Login
+                  - cell "Verify login with empty email field" [ref=e384]:
+                    - textbox "—" [ref=e385]: Verify login with empty email field
+                  - cell "User is on Login page" [ref=e386]:
+                    - textbox "—" [ref=e387]: User is on Login page
+                  - cell "1. Leave email field blank2. Enter valid password3. Click Login" [ref=e388]:
+                    - textbox "—" [ref=e389]: 1. Leave email field blank2. Enter valid password3. Click Login
+                  - cell "Blank Email, Valid Password" [ref=e390]:
+                    - textbox "—" [ref=e391]: Blank Email, Valid Password
+                  - cell "Email required validation message should be displayed" [ref=e392]:
+                    - textbox "—" [ref=e393]: Email required validation message should be displayed
+                  - cell "Not Started" [ref=e394]:
+                    - combobox [ref=e395] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e396]:
+                    - textbox [ref=e397] [cursor=pointer]
+                  - cell [ref=e398]:
+                    - textbox "—" [ref=e399]
+                  - cell "Not Run" [ref=e400]:
+                    - combobox [ref=e401] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e402]:
+                    - combobox [ref=e403] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Medium" [ref=e404]:
+                    - combobox [ref=e405] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium" [selected]
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e406]:
+                    - textbox [ref=e408]
+                  - cell "Details" [ref=e409]:
+                    - button "Details" [ref=e410] [cursor=pointer]
+                - row "LOGIN-006 Login Verify login with empty password field User is on Login page 1. Enter valid email2. Leave password field blank3. Click Login Valid Email, Blank Password Password required validation message should be displayed Not Started Not Run No Medium Details" [ref=e411]:
+                  - cell [ref=e412]:
+                    - checkbox [ref=e413] [cursor=pointer]
+                  - cell "LOGIN-006" [ref=e414]:
+                    - generic [ref=e415]: LOGIN-006
+                  - cell "Login" [ref=e416]:
+                    - textbox "—" [ref=e417]: Login
+                  - cell "Verify login with empty password field" [ref=e418]:
+                    - textbox "—" [ref=e419]: Verify login with empty password field
+                  - cell "User is on Login page" [ref=e420]:
+                    - textbox "—" [ref=e421]: User is on Login page
+                  - cell "1. Enter valid email2. Leave password field blank3. Click Login" [ref=e422]:
+                    - textbox "—" [ref=e423]: 1. Enter valid email2. Leave password field blank3. Click Login
+                  - cell "Valid Email, Blank Password" [ref=e424]:
+                    - textbox "—" [ref=e425]: Valid Email, Blank Password
+                  - cell "Password required validation message should be displayed" [ref=e426]:
+                    - textbox "—" [ref=e427]: Password required validation message should be displayed
+                  - cell "Not Started" [ref=e428]:
+                    - combobox [ref=e429] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e430]:
+                    - textbox [ref=e431] [cursor=pointer]
+                  - cell [ref=e432]:
+                    - textbox "—" [ref=e433]
+                  - cell "Not Run" [ref=e434]:
+                    - combobox [ref=e435] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e436]:
+                    - combobox [ref=e437] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Medium" [ref=e438]:
+                    - combobox [ref=e439] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium" [selected]
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e440]:
+                    - textbox [ref=e442]
+                  - cell "Details" [ref=e443]:
+                    - button "Details" [ref=e444] [cursor=pointer]
+                - row "LOGIN-007 Login Verify email field format validation User is on Login page 1. Enter invalid email format2. Enter password3. Click Login abc.com Validation message should be displayed for invalid email format Not Started Not Run No Medium Details" [ref=e445]:
+                  - cell [ref=e446]:
+                    - checkbox [ref=e447] [cursor=pointer]
+                  - cell "LOGIN-007" [ref=e448]:
+                    - generic [ref=e449]: LOGIN-007
+                  - cell "Login" [ref=e450]:
+                    - textbox "—" [ref=e451]: Login
+                  - cell "Verify email field format validation" [ref=e452]:
+                    - textbox "—" [ref=e453]: Verify email field format validation
+                  - cell "User is on Login page" [ref=e454]:
+                    - textbox "—" [ref=e455]: User is on Login page
+                  - cell "1. Enter invalid email format2. Enter password3. Click Login" [ref=e456]:
+                    - textbox "—" [ref=e457]: 1. Enter invalid email format2. Enter password3. Click Login
+                  - cell "abc.com" [ref=e458]:
+                    - textbox "—" [ref=e459]: abc.com
+                  - cell "Validation message should be displayed for invalid email format" [ref=e460]:
+                    - textbox "—" [ref=e461]: Validation message should be displayed for invalid email format
+                  - cell "Not Started" [ref=e462]:
+                    - combobox [ref=e463] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e464]:
+                    - textbox [ref=e465] [cursor=pointer]
+                  - cell [ref=e466]:
+                    - textbox "—" [ref=e467]
+                  - cell "Not Run" [ref=e468]:
+                    - combobox [ref=e469] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e470]:
+                    - combobox [ref=e471] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Medium" [ref=e472]:
+                    - combobox [ref=e473] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium" [selected]
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e474]:
+                    - textbox [ref=e476]
+                  - cell "Details" [ref=e477]:
+                    - button "Details" [ref=e478] [cursor=pointer]
+                - row "LOGIN-008 Login Verify password field is masked User is on Login page 1. Enter password in password field Password Password characters should be masked Not Started Not Run No Low Details" [ref=e479]:
+                  - cell [ref=e480]:
+                    - checkbox [ref=e481] [cursor=pointer]
+                  - cell "LOGIN-008" [ref=e482]:
+                    - generic [ref=e483]: LOGIN-008
+                  - cell "Login" [ref=e484]:
+                    - textbox "—" [ref=e485]: Login
+                  - cell "Verify password field is masked" [ref=e486]:
+                    - textbox "—" [ref=e487]: Verify password field is masked
+                  - cell "User is on Login page" [ref=e488]:
+                    - textbox "—" [ref=e489]: User is on Login page
+                  - cell "1. Enter password in password field" [ref=e490]:
+                    - textbox "—" [ref=e491]: 1. Enter password in password field
+                  - cell "Password" [ref=e492]:
+                    - textbox "—" [ref=e493]: Password
+                  - cell "Password characters should be masked" [ref=e494]:
+                    - textbox "—" [ref=e495]: Password characters should be masked
+                  - cell "Not Started" [ref=e496]:
+                    - combobox [ref=e497] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e498]:
+                    - textbox [ref=e499] [cursor=pointer]
+                  - cell [ref=e500]:
+                    - textbox "—" [ref=e501]
+                  - cell "Not Run" [ref=e502]:
+                    - combobox [ref=e503] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e504]:
+                    - combobox [ref=e505] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Low" [ref=e506]:
+                    - combobox [ref=e507] [cursor=pointer]:
+                      - option "Low" [selected]
+                      - option "Medium"
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e508]:
+                    - textbox [ref=e510]
+                  - cell "Details" [ref=e511]:
+                    - button "Details" [ref=e512] [cursor=pointer]
+                - row "LOGIN-009 Login Verify show/hide password functionality Password visibility icon available 1. Enter password2. Click eye icon3. Click again Password Password should toggle between visible and hidden states Not Started Not Run No Medium Details" [ref=e513]:
+                  - cell [ref=e514]:
+                    - checkbox [ref=e515] [cursor=pointer]
+                  - cell "LOGIN-009" [ref=e516]:
+                    - generic [ref=e517]: LOGIN-009
+                  - cell "Login" [ref=e518]:
+                    - textbox "—" [ref=e519]: Login
+                  - cell "Verify show/hide password functionality" [ref=e520]:
+                    - textbox "—" [ref=e521]: Verify show/hide password functionality
+                  - cell "Password visibility icon available" [ref=e522]:
+                    - textbox "—" [ref=e523]: Password visibility icon available
+                  - cell "1. Enter password2. Click eye icon3. Click again" [ref=e524]:
+                    - textbox "—" [ref=e525]: 1. Enter password2. Click eye icon3. Click again
+                  - cell "Password" [ref=e526]:
+                    - textbox "—" [ref=e527]: Password
+                  - cell "Password should toggle between visible and hidden states" [ref=e528]:
+                    - textbox "—" [ref=e529]: Password should toggle between visible and hidden states
+                  - cell "Not Started" [ref=e530]:
+                    - combobox [ref=e531] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e532]:
+                    - textbox [ref=e533] [cursor=pointer]
+                  - cell [ref=e534]:
+                    - textbox "—" [ref=e535]
+                  - cell "Not Run" [ref=e536]:
+                    - combobox [ref=e537] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e538]:
+                    - combobox [ref=e539] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Medium" [ref=e540]:
+                    - combobox [ref=e541] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium" [selected]
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e542]:
+                    - textbox [ref=e544]
+                  - cell "Details" [ref=e545]:
+                    - button "Details" [ref=e546] [cursor=pointer]
+                - row "LOGIN-010 Login Verify Remember Me functionality Remember Me option available 1. Select Remember Me checkbox2. Login successfully3. Logout and revisit application Valid Credentials User credentials/session should be remembered as per application design Not Started Not Run No Medium Details" [ref=e547]:
+                  - cell [ref=e548]:
+                    - checkbox [ref=e549] [cursor=pointer]
+                  - cell "LOGIN-010" [ref=e550]:
+                    - generic [ref=e551]: LOGIN-010
+                  - cell "Login" [ref=e552]:
+                    - textbox "—" [ref=e553]: Login
+                  - cell "Verify Remember Me functionality" [ref=e554]:
+                    - textbox "—" [ref=e555]: Verify Remember Me functionality
+                  - cell "Remember Me option available" [ref=e556]:
+                    - textbox "—" [ref=e557]: Remember Me option available
+                  - cell "1. Select Remember Me checkbox2. Login successfully3. Logout and revisit application" [ref=e558]:
+                    - textbox "—" [ref=e559]: 1. Select Remember Me checkbox2. Login successfully3. Logout and revisit application
+                  - cell "Valid Credentials" [ref=e560]:
+                    - textbox "—" [ref=e561]: Valid Credentials
+                  - cell "User credentials/session should be remembered as per application design" [ref=e562]:
+                    - textbox "—" [ref=e563]: User credentials/session should be remembered as per application design
+                  - cell "Not Started" [ref=e564]:
+                    - combobox [ref=e565] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e566]:
+                    - textbox [ref=e567] [cursor=pointer]
+                  - cell [ref=e568]:
+                    - textbox "—" [ref=e569]
+                  - cell "Not Run" [ref=e570]:
+                    - combobox [ref=e571] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e572]:
+                    - combobox [ref=e573] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Medium" [ref=e574]:
+                    - combobox [ref=e575] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium" [selected]
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e576]:
+                    - textbox [ref=e578]
+                  - cell "Details" [ref=e579]:
+                    - button "Details" [ref=e580] [cursor=pointer]
+                - row "LOGIN-011 Login Verify Forgot Password link navigation Forgot Password feature enabled 1. Click Forgot Password link N/A User should be redirected to Forgot Password page Not Started Not Run No Medium Details" [ref=e581]:
+                  - cell [ref=e582]:
+                    - checkbox [ref=e583] [cursor=pointer]
+                  - cell "LOGIN-011" [ref=e584]:
+                    - generic [ref=e585]: LOGIN-011
+                  - cell "Login" [ref=e586]:
+                    - textbox "—" [ref=e587]: Login
+                  - cell "Verify Forgot Password link navigation" [ref=e588]:
+                    - textbox "—" [ref=e589]: Verify Forgot Password link navigation
+                  - cell "Forgot Password feature enabled" [ref=e590]:
+                    - textbox "—" [ref=e591]: Forgot Password feature enabled
+                  - cell "1. Click Forgot Password link" [ref=e592]:
+                    - textbox "—" [ref=e593]: 1. Click Forgot Password link
+                  - cell "N/A" [ref=e594]:
+                    - textbox "—" [ref=e595]: N/A
+                  - cell "User should be redirected to Forgot Password page" [ref=e596]:
+                    - textbox "—" [ref=e597]: User should be redirected to Forgot Password page
+                  - cell "Not Started" [ref=e598]:
+                    - combobox [ref=e599] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e600]:
+                    - textbox [ref=e601] [cursor=pointer]
+                  - cell [ref=e602]:
+                    - textbox "—" [ref=e603]
+                  - cell "Not Run" [ref=e604]:
+                    - combobox [ref=e605] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e606]:
+                    - combobox [ref=e607] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Medium" [ref=e608]:
+                    - combobox [ref=e609] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium" [selected]
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e610]:
+                    - textbox [ref=e612]
+                  - cell "Details" [ref=e613]:
+                    - button "Details" [ref=e614] [cursor=pointer]
+                - row "LOGIN-012 Login Verify login using email with leading/trailing spaces User account exists 1. Enter email with spaces before/after2. Enter valid password3. Click Login \" test@test.com \" Spaces should be trimmed and login should succeed Not Started Not Run No Medium Details" [ref=e615]:
+                  - cell [ref=e616]:
+                    - checkbox [ref=e617] [cursor=pointer]
+                  - cell "LOGIN-012" [ref=e618]:
+                    - generic [ref=e619]: LOGIN-012
+                  - cell "Login" [ref=e620]:
+                    - textbox "—" [ref=e621]: Login
+                  - cell "Verify login using email with leading/trailing spaces" [ref=e622]:
+                    - textbox "—" [ref=e623]: Verify login using email with leading/trailing spaces
+                  - cell "User account exists" [ref=e624]:
+                    - textbox "—" [ref=e625]: User account exists
+                  - cell "1. Enter email with spaces before/after2. Enter valid password3. Click Login" [ref=e626]:
+                    - textbox "—" [ref=e627]: 1. Enter email with spaces before/after2. Enter valid password3. Click Login
+                  - cell "\" test@test.com \"" [ref=e628]:
+                    - textbox "—" [ref=e629]: "\" test@test.com \""
+                  - cell "Spaces should be trimmed and login should succeed" [ref=e630]:
+                    - textbox "—" [ref=e631]: Spaces should be trimmed and login should succeed
+                  - cell "Not Started" [ref=e632]:
+                    - combobox [ref=e633] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e634]:
+                    - textbox [ref=e635] [cursor=pointer]
+                  - cell [ref=e636]:
+                    - textbox "—" [ref=e637]
+                  - cell "Not Run" [ref=e638]:
+                    - combobox [ref=e639] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e640]:
+                    - combobox [ref=e641] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Medium" [ref=e642]:
+                    - combobox [ref=e643] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium" [selected]
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e644]:
+                    - textbox [ref=e646]
+                  - cell "Details" [ref=e647]:
+                    - button "Details" [ref=e648] [cursor=pointer]
+                - row "LOGIN-013 Login Verify login using Enter key User is on Login page 1. Enter valid credentials2. Press Enter key Valid Credentials Login should be triggered successfully Not Started Not Run No Low Details" [ref=e649]:
+                  - cell [ref=e650]:
+                    - checkbox [ref=e651] [cursor=pointer]
+                  - cell "LOGIN-013" [ref=e652]:
+                    - generic [ref=e653]: LOGIN-013
+                  - cell "Login" [ref=e654]:
+                    - textbox "—" [ref=e655]: Login
+                  - cell "Verify login using Enter key" [ref=e656]:
+                    - textbox "—" [ref=e657]: Verify login using Enter key
+                  - cell "User is on Login page" [ref=e658]:
+                    - textbox "—" [ref=e659]: User is on Login page
+                  - cell "1. Enter valid credentials2. Press Enter key" [ref=e660]:
+                    - textbox "—" [ref=e661]: 1. Enter valid credentials2. Press Enter key
+                  - cell "Valid Credentials" [ref=e662]:
+                    - textbox "—" [ref=e663]: Valid Credentials
+                  - cell "Login should be triggered successfully" [ref=e664]:
+                    - textbox "—" [ref=e665]: Login should be triggered successfully
+                  - cell "Not Started" [ref=e666]:
+                    - combobox [ref=e667] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e668]:
+                    - textbox [ref=e669] [cursor=pointer]
+                  - cell [ref=e670]:
+                    - textbox "—" [ref=e671]
+                  - cell "Not Run" [ref=e672]:
+                    - combobox [ref=e673] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e674]:
+                    - combobox [ref=e675] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Low" [ref=e676]:
+                    - combobox [ref=e677] [cursor=pointer]:
+                      - option "Low" [selected]
+                      - option "Medium"
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e678]:
+                    - textbox [ref=e680]
+                  - cell "Details" [ref=e681]:
+                    - button "Details" [ref=e682] [cursor=pointer]
+                - row "LOGIN-014 Login Verify account lockout after multiple failed login attempts Account lockout feature enabled 1. Enter invalid password repeatedly until threshold is reached Valid Email, Invalid Password Account should be temporarily locked or warning message displayed as per requirements Not Started Not Run No High Details" [ref=e683]:
+                  - cell [ref=e684]:
+                    - checkbox [ref=e685] [cursor=pointer]
+                  - cell "LOGIN-014" [ref=e686]:
+                    - generic [ref=e687]: LOGIN-014
+                  - cell "Login" [ref=e688]:
+                    - textbox "—" [ref=e689]: Login
+                  - cell "Verify account lockout after multiple failed login attempts" [ref=e690]:
+                    - textbox "—" [ref=e691]: Verify account lockout after multiple failed login attempts
+                  - cell "Account lockout feature enabled" [ref=e692]:
+                    - textbox "—" [ref=e693]: Account lockout feature enabled
+                  - cell "1. Enter invalid password repeatedly until threshold is reached" [ref=e694]:
+                    - textbox "—" [ref=e695]: 1. Enter invalid password repeatedly until threshold is reached
+                  - cell "Valid Email, Invalid Password" [ref=e696]:
+                    - textbox "—" [ref=e697]: Valid Email, Invalid Password
+                  - cell "Account should be temporarily locked or warning message displayed as per requirements" [ref=e698]:
+                    - textbox "—" [ref=e699]: Account should be temporarily locked or warning message displayed as per requirements
+                  - cell "Not Started" [ref=e700]:
+                    - combobox [ref=e701] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e702]:
+                    - textbox [ref=e703] [cursor=pointer]
+                  - cell [ref=e704]:
+                    - textbox "—" [ref=e705]
+                  - cell "Not Run" [ref=e706]:
+                    - combobox [ref=e707] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e708]:
+                    - combobox [ref=e709] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "High" [ref=e710]:
+                    - combobox [ref=e711] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium"
+                      - option "High" [selected]
+                      - option "Critical"
+                  - cell [ref=e712]:
+                    - textbox [ref=e714]
+                  - cell "Details" [ref=e715]:
+                    - button "Details" [ref=e716] [cursor=pointer]
+                - row "LOGIN-015 Login Verify login page UI elements Login page accessible Verify presence of Email field, Password field, Login button, Forgot Password link, Logo, Remember Me option N/A All UI elements should be displayed correctly Not Started Not Run No Low Details" [ref=e717]:
+                  - cell [ref=e718]:
+                    - checkbox [ref=e719] [cursor=pointer]
+                  - cell "LOGIN-015" [ref=e720]:
+                    - generic [ref=e721]: LOGIN-015
+                  - cell "Login" [ref=e722]:
+                    - textbox "—" [ref=e723]: Login
+                  - cell "Verify login page UI elements" [ref=e724]:
+                    - textbox "—" [ref=e725]: Verify login page UI elements
+                  - cell "Login page accessible" [ref=e726]:
+                    - textbox "—" [ref=e727]: Login page accessible
+                  - cell "Verify presence of Email field, Password field, Login button, Forgot Password link, Logo, Remember Me option" [ref=e728]:
+                    - textbox "—" [ref=e729]: Verify presence of Email field, Password field, Login button, Forgot Password link, Logo, Remember Me option
+                  - cell "N/A" [ref=e730]:
+                    - textbox "—" [ref=e731]: N/A
+                  - cell "All UI elements should be displayed correctly" [ref=e732]:
+                    - textbox "—" [ref=e733]: All UI elements should be displayed correctly
+                  - cell "Not Started" [ref=e734]:
+                    - combobox [ref=e735] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e736]:
+                    - textbox [ref=e737] [cursor=pointer]
+                  - cell [ref=e738]:
+                    - textbox "—" [ref=e739]
+                  - cell "Not Run" [ref=e740]:
+                    - combobox [ref=e741] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e742]:
+                    - combobox [ref=e743] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Low" [ref=e744]:
+                    - combobox [ref=e745] [cursor=pointer]:
+                      - option "Low" [selected]
+                      - option "Medium"
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e746]:
+                    - textbox [ref=e748]
+                  - cell "Details" [ref=e749]:
+                    - button "Details" [ref=e750] [cursor=pointer]
+                - row "LOGIN-016 Login Verify user session after successful login User logged in successfully 1. Login2. Navigate across pages Valid Credentials User session should remain active until logout/session timeout Not Started Not Run No Medium Details" [ref=e751]:
+                  - cell [ref=e752]:
+                    - checkbox [ref=e753] [cursor=pointer]
+                  - cell "LOGIN-016" [ref=e754]:
+                    - generic [ref=e755]: LOGIN-016
+                  - cell "Login" [ref=e756]:
+                    - textbox "—" [ref=e757]: Login
+                  - cell "Verify user session after successful login" [ref=e758]:
+                    - textbox "—" [ref=e759]: Verify user session after successful login
+                  - cell "User logged in successfully" [ref=e760]:
+                    - textbox "—" [ref=e761]: User logged in successfully
+                  - cell "1. Login2. Navigate across pages" [ref=e762]:
+                    - textbox "—" [ref=e763]: 1. Login2. Navigate across pages
+                  - cell "Valid Credentials" [ref=e764]:
+                    - textbox "—" [ref=e765]: Valid Credentials
+                  - cell "User session should remain active until logout/session timeout" [ref=e766]:
+                    - textbox "—" [ref=e767]: User session should remain active until logout/session timeout
+                  - cell "Not Started" [ref=e768]:
+                    - combobox [ref=e769] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e770]:
+                    - textbox [ref=e771] [cursor=pointer]
+                  - cell [ref=e772]:
+                    - textbox "—" [ref=e773]
+                  - cell "Not Run" [ref=e774]:
+                    - combobox [ref=e775] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e776]:
+                    - combobox [ref=e777] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Medium" [ref=e778]:
+                    - combobox [ref=e779] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium" [selected]
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e780]:
+                    - textbox [ref=e782]
+                  - cell "Details" [ref=e783]:
+                    - button "Details" [ref=e784] [cursor=pointer]
+                - row "LOGIN-017 Login Verify logout functionality after login User logged in successfully 1. Login2. Click Logout Valid Credentials User should be logged out and redirected to Login page Not Started Not Run No High Details" [ref=e785]:
+                  - cell [ref=e786]:
+                    - checkbox [ref=e787] [cursor=pointer]
+                  - cell "LOGIN-017" [ref=e788]:
+                    - generic [ref=e789]: LOGIN-017
+                  - cell "Login" [ref=e790]:
+                    - textbox "—" [ref=e791]: Login
+                  - cell "Verify logout functionality after login" [ref=e792]:
+                    - textbox "—" [ref=e793]: Verify logout functionality after login
+                  - cell "User logged in successfully" [ref=e794]:
+                    - textbox "—" [ref=e795]: User logged in successfully
+                  - cell "1. Login2. Click Logout" [ref=e796]:
+                    - textbox "—" [ref=e797]: 1. Login2. Click Logout
+                  - cell "Valid Credentials" [ref=e798]:
+                    - textbox "—" [ref=e799]: Valid Credentials
+                  - cell "User should be logged out and redirected to Login page" [ref=e800]:
+                    - textbox "—" [ref=e801]: User should be logged out and redirected to Login page
+                  - cell "Not Started" [ref=e802]:
+                    - combobox [ref=e803] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e804]:
+                    - textbox [ref=e805] [cursor=pointer]
+                  - cell [ref=e806]:
+                    - textbox "—" [ref=e807]
+                  - cell "Not Run" [ref=e808]:
+                    - combobox [ref=e809] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e810]:
+                    - combobox [ref=e811] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "High" [ref=e812]:
+                    - combobox [ref=e813] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium"
+                      - option "High" [selected]
+                      - option "Critical"
+                  - cell [ref=e814]:
+                    - textbox [ref=e816]
+                  - cell "Details" [ref=e817]:
+                    - button "Details" [ref=e818] [cursor=pointer]
+                - row "LOGIN-018 Login Verify access restriction after logout User logged out 1. Logout2. Click browser Back button N/A Previously authenticated pages should not be accessible Not Started Not Run No High Details" [ref=e819]:
+                  - cell [ref=e820]:
+                    - checkbox [ref=e821] [cursor=pointer]
+                  - cell "LOGIN-018" [ref=e822]:
+                    - generic [ref=e823]: LOGIN-018
+                  - cell "Login" [ref=e824]:
+                    - textbox "—" [ref=e825]: Login
+                  - cell "Verify access restriction after logout" [ref=e826]:
+                    - textbox "—" [ref=e827]: Verify access restriction after logout
+                  - cell "User logged out" [ref=e828]:
+                    - textbox "—" [ref=e829]: User logged out
+                  - cell "1. Logout2. Click browser Back button" [ref=e830]:
+                    - textbox "—" [ref=e831]: 1. Logout2. Click browser Back button
+                  - cell "N/A" [ref=e832]:
+                    - textbox "—" [ref=e833]: N/A
+                  - cell "Previously authenticated pages should not be accessible" [ref=e834]:
+                    - textbox "—" [ref=e835]: Previously authenticated pages should not be accessible
+                  - cell "Not Started" [ref=e836]:
+                    - combobox [ref=e837] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e838]:
+                    - textbox [ref=e839] [cursor=pointer]
+                  - cell [ref=e840]:
+                    - textbox "—" [ref=e841]
+                  - cell "Not Run" [ref=e842]:
+                    - combobox [ref=e843] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e844]:
+                    - combobox [ref=e845] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "High" [ref=e846]:
+                    - combobox [ref=e847] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium"
+                      - option "High" [selected]
+                      - option "Critical"
+                  - cell [ref=e848]:
+                    - textbox [ref=e850]
+                  - cell "Details" [ref=e851]:
+                    - button "Details" [ref=e852] [cursor=pointer]
+                - row "LOGIN-019 Login Verify login page responsiveness Login page accessible Open Login page on different screen resolutions N/A Login page should render correctly on all supported devices/resolutions Not Started Not Run No Medium Details" [ref=e853]:
+                  - cell [ref=e854]:
+                    - checkbox [ref=e855] [cursor=pointer]
+                  - cell "LOGIN-019" [ref=e856]:
+                    - generic [ref=e857]: LOGIN-019
+                  - cell "Login" [ref=e858]:
+                    - textbox "—" [ref=e859]: Login
+                  - cell "Verify login page responsiveness" [ref=e860]:
+                    - textbox "—" [ref=e861]: Verify login page responsiveness
+                  - cell "Login page accessible" [ref=e862]:
+                    - textbox "—" [ref=e863]: Login page accessible
+                  - cell "Open Login page on different screen resolutions" [ref=e864]:
+                    - textbox "—" [ref=e865]: Open Login page on different screen resolutions
+                  - cell "N/A" [ref=e866]:
+                    - textbox "—" [ref=e867]: N/A
+                  - cell "Login page should render correctly on all supported devices/resolutions" [ref=e868]:
+                    - textbox "—" [ref=e869]: Login page should render correctly on all supported devices/resolutions
+                  - cell "Not Started" [ref=e870]:
+                    - combobox [ref=e871] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e872]:
+                    - textbox [ref=e873] [cursor=pointer]
+                  - cell [ref=e874]:
+                    - textbox "—" [ref=e875]
+                  - cell "Not Run" [ref=e876]:
+                    - combobox [ref=e877] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e878]:
+                    - combobox [ref=e879] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "Medium" [ref=e880]:
+                    - combobox [ref=e881] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium" [selected]
+                      - option "High"
+                      - option "Critical"
+                  - cell [ref=e882]:
+                    - textbox [ref=e884]
+                  - cell "Details" [ref=e885]:
+                    - button "Details" [ref=e886] [cursor=pointer]
+                - row "LOGIN-020 Login Verify login functionality across supported browsers Login page accessible Execute login flow on Chrome, Edge, Firefox, Safari (if supported) Valid Credentials Login should work consistently across supported browsers Not Started Not Run No High Details" [ref=e887]:
+                  - cell [ref=e888]:
+                    - checkbox [ref=e889] [cursor=pointer]
+                  - cell "LOGIN-020" [ref=e890]:
+                    - generic [ref=e891]: LOGIN-020
+                  - cell "Login" [ref=e892]:
+                    - textbox "—" [ref=e893]: Login
+                  - cell "Verify login functionality across supported browsers" [ref=e894]:
+                    - textbox "—" [ref=e895]: Verify login functionality across supported browsers
+                  - cell "Login page accessible" [ref=e896]:
+                    - textbox "—" [ref=e897]: Login page accessible
+                  - cell "Execute login flow on Chrome, Edge, Firefox, Safari (if supported)" [ref=e898]:
+                    - textbox "—" [ref=e899]: Execute login flow on Chrome, Edge, Firefox, Safari (if supported)
+                  - cell "Valid Credentials" [ref=e900]:
+                    - textbox "—" [ref=e901]: Valid Credentials
+                  - cell "Login should work consistently across supported browsers" [ref=e902]:
+                    - textbox "—" [ref=e903]: Login should work consistently across supported browsers
+                  - cell "Not Started" [ref=e904]:
+                    - combobox [ref=e905] [cursor=pointer]:
+                      - option "Not Started" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell [ref=e906]:
+                    - textbox [ref=e907] [cursor=pointer]
+                  - cell [ref=e908]:
+                    - textbox "—" [ref=e909]
+                  - cell "Not Run" [ref=e910]:
+                    - combobox [ref=e911] [cursor=pointer]:
+                      - option "Not Run" [selected]
+                      - option "Passed"
+                      - option "Failed"
+                      - option "Blocked"
+                  - cell "No" [ref=e912]:
+                    - combobox [ref=e913] [cursor=pointer]:
+                      - option "Yes"
+                      - option "No" [selected]
+                      - option "N/A"
+                  - cell "High" [ref=e914]:
+                    - combobox [ref=e915] [cursor=pointer]:
+                      - option "Low"
+                      - option "Medium"
+                      - option "High" [selected]
+                      - option "Critical"
+                  - cell [ref=e916]:
+                    - textbox [ref=e918]
+                  - cell "Details" [ref=e919]:
+                    - button "Details" [ref=e920] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=e11] [cursor=pointer]:
+    - img [ref=e12]
+  - alert [ref=e15]

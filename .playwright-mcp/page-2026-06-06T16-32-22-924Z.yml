@@ -1,0 +1,71 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e17]:
+      - link "CB QOps Logo CB QOps" [ref=e19] [cursor=pointer]:
+        - /url: /dashboard
+        - img "CB QOps Logo" [ref=e20]
+        - generic [ref=e21]: CB QOps
+      - navigation [ref=e22]:
+        - link "Dashboard" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e24]
+          - generic [ref=e29]: Dashboard
+        - link "Daily Status" [ref=e30] [cursor=pointer]:
+          - /url: /daily-status
+          - img [ref=e31]
+          - generic [ref=e33]: Daily Status
+        - link "Test Cases" [ref=e34] [cursor=pointer]:
+          - /url: /test-cases
+          - img [ref=e35]
+          - generic [ref=e37]: Test Cases
+      - button "Logout" [ref=e39]:
+        - img [ref=e40]
+        - generic [ref=e43]: Logout
+    - main [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e54]:
+          - link [ref=e55] [cursor=pointer]:
+            - /url: /test-cases
+            - img [ref=e56]
+          - generic [ref=e58]:
+            - heading "Playwright Automation" [level=1] [ref=e59]
+            - paragraph [ref=e60]: Test Cases & Status Tracking
+        - generic [ref=e61]:
+          - img [ref=e62]
+          - generic [ref=e64]: d.data(...).timestamp?.toDate is not a function
+          - button "✕" [ref=e65] [cursor=pointer]
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - img [ref=e70]
+              - heading "Google Sheet Two-Way Synced Mode" [level=2] [ref=e73]
+              - paragraph [ref=e74]: Directly connect a Google Sheet URL. Imports test cases to our secure server databases, enabling centralized sharing and active two-way sync back to your Google Sheet rows on portal updates.
+              - generic [ref=e76]:
+                - textbox "https://docs.google.com/spreadsheets/d/..." [ref=e77]
+                - button "Connect" [ref=e78] [cursor=pointer]
+              - generic [ref=e79]:
+                - img [ref=e80]
+                - generic [ref=e82]:
+                  - text: Share sheet with
+                  - strong [ref=e83]: firebase-adminsdk-fbsvc@cbqaops.iam.gserviceaccount.com
+                  - text: as Editor.
+            - button "Download Schema Template" [ref=e84] [cursor=pointer]:
+              - img [ref=e85]
+              - text: Download Schema Template
+          - generic [ref=e88]:
+            - generic [ref=e89]:
+              - img [ref=e91]
+              - heading "Local CSV / Excel Offline Mode" [level=2] [ref=e94]
+              - paragraph [ref=e95]: Upload a test cases file exported from your test management tools (CSV, XLSX, XLS). Data is cached in your browser's local storage, allowing offline interactive inline editing.
+              - button "Browse CSV or Excel File" [ref=e97] [cursor=pointer]:
+                - img [ref=e98]
+                - text: Browse CSV or Excel File
+            - generic [ref=e101]:
+              - text: Requires files to contain at least
+              - strong [ref=e102]: Dev Status
+              - text: and
+              - strong [ref=e103]: QA Status
+              - text: column headers.
+  - button "Open Next.js Dev Tools" [ref=e11] [cursor=pointer]:
+    - img [ref=e12]
+  - alert [ref=e15]

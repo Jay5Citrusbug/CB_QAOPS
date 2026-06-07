@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { addDailyStatus, updateGroupedDailyStatus, deleteGroupedDailyStatus } from "@/lib/actions";
-import { Plus, X, Calendar, CheckCircle2, User, LayoutGrid, List, Search, Filter, Briefcase, Edit2, Trash2, Clock, ChevronDown, Check, Eye, Copy, BarChart2 } from "lucide-react";
+import { Plus, X, Calendar, CheckCircle2, User, LayoutGrid, List, Search, Filter, Briefcase, Edit2, Trash2, Clock, ChevronDown, Check, Eye, Copy, BarChart2, AlertTriangle } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 interface DailyStatus {
@@ -87,6 +87,7 @@ export default function DailyStatusPage() {
 
   const [viewStatusId, setViewStatusId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
 
   const { data: session } = useSession();
 
@@ -222,6 +223,16 @@ export default function DailyStatusPage() {
           </button>
         </div>
       </div>
+
+      {warningMessage && (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex justify-between items-center gap-3 animate-in fade-in duration-300">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
+            <span className="text-sm font-semibold text-amber-800">{warningMessage}</span>
+          </div>
+          <button onClick={() => setWarningMessage("")} className="text-amber-500 hover:text-amber-700 font-bold p-1">✕</button>
+        </div>
+      )}
 
       {/* Filter Hub */}
       <div className="premium-card grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
@@ -407,6 +418,7 @@ export default function DailyStatusPage() {
             
             <form action={async (formData) => {
               setLoading(true);
+              setWarningMessage("");
               const res = isEditing 
                 ? await updateGroupedDailyStatus(currentEditDate, formData) 
                 : await addDailyStatus(formData);
@@ -416,6 +428,9 @@ export default function DailyStatusPage() {
                 setLoading(false);
               } else {
                 setError("");
+                if (res && 'warning' in res && res.warning) {
+                  setWarningMessage(res.warning);
+                }
                 setShowModal(false);
                 setEditingGroup(null);
                 setLoading(false);

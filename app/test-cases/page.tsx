@@ -25,9 +25,16 @@ export default function TestCasesProjectsPage() {
       try {
         const res = await fetch("/api/projects");
         const data = await res.json();
-        setProjects(data);
+        // API may return { projects: [...] } or a plain array — handle both
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.projects)
+          ? data.projects
+          : [];
+        setProjects(list);
       } catch (err) {
         console.error("Failed to fetch projects", err);
+        setProjects([]);
       } finally {
         setLoading(false);
       }

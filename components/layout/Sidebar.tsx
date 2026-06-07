@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Calendar, CheckSquare, Users, LogOut, Briefcase, X, FlaskConical } from "lucide-react";
+import { LayoutDashboard, Calendar, CheckSquare, Users, LogOut, Briefcase, X, FlaskConical, Settings, Folder } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
 const menuItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, allowedRoles: ["ADMIN", "USER"] },
   { name: "Daily Status", href: "/daily-status", icon: Calendar, allowedRoles: ["ADMIN", "USER"] },
+  { name: "My Projects", href: "/my-projects", icon: Folder, allowedRoles: ["ADMIN", "TL", "USER"] },
   { name: "Test Cases", href: "/test-cases", icon: FlaskConical, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },
   { name: "Project Hub", href: "/admin/projects", icon: Briefcase, allowedRoles: ["ADMIN"] },
   { name: "Team Hub", href: "/admin/users", icon: Users, allowedRoles: ["ADMIN"] },
+  { name: "Settings", href: "/admin/settings", icon: Settings, allowedRoles: ["ADMIN"] },
 ];
 
 export default function Sidebar({ onClose }: { onClose?: () => void }) {

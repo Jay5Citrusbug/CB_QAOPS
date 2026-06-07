@@ -1,0 +1,54 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e29] [cursor=pointer]:
+    - img [ref=e30]
+  - alert [ref=e33]
+  - generic [ref=e44]:
+    - generic [ref=e46]:
+      - link "CB QOps Logo CB QOps" [ref=e48] [cursor=pointer]:
+        - /url: /dashboard
+        - img "CB QOps Logo" [ref=e49]
+        - generic [ref=e50]: CB QOps
+      - navigation [ref=e51]:
+        - link "Dashboard" [ref=e52] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e53]
+          - generic [ref=e58]: Dashboard
+        - link "Daily Status" [ref=e59] [cursor=pointer]:
+          - /url: /daily-status
+          - img [ref=e60]
+          - generic [ref=e62]: Daily Status
+        - link "Test Cases" [ref=e63] [cursor=pointer]:
+          - /url: /test-cases
+          - img [ref=e64]
+          - generic [ref=e66]: Test Cases
+      - button "Logout" [ref=e68]:
+        - img [ref=e69]
+        - generic [ref=e72]: Logout
+    - main [ref=e74]:
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - heading "Morning, Unknown!" [level=1] [ref=e77]
+          - paragraph [ref=e78]: Here's what's happening today in your QA portal.
+        - generic [ref=e79]:
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - heading "Today's Status" [level=2] [ref=e82]:
+                - img [ref=e83]
+                - text: Today's Status
+              - link "Submit now" [ref=e85] [cursor=pointer]:
+                - /url: /daily-status
+                - text: Submit now
+                - img [ref=e86]
+            - paragraph [ref=e89]: You haven't submitted today's status yet.
+          - generic [ref=e90]:
+            - heading "Stats" [level=2] [ref=e92]:
+              - img [ref=e93]
+              - text: Stats
+            - generic [ref=e96]:
+              - generic [ref=e97]: Open Tasks
+              - generic [ref=e98]: "0"
+        - generic [ref=e100]:
+          - heading "Upcoming Tasks" [level=2] [ref=e101]:
+            - img [ref=e102]
+            - text: Upcoming Tasks
+          - paragraph [ref=e106]: No pending tasks!

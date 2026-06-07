@@ -1,0 +1,3001 @@
+{
+  "users": {
+    "user_001": {
+      "project_id": null,
+      "created_at": {
+        "seconds": 1779271200,
+        "nanoseconds": 0
+      },
+      "email": "admin@test.com",
+      "role": "ADMIN",
+      "name": "Admin User"
+    },
+    "user_002": {
+      "project_id": null,
+      "created_at": {
+        "seconds": 1779272100,
+        "nanoseconds": 0
+      },
+      "email": "tl@test.com",
+      "role": "TL",
+      "name": "TL User"
+    },
+    "user_003": {
+      "created_at": {
+        "seconds": 1779273000,
+        "nanoseconds": 0
+      },
+      "email": "dev@test.com",
+      "project_id": "proj_001",
+      "name": "Dev User",
+      "role": "DEV"
+    },
+    "boHO3GpjzJOQvXqr1nzEL0YlS0s2": {
+      "role": "ADMIN",
+      "project_id": null,
+      "name": "Jay Citrusbug",
+      "created_at": {
+        "seconds": 1779640357,
+        "nanoseconds": 587000000
+      },
+      "email": "jay5.citrusbug@gmail.com"
+    },
+    "BguGkUgfbdMeooOOShVNZviiIE03": {
+      "role": "DEV",
+      "project_id": "proj_001",
+      "name": "Dev Junior",
+      "created_at": {
+        "seconds": 1780764432,
+        "nanoseconds": 773000000
+      },
+      "email": "dev2@test.com"
+    },
+    "dev_002": {
+      "name": "Dev Junior",
+      "email": "dev2@test.com",
+      "role": "DEV",
+      "project_id": "proj_001",
+      "created_at": {
+        "seconds": 1779274800,
+        "nanoseconds": 0
+      }
+    },
+    "dev_001": {
+      "name": "Dev Senior",
+      "email": "dev1@test.com",
+      "role": "DEV",
+      "project_id": "proj_001",
+      "created_at": {
+        "seconds": 1779274500,
+        "nanoseconds": 0
+      }
+    },
+    "jY0o5nsXPudTDSoFEMQzmq7twvH3": {
+      "role": "DEV",
+      "project_id": "proj_001",
+      "name": "Dev Senior",
+      "created_at": {
+        "seconds": 1780764431,
+        "nanoseconds": 72000000
+      },
+      "email": "dev1@test.com"
+    },
+    "NKHZq66suVdup235yO8VgLfEMrl2": {
+      "project_id": null,
+      "name": "Jay Citrusbug",
+      "created_at": {
+        "seconds": 1779640305,
+        "nanoseconds": 360000000
+      },
+      "email": "jay5@citrusbug.com",
+      "role": "USER"
+    },
+    "FUbwCJwuQUh3FoUfhe8BSFdMWxz1": {
+      "role": "USER",
+      "project_id": "proj_001",
+      "name": "QA Assistant",
+      "created_at": {
+        "seconds": 1780764429,
+        "nanoseconds": 560000000
+      },
+      "email": "qa2@test.com"
+    },
+    "qa_002": {
+      "name": "QA Assistant",
+      "email": "qa2@test.com",
+      "role": "USER",
+      "project_id": "proj_001",
+      "created_at": {
+        "seconds": 1779274200,
+        "nanoseconds": 0
+      }
+    },
+    "dvtDxRIBWbQG3eWqDsyCGtKnbki1": {
+      "role": "USER",
+      "project_id": "proj_001",
+      "name": "QA Lead",
+      "created_at": {
+        "seconds": 1780764427,
+        "nanoseconds": 969000000
+      },
+      "email": "qa1@test.com"
+    },
+    "qa_001": {
+      "name": "QA Lead",
+      "email": "qa1@test.com",
+      "role": "USER",
+      "project_id": "proj_001",
+      "created_at": {
+        "seconds": 1779273900,
+        "nanoseconds": 0
+      }
+    },
+    "LndZTIrjOrXW39KFEwYm6CKthYy1": {
+      "name": "Bhargav",
+      "email": "bhargav@yopmail.com",
+      "role": "USER",
+      "project_id": null,
+      "created_at": {
+        "seconds": 1780846851,
+        "nanoseconds": 983000000
+      }
+    }
+  },
+  "projects": {
+    "proj_002": {
+      "code": "PROJ-002",
+      "name": "Next.js Migration",
+      "tl_name": "TL User",
+      "assignee_name": "QA Lead",
+      "dev_name": "Dev User",
+      "status": "ACTIVE",
+      "health": "AT_RISK",
+      "scope": "Migrate the frontend portal from Pages router to React Server Components.",
+      "requirements": "Convert old components, check middleware, and test caching layer integration.",
+      "startDate": {
+        "seconds": 1779352200,
+        "nanoseconds": 0
+      },
+      "targetReleaseDate": {
+        "seconds": 1784138400,
+        "nanoseconds": 0
+      },
+      "primaryQaEmail": "qa1@test.com",
+      "primaryQaName": "QA Lead",
+      "supportingQaEmail": "",
+      "supportingQaName": "",
+      "developerEmails": [
+        "dev2@test.com"
+      ],
+      "developerNames": [
+        "Dev Junior"
+      ],
+      "documents": [],
+      "created_at": {
+        "seconds": 1779352200,
+        "nanoseconds": 0
+      }
+    },
+    "proj_001": {
+      "code": "PROJ-001",
+      "name": "Playwright Automation",
+      "tl_name": "TL User",
+      "assignee_name": "QA Lead",
+      "dev_name": "Dev User",
+      "status": "ACTIVE",
+      "health": "HEALTHY",
+      "scope": "Automate all QA workflows and regress validation suites.",
+      "requirements": "Verify login, task creation, status updates, and sheet sync operations.",
+      "startDate": {
+        "seconds": 1779350400,
+        "nanoseconds": 0
+      },
+      "targetReleaseDate": {
+        "seconds": 1788112800,
+        "nanoseconds": 0
+      },
+      "primaryQaEmail": "qa1@test.com",
+      "primaryQaName": "QA Lead",
+      "supportingQaEmail": "qa2@test.com",
+      "supportingQaName": "QA Assistant",
+      "developerEmails": [
+        "dev@test.com",
+        "dev1@test.com"
+      ],
+      "developerNames": [
+        "Dev User",
+        "Dev Senior"
+      ],
+      "documents": [],
+      "created_at": {
+        "seconds": 1779350400,
+        "nanoseconds": 0
+      },
+      "googleSheet": {
+        "headers": [
+          "Test case ID",
+          "Module",
+          "Test Case Title",
+          "Pre-Conditions",
+          "Test Steps",
+          "Test Data",
+          "Expected Result",
+          "Dev Status",
+          "Dev Date Executed",
+          "Dev Notes",
+          "QA Status",
+          "cross browser Verfied ?",
+          "Priority",
+          "JIRA Ticket"
+        ],
+        "lastSyncAt": {
+          "seconds": 1780765382,
+          "nanoseconds": 529000000
+        }
+      }
+    },
+    "ulbpPwxN1Mk7ucEvCCVy": {
+      "code": "Ziplyst",
+      "name": "Zip",
+      "status": "ACTIVE",
+      "description": "real state project",
+      "scope": "Not required",
+      "requirements": "",
+      "startDate": "2026-06-18",
+      "targetReleaseDate": "2026-07-02",
+      "primaryQaEmail": "qa2@test.com",
+      "primaryQaName": "QA Assistant",
+      "supportingQaEmail": "qa1@test.com",
+      "supportingQaName": "QA Lead",
+      "teamLeadEmail": "tl@test.com",
+      "teamLeadName": "TL User",
+      "developerEmails": [
+        "dev2@test.com"
+      ],
+      "developerNames": [
+        "Dev Junior"
+      ],
+      "documents": [],
+      "timeline": {
+        "smokeTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "testCaseWriting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "designValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "integrationTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "regressionTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "uatSupport": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "releaseVerification": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "postReleaseValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        }
+      },
+      "notesAndFlags": [],
+      "tl_name": "QA Assistant",
+      "assignee_name": "QA Assistant",
+      "dev_name": "Dev Junior",
+      "updated_at": {
+        "seconds": 1780845573,
+        "nanoseconds": 893000000
+      },
+      "created_at": {
+        "seconds": 1780845573,
+        "nanoseconds": 893000000
+      }
+    },
+    "oBZuNXdgJKJ0B4hYNNNv": {
+      "code": "PROJ-2339",
+      "name": "Bluedrop",
+      "status": "ACTIVE",
+      "description": "Chatbot",
+      "scope": "No scope",
+      "requirements": "No ",
+      "startDate": "2026-06-02",
+      "targetReleaseDate": "2026-06-25",
+      "primaryQaEmail": "bhargav@yopmail.com",
+      "primaryQaName": "Bhargav",
+      "supportingQaEmail": "qa2@test.com",
+      "supportingQaName": "QA Assistant",
+      "teamLeadEmail": "",
+      "teamLeadName": "",
+      "developerEmails": [
+        "dev1@test.com"
+      ],
+      "developerNames": [
+        "Dev Senior"
+      ],
+      "documents": [],
+      "notesAndFlags": [],
+      "tl_name": "Bhargav",
+      "assignee_name": "Bhargav",
+      "dev_name": "Dev Senior",
+      "updated_at": {
+        "seconds": 1780847106,
+        "nanoseconds": 217000000
+      },
+      "created_at": {
+        "seconds": 1780847106,
+        "nanoseconds": 217000000
+      },
+      "timeline": {
+        "smokeTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": "",
+          "order": 2
+        },
+        "testCaseWriting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": "",
+          "order": 1
+        },
+        "designValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": "",
+          "order": 3
+        },
+        "integrationTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": "",
+          "order": 4
+        },
+        "regressionTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": "",
+          "order": 5
+        },
+        "uatSupport": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": "",
+          "order": 6
+        },
+        "releaseVerification": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": "",
+          "order": 7
+        },
+        "postReleaseValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": "",
+          "order": 8
+        }
+      }
+    },
+    "OdUHYnsaqUC62D0VYsxD": {
+      "code": "PROJ-6053",
+      "name": "Test Auto Code Generation",
+      "status": "ACTIVE",
+      "description": "",
+      "scope": "",
+      "requirements": "",
+      "startDate": null,
+      "targetReleaseDate": null,
+      "primaryQaEmail": "bhargav@yopmail.com",
+      "primaryQaName": "Bhargav",
+      "supportingQaEmail": "",
+      "supportingQaName": "",
+      "teamLeadEmail": "admin@test.com",
+      "teamLeadName": "Admin User",
+      "developerEmails": [],
+      "developerNames": [],
+      "documents": [],
+      "timeline": {
+        "smokeTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "testCaseWriting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "designValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "integrationTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "regressionTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "uatSupport": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "releaseVerification": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "postReleaseValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        }
+      },
+      "notesAndFlags": [],
+      "tl_name": "Bhargav",
+      "assignee_name": "Bhargav",
+      "dev_name": "",
+      "updated_at": {
+        "seconds": 1780847198,
+        "nanoseconds": 207000000
+      },
+      "created_at": {
+        "seconds": 1780847198,
+        "nanoseconds": 207000000
+      }
+    },
+    "knoKefvBulgwxKV2EheH": {
+      "code": "PROJ-8156",
+      "name": "Dynamic Test Project",
+      "status": "ACTIVE",
+      "description": "",
+      "scope": "",
+      "requirements": "",
+      "startDate": null,
+      "targetReleaseDate": "2026-12-12",
+      "primaryQaEmail": "bhargav@yopmail.com",
+      "primaryQaName": "Bhargav",
+      "supportingQaEmail": "",
+      "supportingQaName": "",
+      "teamLeadEmail": "admin@test.com",
+      "teamLeadName": "Admin User",
+      "developerEmails": [],
+      "developerNames": [],
+      "documents": [],
+      "timeline": {
+        "smokeTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "testCaseWriting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "designValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "integrationTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "regressionTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "uatSupport": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "releaseVerification": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "postReleaseValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        }
+      },
+      "notesAndFlags": [],
+      "tl_name": "Bhargav",
+      "assignee_name": "Bhargav",
+      "dev_name": "",
+      "updated_at": {
+        "seconds": 1780847801,
+        "nanoseconds": 557000000
+      },
+      "created_at": {
+        "seconds": 1780847801,
+        "nanoseconds": 557000000
+      }
+    }
+  },
+  "tasks": {
+    "task_001": {
+      "user_id": "user_003",
+      "title": "Configure Firebase Auth Router",
+      "status": "PENDING",
+      "is_important": true,
+      "my_day": true,
+      "notes": "Verify authorization callbacks and JWT validation inside NextAuth route",
+      "due_date": "2026-05-28T18:00:00.000Z",
+      "remind_at": "2026-05-28T09:00:00.000Z",
+      "repeat": "none",
+      "created_at": "2026-05-22T09:00:00.000Z"
+    },
+    "task_002": {
+      "user_id": "user_003",
+      "title": "Implement seed script",
+      "status": "PENDING",
+      "is_important": false,
+      "my_day": false,
+      "notes": "Must handle nested structures, batch transactions, and support clean re-runs",
+      "due_date": "2026-05-25T18:00:00.000Z",
+      "remind_at": null,
+      "repeat": "none",
+      "created_at": "2026-05-22T09:30:00.000Z"
+    },
+    "task_003": {
+      "user_id": "user_002",
+      "title": "Review Pull Request for Seeding Automation",
+      "status": "COMPLETED",
+      "is_important": true,
+      "my_day": false,
+      "notes": "Ensure that safety controls and idempotency are strictly preserved",
+      "due_date": null,
+      "remind_at": null,
+      "repeat": "none",
+      "created_at": "2026-05-23T11:00:00.000Z"
+    },
+    "uzcGsjR2n1FHUEhPwfhM": {
+      "user_id": "user_003",
+      "title": "New Offline Task",
+      "status": "PENDING"
+    },
+    "CJ3D8vCqHCPem7BW2SxP": {
+      "user_id": "user_003",
+      "title": "New Offline Task",
+      "status": "PENDING"
+    }
+  },
+  "task_steps": {
+    "step_001": {
+      "task_id": "task_001",
+      "title": "Install firebase packages",
+      "is_completed": true,
+      "created_at": "2026-05-22T09:05:00.000Z"
+    },
+    "step_002": {
+      "task_id": "task_001",
+      "title": "Set up environment variables",
+      "is_completed": true,
+      "created_at": "2026-05-22T09:10:00.000Z"
+    },
+    "step_003": {
+      "task_id": "task_001",
+      "title": "Test user session redirection",
+      "is_completed": false,
+      "created_at": "2026-05-22T09:15:00.000Z"
+    },
+    "step_004": {
+      "task_id": "task_002",
+      "title": "Draft JSON seed format",
+      "is_completed": true,
+      "created_at": "2026-05-22T09:35:00.000Z"
+    },
+    "step_005": {
+      "task_id": "task_002",
+      "title": "Write TypeScript script",
+      "is_completed": false,
+      "created_at": "2026-05-22T09:40:00.000Z"
+    }
+  },
+  "daily_statuses": {
+    "status_001": {
+      "user_id": "user_003",
+      "project_id": "proj_001",
+      "date": "2026-05-23T00:00:00.000Z",
+      "work_done": "Configured standard Next.js route handlers with Firebase Admin SDK",
+      "planned_work": "Integrate seed automation and run verification tests",
+      "hours": 6.5,
+      "blockers": null,
+      "created_at": "2026-05-23T17:30:00.000Z"
+    },
+    "status_002": {
+      "user_id": "user_003",
+      "project_id": "proj_001",
+      "date": "2026-05-24T00:00:00.000Z",
+      "work_done": "Created complete Firestore schema mapping and validated composite index configurations",
+      "planned_work": "Deploy production firestore.rules and conduct automated test coverage validations",
+      "hours": 8,
+      "blockers": "Minor delay in service account credentials access",
+      "created_at": "2026-05-24T18:00:00.000Z"
+    },
+    "3UtLUEUm1ERZmsxiXOpi": {
+      "user_id": "NKHZq66suVdup235yO8VgLfEMrl2",
+      "project_id": "proj_002",
+      "date": {
+        "seconds": 1780704000,
+        "nanoseconds": 0
+      },
+      "work_done": "Jira Updates -\r\n\r\nLMS\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-329\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-393\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-402\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-351\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-352\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-145\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-371\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-384\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-40\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-223\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-349\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-224\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-225\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-350\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-40\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-16\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-24\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-418\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-419\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-421\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-189\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-357\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-192\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-410\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-411\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-463\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-462\r\nhttps://citrusbugtechnolabs.atlassian.net/browse/LEAR-461\r\n",
+      "planned_work": "Ziplyst testing ",
+      "hours": 8,
+      "blockers": "NO",
+      "created_at": {
+        "seconds": 1780744497,
+        "nanoseconds": 685000000
+      }
+    },
+    "NE8StUuQqsNPu1TUWQpx": {
+      "user_id": "NKHZq66suVdup235yO8VgLfEMrl2",
+      "project_id": "proj_002",
+      "date": {
+        "seconds": 1780704000,
+        "nanoseconds": 0
+      },
+      "work_done": "sdfg",
+      "planned_work": "wer",
+      "hours": 8,
+      "blockers": null,
+      "created_at": {
+        "seconds": 1780744569,
+        "nanoseconds": 368000000
+      }
+    }
+  },
+  "audit_logs": {
+    "opfIjaSt4gPW6jet3IbX": {
+      "user": "jay5@citrusbug.com",
+      "action": "Import Started",
+      "timestamp": {}
+    },
+    "2MO1o7ifR1yO4ehWWPyk": {
+      "user": "jay5@citrusbug.com",
+      "action": "Google Sheet Connected",
+      "timestamp": {}
+    },
+    "JrikFoe3FzkDqD2rJNTb": {
+      "user": "jay5@citrusbug.com",
+      "action": "Import Completed. Imported 20 test cases.",
+      "timestamp": {}
+    },
+    "hDROSTOEcGXVZMUf0ssc": {
+      "user": "jay5@citrusbug.com",
+      "action": "Portal -> Sheet Sync: Updated 1 test cases in bulk",
+      "timestamp": {}
+    },
+    "w2duynRiALOHv8MIhCAv": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Google Sheet Disconnected",
+      "timestamp": {}
+    },
+    "Gjx1xcIkoVxan6lwKmmI": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Google Sheet Disconnected",
+      "timestamp": {}
+    },
+    "gpjew6jgf5iX89k8txkF": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Import Started",
+      "timestamp": {}
+    },
+    "FXNQXnw2pG49aDHMWR1S": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Google Sheet Connected",
+      "timestamp": {}
+    },
+    "yItT1O0f7lkJAoTTBuDl": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Import Completed. Imported 20 test cases.",
+      "timestamp": {}
+    },
+    "IgP7GvbnQzPv600T0CoV": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "po5GwQKMiMSwZ08aqmdP": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "MWtdEiNE6BErApwTQCFZ": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "mnEkUGHZAanTwdI3bE4d": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "2o2wiMYy0zCp7bAZ4Kv3": {
+      "user": "jay5@citrusbug.com",
+      "action": "Portal -> Sheet Sync: Updated 20 test cases in bulk",
+      "timestamp": {}
+    },
+    "7nlPZDnFxrOgAKlfBgrF": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "d2OZXyKYY4hSuGJghem9": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 20, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "hR6BM8rykGLVCDhbw5Ei": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "BO6nWpxAKLETC1oBakoU": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "sTiQwmPKaQvN9Vaobdx9": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "aCyhGaZd7Lmbgp9PPL7a": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "gSefTdYrvY3vlzpZh3bE": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "OrDpw1hlsGbF2R8ID4kg": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 1, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "DFOFeUlcOhih3P55yPg6": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "nBIkCj69g2zPLC58pdSz": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "wjqpu1z8A2ERpzotgMio": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "2PO6alRBUUsbsHZ08G1F": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "J46QXqMHcyaOWv2ByVpP": {
+      "user": "jay5@citrusbug.com",
+      "action": "Portal -> Sheet Sync: Updated 1 test cases in bulk",
+      "timestamp": {}
+    },
+    "9p7Q4YHmhMq26TTFoPLp": {
+      "user": "jay5@citrusbug.com",
+      "action": "Portal -> Sheet Sync: Updated 1 test cases in bulk",
+      "timestamp": {}
+    },
+    "XZ0JBI9fvsiWLcPMp4QV": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "37EYWYPI3jHP3kyDt1O2": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 17, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "RsUx1bzbTF1lF4y9r6Lx": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "vLxeqg7MZUBNTMVizUR5": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "AwXZsBpjhEXsCaCE6JKy": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "Iiwdr2zI23j6rqH7ql0F": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "z2PvYXIFSHPX11RFft65": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "6QHS5ZBnti2KoWqok1rH": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 20, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "Jo3Qu6YlIn3nr0rfcCdM": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "5K2EDG3RQRVW7oaiRHos": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "HS8x38phvxIcE6ddr5ze": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "AYoLS3yTjcvVVpai3rde": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "UaKEJzYcH83bfzeAVyeF": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "qX3fKll093zuFqccaGC7": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "1OBkJKP9ksvqysI2rB7U": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "dmtvRxYgHGJXMlkCVXEy": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "udNUfvuiKDckEmWrH7qf": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "QdmolTM0hPllr0wAK37h": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "Ajs0REFvk647CrMSor48": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "MeNIR7StTnun4z4VEBL2": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "LOHZkY5vJLOoSh8myGi1": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": {}
+    },
+    "yMKthgSJVxTVMofQxawk": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {}
+    },
+    "k74eUQi1MteZtFhJGSQ3": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T16:54:50.117Z"
+    },
+    "Wlpx1gjNU9mGSvZtFgl7": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T16:54:50.159Z"
+    },
+    "GKN08r2o9gl6V7sxOEp5": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T16:55:43.546Z"
+    },
+    "s1vhr7CJDLXlhlAN6yfc": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T16:55:43.595Z"
+    },
+    "zrk7sWryqW3DW4NMI0b2": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T16:55:58.490Z"
+    },
+    "bKRuLU664NBTxO9WPKS5": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T16:55:58.549Z"
+    },
+    "HSKIPLVoKg8V1I0fGfiF": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T16:57:08.501Z"
+    },
+    "IjG0aqgAuc1TsfdUH8wK": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T16:57:08.597Z"
+    },
+    "Q3cAINMnUKXMrJ5e0gWK": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T16:57:15.975Z"
+    },
+    "dOgtaUKLunvWNJjMqtKU": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T16:57:15.997Z"
+    },
+    "wmLdmtQFL2SBWDVYdVi0": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T16:58:21.340Z"
+    },
+    "AK7IQ4NnLs0xnzKdFqgd": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T16:58:21.363Z"
+    },
+    "aWxC3SXgE8tj4BtDSC0A": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T16:58:30.463Z"
+    },
+    "1h2nWtVqUtPbo3gH0368": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T16:58:30.483Z"
+    },
+    "QslRSCgGseeFgjAmkKH6": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T16:59:27.081Z"
+    },
+    "VqwTtfD52EGsou023TL0": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T16:59:27.118Z"
+    },
+    "ya1oQtdzXTUeSrQSsBDl": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T16:59:36.245Z"
+    },
+    "p3DjUeWEAAITFCEUpFJH": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T16:59:36.271Z"
+    },
+    "5JHZnTOqtI7trP8A0IJj": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T17:00:32.381Z"
+    },
+    "xAJSpeCjQ9yNwUNEEiba": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T17:00:32.399Z"
+    },
+    "FdPggmqErC2ShpPtcjEx": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T17:00:41.934Z"
+    },
+    "8ectfHdok0gNADwA26wr": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T17:00:41.946Z"
+    },
+    "Lb8btMlyZg1Tw7FaJcg3": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T17:01:37.364Z"
+    },
+    "phfRlxsHS5rV6D7ijLn8": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T17:01:37.408Z"
+    },
+    "xuYciVTEACZw8cAZO15Z": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T17:01:51.970Z"
+    },
+    "qRUfuzZJ0nUIFc2Y7Vqf": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T17:01:51.991Z"
+    },
+    "RIu9HTAhiMNIzRHHACat": {
+      "user": "jay5@citrusbug.com",
+      "action": "Portal -> Sheet Sync: Updated 1 test cases in bulk",
+      "timestamp": "2026-06-06T17:01:54.534Z"
+    },
+    "7g1MCgUoE8g4YpvQNwYI": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T17:02:11.479Z"
+    },
+    "HQrc7YJNgNVX3tQnwSNA": {
+      "user": "jay5@citrusbug.com",
+      "action": "Sync Completed. Created: 0, Updated: 1, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T17:02:11.519Z"
+    },
+    "nliMYRc5Zfsje71ifUpB": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T17:03:01.666Z"
+    },
+    "dWtNV2qLWEkk9NeqS2yX": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T17:03:01.916Z"
+    },
+    "nA8fJOWIG8Y9N7RcoAqx": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-06T17:04:15.111Z"
+    },
+    "O4mK81Q1IpRWOecTyKYu": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-06T17:04:15.128Z"
+    },
+    "sSgGBQ1FhCvyplg1C435": {
+      "user": "Jay Citrusbug",
+      "action": "Project Created",
+      "project_id": "ulbpPwxN1Mk7ucEvCCVy",
+      "details": {
+        "name": "Zip",
+        "code": "Ziplyst"
+      },
+      "timestamp": {
+        "seconds": 1780845574,
+        "nanoseconds": 70000000
+      }
+    },
+    "pC9tPTu3AP6grEFham9M": {
+      "user": "Jay Citrusbug",
+      "action": "Primary QA Changed",
+      "project_id": "ulbpPwxN1Mk7ucEvCCVy",
+      "details": {
+        "newPrimaryQa": "qa2@test.com"
+      },
+      "timestamp": {
+        "seconds": 1780845574,
+        "nanoseconds": 185000000
+      }
+    },
+    "VKT0qO95720WAgBAxJnC": {
+      "user": "Jay Citrusbug",
+      "action": "Supporting QA Changed",
+      "project_id": "ulbpPwxN1Mk7ucEvCCVy",
+      "details": {
+        "newSupportingQa": "qa1@test.com"
+      },
+      "timestamp": {
+        "seconds": 1780845574,
+        "nanoseconds": 511000000
+      }
+    },
+    "FiYbifjFmFIUTS9splPx": {
+      "user": "Jay Citrusbug",
+      "action": "Developer Added",
+      "project_id": "ulbpPwxN1Mk7ucEvCCVy",
+      "details": {
+        "developer": "dev2@test.com"
+      },
+      "timestamp": {
+        "seconds": 1780845574,
+        "nanoseconds": 795000000
+      }
+    },
+    "RIMhQsWJxyGmD0HWNUhx": {
+      "user": "Jay Citrusbug",
+      "action": "Project Created",
+      "project_id": "oBZuNXdgJKJ0B4hYNNNv",
+      "details": {
+        "name": "Bluedrop",
+        "code": "PROJ-2339"
+      },
+      "timestamp": {
+        "seconds": 1780847106,
+        "nanoseconds": 315000000
+      }
+    },
+    "P7oIgJ2PQ3jz68elza6u": {
+      "user": "Jay Citrusbug",
+      "action": "Primary QA Changed",
+      "project_id": "oBZuNXdgJKJ0B4hYNNNv",
+      "details": {
+        "newPrimaryQa": "bhargav@yopmail.com"
+      },
+      "timestamp": {
+        "seconds": 1780847106,
+        "nanoseconds": 499000000
+      }
+    },
+    "lc9twvoBd2JON7bIgTua": {
+      "user": "Jay Citrusbug",
+      "action": "Supporting QA Changed",
+      "project_id": "oBZuNXdgJKJ0B4hYNNNv",
+      "details": {
+        "newSupportingQa": "qa2@test.com"
+      },
+      "timestamp": {
+        "seconds": 1780847106,
+        "nanoseconds": 789000000
+      }
+    },
+    "YPzlLfhWuq8PHGSknSGA": {
+      "user": "Jay Citrusbug",
+      "action": "Developer Added",
+      "project_id": "oBZuNXdgJKJ0B4hYNNNv",
+      "details": {
+        "developer": "dev1@test.com"
+      },
+      "timestamp": {
+        "seconds": 1780847107,
+        "nanoseconds": 89000000
+      }
+    },
+    "O66pmXIaQMRlIOl8QUgu": {
+      "user": "Jay Citrusbug",
+      "action": "Project Created",
+      "project_id": "OdUHYnsaqUC62D0VYsxD",
+      "details": {
+        "name": "Test Auto Code Generation",
+        "code": "PROJ-6053"
+      },
+      "timestamp": {
+        "seconds": 1780847198,
+        "nanoseconds": 720000000
+      }
+    },
+    "Dckpo0orEhjnqt54T8am": {
+      "user": "Jay Citrusbug",
+      "action": "Primary QA Changed",
+      "project_id": "OdUHYnsaqUC62D0VYsxD",
+      "details": {
+        "newPrimaryQa": "bhargav@yopmail.com"
+      },
+      "timestamp": {
+        "seconds": 1780847199,
+        "nanoseconds": 175000000
+      }
+    },
+    "b1bCwOdnLhSjOgVX0gJe": {
+      "user": "Jay Citrusbug",
+      "action": "Project Created",
+      "project_id": "knoKefvBulgwxKV2EheH",
+      "timestamp": "2026-06-07T15:56:41.531Z",
+      "details": {
+        "name": "Dynamic Test Project",
+        "code": "PROJ-8156"
+      }
+    },
+    "ACEpWEiVd42b2IKkZSwX": {
+      "user": "Jay Citrusbug",
+      "action": "Primary QA Changed",
+      "project_id": "knoKefvBulgwxKV2EheH",
+      "timestamp": "2026-06-07T15:56:41.743Z",
+      "details": {
+        "newPrimaryQa": "bhargav@yopmail.com"
+      }
+    }
+  },
+  "test_cases": {
+    "LOGIN-001": {
+      "Test case ID": "LOGIN-001",
+      "Module": "Login",
+      "Test Case Title": "Verify login with valid credentials",
+      "Pre-Conditions": "User account exists and is active",
+      "Test Steps": "1. Navigate to Login page2. Enter valid email3. Enter valid password4. Click Login",
+      "Test Data": "Valid Email, Valid Password",
+      "Expected Result": "User should be logged in successfully and redirected to Dashboard/Home page",
+      "Dev Status": "Passed",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "High",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-001",
+      "title": "Verify login with valid credentials",
+      "module": "Login",
+      "preConditions": "User account exists and is active",
+      "testSteps": "1. Navigate to Login page2. Enter valid email3. Enter valid password4. Click Login",
+      "testData": "Valid Email, Valid Password",
+      "expectedResult": "User should be logged in successfully and redirected to Dashboard/Home page",
+      "devStatus": "Passed",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "High",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-001",
+        "Module": "Login",
+        "Test Case Title": "Verify login with valid credentials",
+        "Pre-Conditions": "User account exists and is active",
+        "Test Steps": "1. Navigate to Login page2. Enter valid email3. Enter valid password4. Click Login",
+        "Test Data": "Valid Email, Valid Password",
+        "Expected Result": "User should be logged in successfully and redirected to Dashboard/Home page",
+        "Dev Status": "Passed",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "High",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-001",
+        "module": "Login",
+        "title": "Verify login with valid credentials",
+        "preConditions": "User account exists and is active",
+        "testSteps": "1. Navigate to Login page2. Enter valid email3. Enter valid password4. Click Login",
+        "testData": "Valid Email, Valid Password",
+        "expectedResult": "User should be logged in successfully and redirected to Dashboard/Home page",
+        "devStatus": "Passed",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "High",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-002": {
+      "Test case ID": "LOGIN-002",
+      "Module": "Login",
+      "Test Case Title": "Verify login with invalid password",
+      "Pre-Conditions": "User account exists",
+      "Test Steps": "1. Navigate to Login page2. Enter valid email3. Enter invalid password4. Click Login",
+      "Test Data": "Valid Email, Invalid Password",
+      "Expected Result": "Error message should be displayed and login should fail",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "High",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-002",
+      "title": "Verify login with invalid password",
+      "module": "Login",
+      "preConditions": "User account exists",
+      "testSteps": "1. Navigate to Login page2. Enter valid email3. Enter invalid password4. Click Login",
+      "testData": "Valid Email, Invalid Password",
+      "expectedResult": "Error message should be displayed and login should fail",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "High",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-002",
+        "Module": "Login",
+        "Test Case Title": "Verify login with invalid password",
+        "Pre-Conditions": "User account exists",
+        "Test Steps": "1. Navigate to Login page2. Enter valid email3. Enter invalid password4. Click Login",
+        "Test Data": "Valid Email, Invalid Password",
+        "Expected Result": "Error message should be displayed and login should fail",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "High",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-002",
+        "module": "Login",
+        "title": "Verify login with invalid password",
+        "preConditions": "User account exists",
+        "testSteps": "1. Navigate to Login page2. Enter valid email3. Enter invalid password4. Click Login",
+        "testData": "Valid Email, Invalid Password",
+        "expectedResult": "Error message should be displayed and login should fail",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "High",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-003": {
+      "Test case ID": "LOGIN-003",
+      "Module": "Login",
+      "Test Case Title": "Verify login with unregistered email",
+      "Pre-Conditions": "User is on Login page",
+      "Test Steps": "1. Enter unregistered email2. Enter any password3. Click Login",
+      "Test Data": "Invalid Email, Password",
+      "Expected Result": "Error message indicating invalid credentials should be displayed",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "High",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-003",
+      "title": "Verify login with unregistered email",
+      "module": "Login",
+      "preConditions": "User is on Login page",
+      "testSteps": "1. Enter unregistered email2. Enter any password3. Click Login",
+      "testData": "Invalid Email, Password",
+      "expectedResult": "Error message indicating invalid credentials should be displayed",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "High",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-003",
+        "Module": "Login",
+        "Test Case Title": "Verify login with unregistered email",
+        "Pre-Conditions": "User is on Login page",
+        "Test Steps": "1. Enter unregistered email2. Enter any password3. Click Login",
+        "Test Data": "Invalid Email, Password",
+        "Expected Result": "Error message indicating invalid credentials should be displayed",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "High",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-003",
+        "module": "Login",
+        "title": "Verify login with unregistered email",
+        "preConditions": "User is on Login page",
+        "testSteps": "1. Enter unregistered email2. Enter any password3. Click Login",
+        "testData": "Invalid Email, Password",
+        "expectedResult": "Error message indicating invalid credentials should be displayed",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "High",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-004": {
+      "Test case ID": "LOGIN-004",
+      "Module": "Login",
+      "Test Case Title": "Verify login with empty email and password fields",
+      "Pre-Conditions": "User is on Login page",
+      "Test Steps": "1. Leave email field blank2. Leave password field blank3. Click Login",
+      "Test Data": "Blank Fields",
+      "Expected Result": "Required field validation messages should be displayed",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "High",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-004",
+      "title": "Verify login with empty email and password fields",
+      "module": "Login",
+      "preConditions": "User is on Login page",
+      "testSteps": "1. Leave email field blank2. Leave password field blank3. Click Login",
+      "testData": "Blank Fields",
+      "expectedResult": "Required field validation messages should be displayed",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "High",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-004",
+        "Module": "Login",
+        "Test Case Title": "Verify login with empty email and password fields",
+        "Pre-Conditions": "User is on Login page",
+        "Test Steps": "1. Leave email field blank2. Leave password field blank3. Click Login",
+        "Test Data": "Blank Fields",
+        "Expected Result": "Required field validation messages should be displayed",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "High",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-004",
+        "module": "Login",
+        "title": "Verify login with empty email and password fields",
+        "preConditions": "User is on Login page",
+        "testSteps": "1. Leave email field blank2. Leave password field blank3. Click Login",
+        "testData": "Blank Fields",
+        "expectedResult": "Required field validation messages should be displayed",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "High",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-005": {
+      "Test case ID": "LOGIN-005",
+      "Module": "Login",
+      "Test Case Title": "Verify login with empty email field",
+      "Pre-Conditions": "User is on Login page",
+      "Test Steps": "1. Leave email field blank2. Enter valid password3. Click Login",
+      "Test Data": "Blank Email, Valid Password",
+      "Expected Result": "Email required validation message should be displayed",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Medium",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-005",
+      "title": "Verify login with empty email field",
+      "module": "Login",
+      "preConditions": "User is on Login page",
+      "testSteps": "1. Leave email field blank2. Enter valid password3. Click Login",
+      "testData": "Blank Email, Valid Password",
+      "expectedResult": "Email required validation message should be displayed",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-005",
+        "Module": "Login",
+        "Test Case Title": "Verify login with empty email field",
+        "Pre-Conditions": "User is on Login page",
+        "Test Steps": "1. Leave email field blank2. Enter valid password3. Click Login",
+        "Test Data": "Blank Email, Valid Password",
+        "Expected Result": "Email required validation message should be displayed",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Medium",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-005",
+        "module": "Login",
+        "title": "Verify login with empty email field",
+        "preConditions": "User is on Login page",
+        "testSteps": "1. Leave email field blank2. Enter valid password3. Click Login",
+        "testData": "Blank Email, Valid Password",
+        "expectedResult": "Email required validation message should be displayed",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-006": {
+      "Test case ID": "LOGIN-006",
+      "Module": "Login",
+      "Test Case Title": "Verify login with empty password field",
+      "Pre-Conditions": "User is on Login page",
+      "Test Steps": "1. Enter valid email2. Leave password field blank3. Click Login",
+      "Test Data": "Valid Email, Blank Password",
+      "Expected Result": "Password required validation message should be displayed",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Medium",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-006",
+      "title": "Verify login with empty password field",
+      "module": "Login",
+      "preConditions": "User is on Login page",
+      "testSteps": "1. Enter valid email2. Leave password field blank3. Click Login",
+      "testData": "Valid Email, Blank Password",
+      "expectedResult": "Password required validation message should be displayed",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-006",
+        "Module": "Login",
+        "Test Case Title": "Verify login with empty password field",
+        "Pre-Conditions": "User is on Login page",
+        "Test Steps": "1. Enter valid email2. Leave password field blank3. Click Login",
+        "Test Data": "Valid Email, Blank Password",
+        "Expected Result": "Password required validation message should be displayed",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Medium",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-006",
+        "module": "Login",
+        "title": "Verify login with empty password field",
+        "preConditions": "User is on Login page",
+        "testSteps": "1. Enter valid email2. Leave password field blank3. Click Login",
+        "testData": "Valid Email, Blank Password",
+        "expectedResult": "Password required validation message should be displayed",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-007": {
+      "Test case ID": "LOGIN-007",
+      "Module": "Login",
+      "Test Case Title": "Verify email field format validation",
+      "Pre-Conditions": "User is on Login page",
+      "Test Steps": "1. Enter invalid email format2. Enter password3. Click Login",
+      "Test Data": "abc.com",
+      "Expected Result": "Validation message should be displayed for invalid email format",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Medium",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-007",
+      "title": "Verify email field format validation",
+      "module": "Login",
+      "preConditions": "User is on Login page",
+      "testSteps": "1. Enter invalid email format2. Enter password3. Click Login",
+      "testData": "abc.com",
+      "expectedResult": "Validation message should be displayed for invalid email format",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-007",
+        "Module": "Login",
+        "Test Case Title": "Verify email field format validation",
+        "Pre-Conditions": "User is on Login page",
+        "Test Steps": "1. Enter invalid email format2. Enter password3. Click Login",
+        "Test Data": "abc.com",
+        "Expected Result": "Validation message should be displayed for invalid email format",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Medium",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-007",
+        "module": "Login",
+        "title": "Verify email field format validation",
+        "preConditions": "User is on Login page",
+        "testSteps": "1. Enter invalid email format2. Enter password3. Click Login",
+        "testData": "abc.com",
+        "expectedResult": "Validation message should be displayed for invalid email format",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-008": {
+      "Test case ID": "LOGIN-008",
+      "Module": "Login",
+      "Test Case Title": "Verify password field is masked",
+      "Pre-Conditions": "User is on Login page",
+      "Test Steps": "1. Enter password in password field",
+      "Test Data": "Password",
+      "Expected Result": "Password characters should be masked",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Low",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-008",
+      "title": "Verify password field is masked",
+      "module": "Login",
+      "preConditions": "User is on Login page",
+      "testSteps": "1. Enter password in password field",
+      "testData": "Password",
+      "expectedResult": "Password characters should be masked",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Low",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-008",
+        "Module": "Login",
+        "Test Case Title": "Verify password field is masked",
+        "Pre-Conditions": "User is on Login page",
+        "Test Steps": "1. Enter password in password field",
+        "Test Data": "Password",
+        "Expected Result": "Password characters should be masked",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Low",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-008",
+        "module": "Login",
+        "title": "Verify password field is masked",
+        "preConditions": "User is on Login page",
+        "testSteps": "1. Enter password in password field",
+        "testData": "Password",
+        "expectedResult": "Password characters should be masked",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Low",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-009": {
+      "Test case ID": "LOGIN-009",
+      "Module": "Login",
+      "Test Case Title": "Verify show/hide password functionality",
+      "Pre-Conditions": "Password visibility icon available",
+      "Test Steps": "1. Enter password2. Click eye icon3. Click again",
+      "Test Data": "Password",
+      "Expected Result": "Password should toggle between visible and hidden states",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Medium",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-009",
+      "title": "Verify show/hide password functionality",
+      "module": "Login",
+      "preConditions": "Password visibility icon available",
+      "testSteps": "1. Enter password2. Click eye icon3. Click again",
+      "testData": "Password",
+      "expectedResult": "Password should toggle between visible and hidden states",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-009",
+        "Module": "Login",
+        "Test Case Title": "Verify show/hide password functionality",
+        "Pre-Conditions": "Password visibility icon available",
+        "Test Steps": "1. Enter password2. Click eye icon3. Click again",
+        "Test Data": "Password",
+        "Expected Result": "Password should toggle between visible and hidden states",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Medium",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-009",
+        "module": "Login",
+        "title": "Verify show/hide password functionality",
+        "preConditions": "Password visibility icon available",
+        "testSteps": "1. Enter password2. Click eye icon3. Click again",
+        "testData": "Password",
+        "expectedResult": "Password should toggle between visible and hidden states",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-010": {
+      "Test case ID": "LOGIN-010",
+      "Module": "Login",
+      "Test Case Title": "Verify Remember Me functionality",
+      "Pre-Conditions": "Remember Me option available",
+      "Test Steps": "1. Select Remember Me checkbox2. Login successfully3. Logout and revisit application",
+      "Test Data": "Valid Credentials",
+      "Expected Result": "User credentials/session should be remembered as per application design",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Medium",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-010",
+      "title": "Verify Remember Me functionality",
+      "module": "Login",
+      "preConditions": "Remember Me option available",
+      "testSteps": "1. Select Remember Me checkbox2. Login successfully3. Logout and revisit application",
+      "testData": "Valid Credentials",
+      "expectedResult": "User credentials/session should be remembered as per application design",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-010",
+        "Module": "Login",
+        "Test Case Title": "Verify Remember Me functionality",
+        "Pre-Conditions": "Remember Me option available",
+        "Test Steps": "1. Select Remember Me checkbox2. Login successfully3. Logout and revisit application",
+        "Test Data": "Valid Credentials",
+        "Expected Result": "User credentials/session should be remembered as per application design",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Medium",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-010",
+        "module": "Login",
+        "title": "Verify Remember Me functionality",
+        "preConditions": "Remember Me option available",
+        "testSteps": "1. Select Remember Me checkbox2. Login successfully3. Logout and revisit application",
+        "testData": "Valid Credentials",
+        "expectedResult": "User credentials/session should be remembered as per application design",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-011": {
+      "Test case ID": "LOGIN-011",
+      "Module": "Login",
+      "Test Case Title": "Verify Forgot Password link navigation",
+      "Pre-Conditions": "Forgot Password feature enabled",
+      "Test Steps": "1. Click Forgot Password link",
+      "Test Data": "N/A",
+      "Expected Result": "User should be redirected to Forgot Password page",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Medium",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-011",
+      "title": "Verify Forgot Password link navigation",
+      "module": "Login",
+      "preConditions": "Forgot Password feature enabled",
+      "testSteps": "1. Click Forgot Password link",
+      "testData": "N/A",
+      "expectedResult": "User should be redirected to Forgot Password page",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-011",
+        "Module": "Login",
+        "Test Case Title": "Verify Forgot Password link navigation",
+        "Pre-Conditions": "Forgot Password feature enabled",
+        "Test Steps": "1. Click Forgot Password link",
+        "Test Data": "N/A",
+        "Expected Result": "User should be redirected to Forgot Password page",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Medium",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-011",
+        "module": "Login",
+        "title": "Verify Forgot Password link navigation",
+        "preConditions": "Forgot Password feature enabled",
+        "testSteps": "1. Click Forgot Password link",
+        "testData": "N/A",
+        "expectedResult": "User should be redirected to Forgot Password page",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-012": {
+      "Test case ID": "LOGIN-012",
+      "Module": "Login",
+      "Test Case Title": "Verify login using email with leading/trailing spaces",
+      "Pre-Conditions": "User account exists",
+      "Test Steps": "1. Enter email with spaces before/after2. Enter valid password3. Click Login",
+      "Test Data": "\" test@test.com \"",
+      "Expected Result": "Spaces should be trimmed and login should succeed",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Medium",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-012",
+      "title": "Verify login using email with leading/trailing spaces",
+      "module": "Login",
+      "preConditions": "User account exists",
+      "testSteps": "1. Enter email with spaces before/after2. Enter valid password3. Click Login",
+      "testData": "\" test@test.com \"",
+      "expectedResult": "Spaces should be trimmed and login should succeed",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-012",
+        "Module": "Login",
+        "Test Case Title": "Verify login using email with leading/trailing spaces",
+        "Pre-Conditions": "User account exists",
+        "Test Steps": "1. Enter email with spaces before/after2. Enter valid password3. Click Login",
+        "Test Data": "\" test@test.com \"",
+        "Expected Result": "Spaces should be trimmed and login should succeed",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Medium",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-012",
+        "module": "Login",
+        "title": "Verify login using email with leading/trailing spaces",
+        "preConditions": "User account exists",
+        "testSteps": "1. Enter email with spaces before/after2. Enter valid password3. Click Login",
+        "testData": "\" test@test.com \"",
+        "expectedResult": "Spaces should be trimmed and login should succeed",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-013": {
+      "Test case ID": "LOGIN-013",
+      "Module": "Login",
+      "Test Case Title": "Verify login using Enter key",
+      "Pre-Conditions": "User is on Login page",
+      "Test Steps": "1. Enter valid credentials2. Press Enter key",
+      "Test Data": "Valid Credentials",
+      "Expected Result": "Login should be triggered successfully",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Low",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-013",
+      "title": "Verify login using Enter key",
+      "module": "Login",
+      "preConditions": "User is on Login page",
+      "testSteps": "1. Enter valid credentials2. Press Enter key",
+      "testData": "Valid Credentials",
+      "expectedResult": "Login should be triggered successfully",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Low",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-013",
+        "Module": "Login",
+        "Test Case Title": "Verify login using Enter key",
+        "Pre-Conditions": "User is on Login page",
+        "Test Steps": "1. Enter valid credentials2. Press Enter key",
+        "Test Data": "Valid Credentials",
+        "Expected Result": "Login should be triggered successfully",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Low",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-013",
+        "module": "Login",
+        "title": "Verify login using Enter key",
+        "preConditions": "User is on Login page",
+        "testSteps": "1. Enter valid credentials2. Press Enter key",
+        "testData": "Valid Credentials",
+        "expectedResult": "Login should be triggered successfully",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Low",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-014": {
+      "Test case ID": "LOGIN-014",
+      "Module": "Login",
+      "Test Case Title": "Verify account lockout after multiple failed login attempts",
+      "Pre-Conditions": "Account lockout feature enabled",
+      "Test Steps": "1. Enter invalid password repeatedly until threshold is reached",
+      "Test Data": "Valid Email, Invalid Password",
+      "Expected Result": "Account should be temporarily locked or warning message displayed as per requirements",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "High",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-014",
+      "title": "Verify account lockout after multiple failed login attempts",
+      "module": "Login",
+      "preConditions": "Account lockout feature enabled",
+      "testSteps": "1. Enter invalid password repeatedly until threshold is reached",
+      "testData": "Valid Email, Invalid Password",
+      "expectedResult": "Account should be temporarily locked or warning message displayed as per requirements",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "High",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-014",
+        "Module": "Login",
+        "Test Case Title": "Verify account lockout after multiple failed login attempts",
+        "Pre-Conditions": "Account lockout feature enabled",
+        "Test Steps": "1. Enter invalid password repeatedly until threshold is reached",
+        "Test Data": "Valid Email, Invalid Password",
+        "Expected Result": "Account should be temporarily locked or warning message displayed as per requirements",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "High",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-014",
+        "module": "Login",
+        "title": "Verify account lockout after multiple failed login attempts",
+        "preConditions": "Account lockout feature enabled",
+        "testSteps": "1. Enter invalid password repeatedly until threshold is reached",
+        "testData": "Valid Email, Invalid Password",
+        "expectedResult": "Account should be temporarily locked or warning message displayed as per requirements",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "High",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-015": {
+      "Test case ID": "LOGIN-015",
+      "Module": "Login",
+      "Test Case Title": "Verify login page UI elements",
+      "Pre-Conditions": "Login page accessible",
+      "Test Steps": "Verify presence of Email field, Password field, Login button, Forgot Password link, Logo, Remember Me option",
+      "Test Data": "N/A",
+      "Expected Result": "All UI elements should be displayed correctly",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Low",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-015",
+      "title": "Verify login page UI elements",
+      "module": "Login",
+      "preConditions": "Login page accessible",
+      "testSteps": "Verify presence of Email field, Password field, Login button, Forgot Password link, Logo, Remember Me option",
+      "testData": "N/A",
+      "expectedResult": "All UI elements should be displayed correctly",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Low",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-015",
+        "Module": "Login",
+        "Test Case Title": "Verify login page UI elements",
+        "Pre-Conditions": "Login page accessible",
+        "Test Steps": "Verify presence of Email field, Password field, Login button, Forgot Password link, Logo, Remember Me option",
+        "Test Data": "N/A",
+        "Expected Result": "All UI elements should be displayed correctly",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Low",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-015",
+        "module": "Login",
+        "title": "Verify login page UI elements",
+        "preConditions": "Login page accessible",
+        "testSteps": "Verify presence of Email field, Password field, Login button, Forgot Password link, Logo, Remember Me option",
+        "testData": "N/A",
+        "expectedResult": "All UI elements should be displayed correctly",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Low",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-016": {
+      "Test case ID": "LOGIN-016",
+      "Module": "Login",
+      "Test Case Title": "Verify user session after successful login",
+      "Pre-Conditions": "User logged in successfully",
+      "Test Steps": "1. Login2. Navigate across pages",
+      "Test Data": "Valid Credentials",
+      "Expected Result": "User session should remain active until logout/session timeout",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Medium",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-016",
+      "title": "Verify user session after successful login",
+      "module": "Login",
+      "preConditions": "User logged in successfully",
+      "testSteps": "1. Login2. Navigate across pages",
+      "testData": "Valid Credentials",
+      "expectedResult": "User session should remain active until logout/session timeout",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-016",
+        "Module": "Login",
+        "Test Case Title": "Verify user session after successful login",
+        "Pre-Conditions": "User logged in successfully",
+        "Test Steps": "1. Login2. Navigate across pages",
+        "Test Data": "Valid Credentials",
+        "Expected Result": "User session should remain active until logout/session timeout",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Medium",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-016",
+        "module": "Login",
+        "title": "Verify user session after successful login",
+        "preConditions": "User logged in successfully",
+        "testSteps": "1. Login2. Navigate across pages",
+        "testData": "Valid Credentials",
+        "expectedResult": "User session should remain active until logout/session timeout",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-017": {
+      "Test case ID": "LOGIN-017",
+      "Module": "Login",
+      "Test Case Title": "Verify logout functionality after login",
+      "Pre-Conditions": "User logged in successfully",
+      "Test Steps": "1. Login2. Click Logout",
+      "Test Data": "Valid Credentials",
+      "Expected Result": "User should be logged out and redirected to Login page",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "High",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-017",
+      "title": "Verify logout functionality after login",
+      "module": "Login",
+      "preConditions": "User logged in successfully",
+      "testSteps": "1. Login2. Click Logout",
+      "testData": "Valid Credentials",
+      "expectedResult": "User should be logged out and redirected to Login page",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "High",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-017",
+        "Module": "Login",
+        "Test Case Title": "Verify logout functionality after login",
+        "Pre-Conditions": "User logged in successfully",
+        "Test Steps": "1. Login2. Click Logout",
+        "Test Data": "Valid Credentials",
+        "Expected Result": "User should be logged out and redirected to Login page",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "High",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-017",
+        "module": "Login",
+        "title": "Verify logout functionality after login",
+        "preConditions": "User logged in successfully",
+        "testSteps": "1. Login2. Click Logout",
+        "testData": "Valid Credentials",
+        "expectedResult": "User should be logged out and redirected to Login page",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "High",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-018": {
+      "Test case ID": "LOGIN-018",
+      "Module": "Login",
+      "Test Case Title": "Verify access restriction after logout",
+      "Pre-Conditions": "User logged out",
+      "Test Steps": "1. Logout2. Click browser Back button",
+      "Test Data": "N/A",
+      "Expected Result": "Previously authenticated pages should not be accessible",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "High",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-018",
+      "title": "Verify access restriction after logout",
+      "module": "Login",
+      "preConditions": "User logged out",
+      "testSteps": "1. Logout2. Click browser Back button",
+      "testData": "N/A",
+      "expectedResult": "Previously authenticated pages should not be accessible",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "High",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-018",
+        "Module": "Login",
+        "Test Case Title": "Verify access restriction after logout",
+        "Pre-Conditions": "User logged out",
+        "Test Steps": "1. Logout2. Click browser Back button",
+        "Test Data": "N/A",
+        "Expected Result": "Previously authenticated pages should not be accessible",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "High",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-018",
+        "module": "Login",
+        "title": "Verify access restriction after logout",
+        "preConditions": "User logged out",
+        "testSteps": "1. Logout2. Click browser Back button",
+        "testData": "N/A",
+        "expectedResult": "Previously authenticated pages should not be accessible",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "High",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-019": {
+      "Test case ID": "LOGIN-019",
+      "Module": "Login",
+      "Test Case Title": "Verify login page responsiveness",
+      "Pre-Conditions": "Login page accessible",
+      "Test Steps": "Open Login page on different screen resolutions",
+      "Test Data": "N/A",
+      "Expected Result": "Login page should render correctly on all supported devices/resolutions",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "Medium",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-019",
+      "title": "Verify login page responsiveness",
+      "module": "Login",
+      "preConditions": "Login page accessible",
+      "testSteps": "Open Login page on different screen resolutions",
+      "testData": "N/A",
+      "expectedResult": "Login page should render correctly on all supported devices/resolutions",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-019",
+        "Module": "Login",
+        "Test Case Title": "Verify login page responsiveness",
+        "Pre-Conditions": "Login page accessible",
+        "Test Steps": "Open Login page on different screen resolutions",
+        "Test Data": "N/A",
+        "Expected Result": "Login page should render correctly on all supported devices/resolutions",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "Medium",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-019",
+        "module": "Login",
+        "title": "Verify login page responsiveness",
+        "preConditions": "Login page accessible",
+        "testSteps": "Open Login page on different screen resolutions",
+        "testData": "N/A",
+        "expectedResult": "Login page should render correctly on all supported devices/resolutions",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    },
+    "LOGIN-020": {
+      "Test case ID": "LOGIN-020",
+      "Module": "Login",
+      "Test Case Title": "Verify login functionality across supported browsers",
+      "Pre-Conditions": "Login page accessible",
+      "Test Steps": "Execute login flow on Chrome, Edge, Firefox, Safari (if supported)",
+      "Test Data": "Valid Credentials",
+      "Expected Result": "Login should work consistently across supported browsers",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "FAILED",
+      "cross browser Verfied ?": "",
+      "Priority": "High",
+      "JIRA Ticket": "",
+      "testCaseId": "LOGIN-020",
+      "title": "Verify login functionality across supported browsers",
+      "module": "Login",
+      "preConditions": "Login page accessible",
+      "testSteps": "Execute login flow on Chrome, Edge, Firefox, Safari (if supported)",
+      "testData": "Valid Credentials",
+      "expectedResult": "Login should work consistently across supported browsers",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "FAILED",
+      "crossBrowserVerified": "No",
+      "priority": "High",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedAt": {},
+      "lastSyncedValues": {
+        "Test case ID": "LOGIN-020",
+        "Module": "Login",
+        "Test Case Title": "Verify login functionality across supported browsers",
+        "Pre-Conditions": "Login page accessible",
+        "Test Steps": "Execute login flow on Chrome, Edge, Firefox, Safari (if supported)",
+        "Test Data": "Valid Credentials",
+        "Expected Result": "Login should work consistently across supported browsers",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "FAILED",
+        "cross browser Verfied ?": "",
+        "Priority": "High",
+        "JIRA Ticket": "",
+        "testCaseId": "LOGIN-020",
+        "module": "Login",
+        "title": "Verify login functionality across supported browsers",
+        "preConditions": "Login page accessible",
+        "testSteps": "Execute login flow on Chrome, Edge, Firefox, Safari (if supported)",
+        "testData": "Valid Credentials",
+        "expectedResult": "Login should work consistently across supported browsers",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "FAILED",
+        "crossBrowserVerified": "No",
+        "priority": "High",
+        "jiraTicket": ""
+      },
+      "updatedAt": {}
+    }
+  },
+  "sync_history": {
+    "wc5PfIwglqKBbo94EXqH": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 7.47
+    },
+    "LZdUlddOiwEdJs1GL9K2": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 23.06
+    },
+    "qmsoTyoZ6VvJSwCrEeH2": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 20,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 11.13
+    },
+    "uJYzIvObjXbAVBqERNIL": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 3.12
+    },
+    "USHR4jiHvhTiXiFucy7H": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.14
+    },
+    "aYPcRj05tJ6fclXhcQkx": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 1,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.46
+    },
+    "owf9kbyDUktS0kOg2d3W": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.71
+    },
+    "t5BA7ZNy3Xlfr1OHrDlx": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 7.05
+    },
+    "ugB5NqZLcO3NPZDUvDiT": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 17,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 6.92
+    },
+    "KVy7z868qY8KD0OAjtGG": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.56
+    },
+    "mMvLegd2WReTtCLOBsOm": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 3.25
+    },
+    "W6qsVtuXfXS8h6MFIYyf": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 20,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 31.38
+    },
+    "11DuAZKuRafHVgbKsTfN": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 27.55
+    },
+    "nKU25YxdwXN2fz7VmLDQ": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 5.63
+    },
+    "WNZo69akKvPlLdV7Fmb1": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 4.21
+    },
+    "OovNbOrgUoumzSBQP17w": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 4.75
+    },
+    "MYX32UAzn6TvKYjP7l1v": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.74
+    },
+    "Y0BNuE2V8eflzpKKwdMl": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 3.84
+    },
+    "rspRIePOE5nXxURhYqmY": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.59
+    },
+    "5OQLtEvTYwcs7vLFqApw": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 9.44
+    },
+    "wiard2okmf0W70dHcd2N": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.4
+    },
+    "RTsgYcg4bVZGjXDLJ85o": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.57
+    },
+    "P0aWjwwTWRd0U8UHrL2V": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 19.18
+    },
+    "x0x25ylynY4DPiBNwW1T": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 12.27
+    },
+    "HGJ1NX4kS4EzLQ0jdDPD": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.23
+    },
+    "hawpkvZY767LoeF0Gibw": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 5.52
+    },
+    "ng8t6O41M5DwbVaZgwDY": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.09
+    },
+    "9RwV22nrUZyRqTfynspH": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.09
+    },
+    "vxS7c24RofZJbTVszDXw": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.79
+    },
+    "SVdZR06QEZB6uXE17S08": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.88
+    },
+    "3tLYHq0ZjLPgSIw6RIGk": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.17
+    },
+    "svzEKYjAkjQqFID8FpA7": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 6.49
+    },
+    "9dNHq22XrRJ5q7RpU3HS": {
+      "syncTime": {},
+      "triggeredBy": "jay5@citrusbug.com",
+      "createdRecords": 0,
+      "updatedRecords": 1,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 3.28
+    },
+    "LjfTlj0RLQjcaSf6fxpd": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 18.77
+    },
+    "juLJgqPWWBPoh8ZqxDjD": {
+      "syncTime": {},
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.09
+    }
+  },
+  "notifications": {
+    "fNm42CscI9KcOQFZRAYL": {
+      "userId": "FUbwCJwuQUh3FoUfhe8BSFdMWxz1",
+      "message": "You have been assigned as Primary QA for Zip",
+      "read": false,
+      "createdAt": "2026-06-07T15:19:33.903Z"
+    },
+    "Kv8UEacPa7kQEARvLbzi": {
+      "userId": "dvtDxRIBWbQG3eWqDsyCGtKnbki1",
+      "message": "You have been assigned as Supporting QA for Zip",
+      "read": false,
+      "createdAt": "2026-06-07T15:19:34.191Z"
+    },
+    "N8zd4GfxGUuVpyxMXWJh": {
+      "userId": "BguGkUgfbdMeooOOShVNZviiIE03",
+      "message": "You have been assigned to project Zip",
+      "read": false,
+      "createdAt": "2026-06-07T15:19:34.437Z"
+    },
+    "pL62ff9kYDte0XS4vtK0": {
+      "userId": "LndZTIrjOrXW39KFEwYm6CKthYy1",
+      "message": "You have been assigned as Primary QA for Bluedrop",
+      "read": false,
+      "createdAt": "2026-06-07T15:45:06.214Z"
+    },
+    "gAcbSYSl8MZuaiapdSek": {
+      "userId": "FUbwCJwuQUh3FoUfhe8BSFdMWxz1",
+      "message": "You have been assigned as Supporting QA for Bluedrop",
+      "read": false,
+      "createdAt": "2026-06-07T15:45:06.498Z"
+    },
+    "WrZx6n1zt4kDVvm84cCX": {
+      "userId": "dev_001",
+      "message": "You have been assigned to project Bluedrop",
+      "read": false,
+      "createdAt": "2026-06-07T15:45:06.792Z"
+    },
+    "0qITkZKwNauJi7UeivMD": {
+      "userId": "LndZTIrjOrXW39KFEwYm6CKthYy1",
+      "message": "You have been assigned as Primary QA for Test Auto Code Generation",
+      "read": false,
+      "createdAt": "2026-06-07T15:46:39.299Z"
+    },
+    "0D214xZJXpE7lIF6WSuG": {
+      "userId": "LndZTIrjOrXW39KFEwYm6CKthYy1",
+      "message": "You have been assigned as Primary QA for Dynamic Test Project",
+      "read": false,
+      "createdAt": "2026-06-07T15:56:41.884Z"
+    }
+  },
+  "milestones": {
+    "smokeTesting": {
+      "label": "Smoke Testing",
+      "order": 1
+    },
+    "testCaseWriting": {
+      "label": "Test Case Writing",
+      "order": 2
+    },
+    "designValidation": {
+      "label": "Design Validation",
+      "order": 3
+    },
+    "integrationTesting": {
+      "label": "Integration Testing",
+      "order": 4
+    },
+    "regressionTesting": {
+      "label": "Regression Testing",
+      "order": 5
+    },
+    "uatSupport": {
+      "label": "UAT Support",
+      "order": 6
+    },
+    "releaseVerification": {
+      "label": "Release Verification",
+      "order": 7
+    },
+    "postReleaseValidation": {
+      "label": "Post Release Validation",
+      "order": 8
+    }
+  }
+}
