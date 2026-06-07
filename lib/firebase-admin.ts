@@ -1,24 +1,61 @@
 import admin from "firebase-admin";
 
-const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(
-    /\\n/g,
-    "\n"
-  ),
-};
+function getAdminApp() {
+  if (admin.apps.length > 0) {
+    return admin.apps[0]!;
+  }
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(
-      serviceAccount as admin.ServiceAccount
-    ),
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error(
+      "Firebase Admin SDK environment variables are not configured. " +
+      "Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in your environment."
+    );
+  }
+
+  return admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId,
+      clientEmail,
+      privateKey,
+    } as admin.ServiceAccount),
   });
 }
 
-export const adminDb = admin.firestore();
-export const adminAuth = admin.auth();
+// Lazy singletons — only initialized on first use, not at module load time
+let _adminDb: admin.firestore.Firestore | null = null;
+let _adminAuth: admin.auth.Auth | null = null;
+
+export function getAdminDb(): admin.firestore.Firestore {
+  if (!_adminDb) {
+    _adminDb = getAdminApp().firestore();
+  }
+  return _adminDb;
+}
+
+export function getAdminAuth(): admin.auth.Auth {
+  if (!_adminAuth) {
+    _adminAuth = getAdminApp().auth();
+  }
+  return _adminAuth;
+}
+
+// Backwards-compatible named exports (used throughout the codebase)
+export const adminDb = new Proxy({} as admin.firestore.Firestore, {
+  get(_target, prop) {
+    return (getAdminDb() as any)[prop];
+  },
+});
+
+export const adminAuth = new Proxy({} as admin.auth.Auth, {
+  get(_target, prop) {
+    return (getAdminAuth() as any)[prop];
+  },
+});
+
 
 // ─── FIRESTORE LOCAL FALLBACK ENGINE ──────────────────────────────────────────
 

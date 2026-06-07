@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { adminDb } from '@/lib/firebase-admin';
 import admin from 'firebase-admin';
 import { getServerSession } from 'next-auth';
