@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Calendar, CheckSquare, Users, LogOut, Briefcase, X, FlaskConical, Settings, Folder } from "lucide-react";
+import { LayoutDashboard, Calendar, CheckSquare, Users, LogOut, Briefcase, X, FlaskConical, Settings, Folder, StickyNote } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
 const menuItems = [
@@ -11,6 +11,7 @@ const menuItems = [
   { name: "My Projects", href: "/my-projects", icon: Folder, allowedRoles: ["ADMIN", "TL", "USER"] },
   { name: "Test Cases", href: "/test-cases", icon: FlaskConical, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },
   { name: "Task Board", href: "/task-board", icon: CheckSquare, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },
+  { name: "Quick Notes", href: "/quick-notes", icon: StickyNote, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },
   { name: "Project Hub", href: "/admin/projects", icon: Briefcase, allowedRoles: ["ADMIN"] },
   { name: "Team Hub", href: "/admin/users", icon: Users, allowedRoles: ["ADMIN"] },
   { name: "Settings", href: "/admin/settings", icon: Settings, allowedRoles: ["ADMIN"] },

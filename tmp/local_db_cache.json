@@ -2191,7 +2191,22 @@
       }
     }
   },
-  "task_lists": {},
+  "task_lists": {
+    "uo1is06VnbpYGFUyX2FD": {
+      "name": "Optevo",
+      "description": "New notes",
+      "shared_with": [],
+      "created_by": "jay5.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1781441684,
+        "nanoseconds": 980000000
+      },
+      "created_at": {
+        "seconds": 1781441684,
+        "nanoseconds": 980000000
+      }
+    }
+  },
   "task_activities": {
     "8f3VpKAw8o0pJdSbz2vA": {
       "task_id": "bt5MLMaj07UI5a0uV9hT",
@@ -2391,5 +2406,6 @@
         "nanoseconds": 568000000
       }
     }
-  }
+  },
+  "quick_notes": {}
 }

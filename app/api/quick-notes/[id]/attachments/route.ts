@@ -1,0 +1,142 @@
+export const dynamic = 'force-dynamic';
+
+import { adminDb } from '@/lib/firebase-admin';
+import * as admin from 'firebase-admin';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
+
+// POST /api/quick-notes/[id]/attachments — upload file to a note
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const userId = (session.user as any).id;
+
+    const docRef = adminDb.collection('quick_notes').doc(id);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return NextResponse.json({ error: 'Note not found' }, { status: 404 });
+    }
+
+    const noteData = doc.data() as any;
+    if (noteData.user_id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+
+    if (!file) {
+      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    }
+
+    const MAX_SIZE = 25 * 1024 * 1024; // 25MB
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json({ error: 'File size exceeds 25MB limit' }, { status: 400 });
+    }
+
+    const ext = path.extname(file.name).toLowerCase().replace('.', '');
+    const allowedExts = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'zip', 'txt'];
+    if (!allowedExts.includes(ext)) {
+      return NextResponse.json({ error: `File type .${ext} is not allowed` }, { status: 400 });
+    }
+
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'notes');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const uniqueFileName = `${Date.now()}-${sanitizedName}`;
+    const diskPath = path.join(uploadsDir, uniqueFileName);
+    const buffer = Buffer.from(await file.arrayBuffer());
+    fs.writeFileSync(diskPath, buffer);
+
+    const filePath = `/uploads/notes/${uniqueFileName}`;
+    const attachmentId = `att_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+    const newAttachment = {
+      id: attachmentId,
+      fileName: file.name,
+      filePath,
+      fileSize: file.size,
+      fileExt: ext,
+      uploadedAt: new Date().toISOString(),
+    };
+
+    const existingAttachments: any[] = noteData.attachments ?? [];
+    await docRef.update({
+      attachments: [...existingAttachments, newAttachment],
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return NextResponse.json({ success: true, attachment: newAttachment });
+  } catch (error: any) {
+    console.error('[Quick Notes Attachments POST]', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// DELETE /api/quick-notes/[id]/attachments?attachmentId=xxx — remove a file from a note
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const userId = (session.user as any).id;
+    const { searchParams } = new URL(request.url);
+    const attachmentId = searchParams.get('attachmentId');
+
+    if (!attachmentId) {
+      return NextResponse.json({ error: 'attachmentId is required' }, { status: 400 });
+    }
+
+    const docRef = adminDb.collection('quick_notes').doc(id);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return NextResponse.json({ error: 'Note not found' }, { status: 404 });
+    }
+
+    const noteData = doc.data() as any;
+    if (noteData.user_id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const attachments: any[] = noteData.attachments ?? [];
+    const target = attachments.find((a: any) => a.id === attachmentId);
+
+    if (target?.filePath) {
+      const fullPath = path.join(process.cwd(), 'public', target.filePath);
+      try { if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath); } catch {}
+    }
+
+    const updated = attachments.filter((a: any) => a.id !== attachmentId);
+    await docRef.update({
+      attachments: updated,
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('[Quick Notes Attachments DELETE]', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
