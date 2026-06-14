@@ -466,7 +466,7 @@ export default function MyProjectsPage() {
                         </td>
                         <td className="py-4.5 px-4 text-slate-500 text-xs font-semibold">{displayDate}</td>
                         <td className="py-4.5 px-6 text-right" onClick={(e) => e.stopPropagation()}>
-                          <Link href={`/my-projects/${p.id}`} className="px-4.5 py-1.5 bg-slate-900 hover:bg-[#ed5c37] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5">
+                          <Link href={`/my-projects/${p.id}`} className="px-4 py-1.5 bg-slate-900 hover:bg-[#ed5c37] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
                             View Details
                           </Link>
                         </td>
@@ -515,7 +515,7 @@ export default function MyProjectsPage() {
                         <td className="py-4.5 px-4 font-semibold text-slate-800">{p.primaryQaName || "Unassigned"}</td>
                         <td className="py-4.5 px-4 text-slate-600 font-semibold">{formatDate(p.targetReleaseDate)}</td>
                         <td className="py-4.5 px-6 text-right" onClick={(e) => e.stopPropagation()}>
-                          <Link href={`/my-projects/${p.id}`} className="px-4.5 py-1.5 bg-slate-900 hover:bg-[#ed5c37] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5">
+                          <Link href={`/my-projects/${p.id}`} className="px-4 py-1.5 bg-slate-900 hover:bg-[#ed5c37] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
                             View Details
                           </Link>
                         </td>

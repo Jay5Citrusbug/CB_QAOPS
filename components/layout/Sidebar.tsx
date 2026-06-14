@@ -10,6 +10,7 @@ const menuItems = [
   { name: "Daily Status", href: "/daily-status", icon: Calendar, allowedRoles: ["ADMIN", "USER"] },
   { name: "My Projects", href: "/my-projects", icon: Folder, allowedRoles: ["ADMIN", "TL", "USER"] },
   { name: "Test Cases", href: "/test-cases", icon: FlaskConical, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },
+  { name: "Task Board", href: "/task-board", icon: CheckSquare, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },
   { name: "Project Hub", href: "/admin/projects", icon: Briefcase, allowedRoles: ["ADMIN"] },
   { name: "Team Hub", href: "/admin/users", icon: Users, allowedRoles: ["ADMIN"] },
   { name: "Settings", href: "/admin/settings", icon: Settings, allowedRoles: ["ADMIN"] },

@@ -883,6 +883,24 @@ export async function deleteProject(projectId: string) {
   }
 }
 
+const DEFAULT_DISCORD_TEMPLATE = `📋 **Daily Status {actionLabel} by {userName}** ({userRole})
+
+📅 **Date**: {date}
+
+📂 **Projects & Hours**:
+{projectHoursList}
+
+✅ **Work Done**:
+{workDone}
+
+🎯 **Next Planned Work**:
+{plannedWork}
+
+🚧 **Blockers**:
+{blockers}
+
+🕒 **{actionLabel} At**: {timeFormatted}`;
+
 /**
  * Helper to format and send a Daily Status report to Discord via a configured Webhook.
  */
@@ -925,14 +943,26 @@ async function sendDiscordNotification(
 
     const timeFormatted = new Date().toLocaleString();
     const actionLabel = isUpdate ? "Updated" : "Submitted";
+    const userRoleLabel = userRole === 'USER' ? 'QA ENGINEER' : userRole === 'DEV' ? 'DEVELOPER' : userRole;
 
-    let discordMessage = `📋 **Daily Status ${actionLabel} by ${userName}** (${userRole === 'USER' ? 'QA ENGINEER' : userRole === 'DEV' ? 'DEVELOPER' : userRole})\n\n`;
-    discordMessage += `📅 **Date**: ${date}\n\n`;
-    discordMessage += `📂 **Projects & Hours**:\n${projectHoursList}\n\n`;
-    discordMessage += `✅ **Work Done**:\n${workDone}\n\n`;
-    discordMessage += `🎯 **Next Planned Work**:\n${plannedWork}\n\n`;
-    discordMessage += `🚧 **Blockers**:\n${blockers || "None"}\n\n`;
-    discordMessage += `🕒 **${actionLabel} At**: ${timeFormatted}`;
+    const template = settings.messageFormat || DEFAULT_DISCORD_TEMPLATE;
+
+    const variables: Record<string, string> = {
+      userName,
+      userRole: userRoleLabel,
+      actionLabel,
+      date,
+      projectHoursList,
+      workDone,
+      plannedWork,
+      blockers: blockers || "None",
+      timeFormatted,
+    };
+
+    let discordMessage = template;
+    for (const [key, val] of Object.entries(variables)) {
+      discordMessage = discordMessage.replace(new RegExp(`\\{${key}\\}`, 'g'), val);
+    }
 
     const discRes = await fetch(settings.webhookUrl, {
       method: 'POST',
@@ -981,12 +1011,13 @@ export async function getDiscordSettings() {
   try {
     const doc = await adminDb.collection('settings').doc('discord').get();
     if (!doc.exists) {
-      return { webhookUrl: '', enabled: false };
+      return { webhookUrl: '', enabled: false, messageFormat: '' };
     }
     const data = doc.data() || {};
     return {
       webhookUrl: data.webhookUrl || '',
       enabled: !!data.enabled,
+      messageFormat: data.messageFormat || '',
       updatedBy: data.updatedBy || '',
       updatedAt: data.updatedAt && typeof data.updatedAt.toDate === 'function' 
         ? data.updatedAt.toDate().toISOString() 
@@ -1000,7 +1031,7 @@ export async function getDiscordSettings() {
 /**
  * Server Action to save Discord integration settings.
  */
-export async function saveDiscordSettings(webhookUrl: string, enabled: boolean) {
+export async function saveDiscordSettings(webhookUrl: string, enabled: boolean, messageFormat?: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user || (session.user as any).role !== 'ADMIN') {
     return { error: 'Unauthorized' };
@@ -1018,6 +1049,7 @@ export async function saveDiscordSettings(webhookUrl: string, enabled: boolean) 
     await adminDb.collection('settings').doc('discord').set({
       webhookUrl,
       enabled,
+      messageFormat: messageFormat || '',
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedBy: session.user.email,
     });

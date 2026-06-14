@@ -1,0 +1,183 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e17]:
+      - link "CB QOps Logo CB QOps" [ref=e19] [cursor=pointer]:
+        - /url: /dashboard
+        - img "CB QOps Logo" [ref=e20]
+        - generic [ref=e21]: CB QOps
+      - navigation [ref=e22]:
+        - link "Dashboard" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e24]
+          - generic [ref=e29]: Dashboard
+        - link "Daily Status" [ref=e30] [cursor=pointer]:
+          - /url: /daily-status
+          - img [ref=e31]
+          - generic [ref=e33]: Daily Status
+        - link "My Projects" [ref=e34] [cursor=pointer]:
+          - /url: /my-projects
+          - img [ref=e35]
+          - generic [ref=e37]: My Projects
+        - link "Test Cases" [ref=e38] [cursor=pointer]:
+          - /url: /test-cases
+          - img [ref=e39]
+          - generic [ref=e41]: Test Cases
+        - link "Task Board" [ref=e42] [cursor=pointer]:
+          - /url: /task-board
+          - img [ref=e43]
+          - generic [ref=e46]: Task Board
+        - link "Project Hub" [ref=e47] [cursor=pointer]:
+          - /url: /admin/projects
+          - img [ref=e48]
+          - generic [ref=e51]: Project Hub
+        - link "Team Hub" [ref=e52] [cursor=pointer]:
+          - /url: /admin/users
+          - img [ref=e53]
+          - generic [ref=e58]: Team Hub
+        - link "Settings" [ref=e59] [cursor=pointer]:
+          - /url: /admin/settings
+          - img [ref=e60]
+          - generic [ref=e63]: Settings
+      - button "Logout" [ref=e65]:
+        - img [ref=e66]
+        - generic [ref=e69]: Logout
+    - generic [ref=e72]:
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - generic [ref=e75]: My Task Boards
+          - button "Create New List" [ref=e76] [cursor=pointer]:
+            - img [ref=e77]
+        - generic [ref=e78]:
+          - generic [ref=e79] [cursor=pointer]:
+            - generic [ref=e80]:
+              - img [ref=e81]
+              - generic [ref=e84]: 50%
+            - generic [ref=e85]:
+              - paragraph [ref=e87]: Regression Sprint
+              - generic [ref=e89]: 1 Pending
+          - generic [ref=e90] [cursor=pointer]:
+            - generic [ref=e91]:
+              - img [ref=e92]
+              - generic [ref=e95]: 0%
+            - generic [ref=e96]:
+              - paragraph [ref=e98]: Bluedrop
+              - generic [ref=e100]: 0 Pending
+        - generic [ref=e101]: QA Velocity Task Board v2.0
+      - generic [ref=e102]:
+        - generic [ref=e103]:
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - heading "Regression Sprint" [level=1] [ref=e106]
+              - button "Delete this Task List" [ref=e107]:
+                - img [ref=e108]
+            - paragraph [ref=e111]: Verify all payments and checkouts
+          - generic [ref=e112]:
+            - img [ref=e113]
+            - textbox "Search tasks..." [ref=e116]
+        - generic [ref=e117]:
+          - button "All Tasks" [ref=e118] [cursor=pointer]
+          - button "Pending" [ref=e119] [cursor=pointer]
+          - button "Completed" [ref=e120] [cursor=pointer]
+          - button "Overdue" [ref=e121] [cursor=pointer]
+          - button "Due Today" [ref=e122] [cursor=pointer]
+          - button "Assigned to Me" [ref=e123] [cursor=pointer]
+        - generic [ref=e125]:
+          - generic [ref=e127] [cursor=pointer]:
+            - button [ref=e128]:
+              - img [ref=e129]
+            - generic [ref=e131]:
+              - generic [ref=e132]:
+                - generic [ref=e133]: T-1003
+                - paragraph [ref=e134]: new task added by QA
+              - generic [ref=e135]:
+                - generic [ref=e136]:
+                  - img [ref=e137]
+                  - text: No Due Date
+                - generic [ref=e139]: •
+                - generic [ref=e140]: Medium
+            - generic "Unassigned" [ref=e141]:
+              - img [ref=e142]
+          - generic [ref=e145]:
+            - button "Completed (1)" [ref=e146]:
+              - img [ref=e147]
+              - text: Completed (1)
+            - generic [ref=e150] [cursor=pointer]:
+              - button [ref=e151]:
+                - img [ref=e152]
+              - generic [ref=e154]:
+                - generic [ref=e155]:
+                  - generic [ref=e156]: T-1002
+                  - paragraph [ref=e157]: Verify checkout checkout flow
+                - generic [ref=e158]: Completed 13/06/2026 by jay5.citrusbug@gmail.com
+              - generic [ref=e159]: ja
+        - generic [ref=e161]:
+          - button "Create task with details" [ref=e162] [cursor=pointer]:
+            - img [ref=e163]
+          - textbox "Add a task (Press Enter to publish)..." [ref=e164]
+      - generic [ref=e167]:
+        - generic [ref=e168]:
+          - heading "Create Task List" [level=2] [ref=e169]
+          - button [ref=e170]:
+            - img [ref=e171]
+        - generic [ref=e174]:
+          - generic [ref=e175]:
+            - generic [ref=e176]:
+              - generic [ref=e177]: List Name *
+              - textbox "e.g. Daily Regression Activities" [ref=e178]
+            - generic [ref=e179]:
+              - generic [ref=e180]: Description
+              - textbox "Describe the purpose of this task board list" [ref=e181]
+            - generic [ref=e182]:
+              - generic [ref=e183]: Share With Members
+              - paragraph [ref=e184]: Only selected members (+ QA Leads) can see this board. DEVs are excluded.
+              - generic [ref=e185]:
+                - generic [ref=e186]:
+                  - img [ref=e187]
+                  - textbox "Search & invite team members..." [active] [ref=e190]
+                - generic [ref=e194]:
+                  - generic [ref=e195] [cursor=pointer]:
+                    - generic [ref=e196]: BH
+                    - generic [ref=e197]:
+                      - paragraph [ref=e198]: Bhargav
+                      - paragraph [ref=e199]: USER · bhargav
+                  - generic [ref=e200] [cursor=pointer]:
+                    - generic [ref=e201]: QA
+                    - generic [ref=e202]:
+                      - paragraph [ref=e203]: QA Assistant
+                      - paragraph [ref=e204]: USER · qa2
+                  - generic [ref=e205] [cursor=pointer]:
+                    - generic [ref=e206]: QA
+                    - generic [ref=e207]:
+                      - paragraph [ref=e208]: QA Lead
+                      - paragraph [ref=e209]: USER · qa1
+                  - generic [ref=e210] [cursor=pointer]:
+                    - generic [ref=e211]: JA
+                    - generic [ref=e212]:
+                      - paragraph [ref=e213]: Jay Citrusbug
+                      - paragraph [ref=e214]: USER · jay5
+                  - generic [ref=e215] [cursor=pointer]:
+                    - generic [ref=e216]: QA
+                    - generic [ref=e217]:
+                      - paragraph [ref=e218]: QA Assistant
+                      - paragraph [ref=e219]: USER · qa2
+                  - generic [ref=e220] [cursor=pointer]:
+                    - generic [ref=e221]: QA
+                    - generic [ref=e222]:
+                      - paragraph [ref=e223]: QA Lead
+                      - paragraph [ref=e224]: USER · qa1
+                  - generic [ref=e225] [cursor=pointer]:
+                    - generic [ref=e226]: TL
+                    - generic [ref=e227]:
+                      - paragraph [ref=e228]: TL User
+                      - paragraph [ref=e229]: TL · tl
+                  - generic [ref=e230] [cursor=pointer]:
+                    - generic [ref=e231]: AD
+                    - generic [ref=e232]:
+                      - paragraph [ref=e233]: Admin User
+                      - paragraph [ref=e234]: ADMIN · admin
+          - generic [ref=e191]:
+            - button "Discard" [ref=e192]
+            - button "Create Board" [ref=e193]
+  - button "Open Next.js Dev Tools" [ref=e11] [cursor=pointer]:
+    - img [ref=e12]
+  - alert [ref=e15]

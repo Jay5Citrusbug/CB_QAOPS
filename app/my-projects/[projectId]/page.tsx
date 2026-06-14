@@ -31,7 +31,9 @@ import {
   AlertCircle,
   Flag,
   Plus,
-  Lock
+  Lock,
+  CheckCircle2,
+  Loader2
 } from "lucide-react";
 import { 
   updateProjectMilestone, 
@@ -165,6 +167,15 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   const [editingMilestoneLabel, setEditingMilestoneLabel] = useState("");
   const [milestoneActionLoading, setMilestoneActionLoading] = useState(false);
   const [milestoneError, setMilestoneError] = useState("");
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   useEffect(() => {
     if (project?.timeline) {
@@ -184,15 +195,19 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
     if (!newMilestoneLabel.trim()) return;
     setMilestoneActionLoading(true);
     setMilestoneError("");
+    setIsSyncing(true);
     try {
       const res = await addProjectMilestone(projectId, newMilestoneLabel.trim());
       if (res.error) throw new Error(res.error);
       setNewMilestoneLabel("");
+      setToast({ message: "Milestone added successfully!", type: "success" });
       await fetchProjectDetails();
     } catch (err: any) {
       setMilestoneError(err.message || "Failed to add milestone");
+      setToast({ message: err.message || "Failed to add milestone", type: "error" });
     } finally {
       setMilestoneActionLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -200,15 +215,19 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
     if (!newLabel.trim()) return;
     setMilestoneActionLoading(true);
     setMilestoneError("");
+    setIsSyncing(true);
     try {
       const res = await editProjectMilestone(projectId, id, newLabel.trim());
       if (res.error) throw new Error(res.error);
       setEditingMilestoneId(null);
+      setToast({ message: "Milestone label updated successfully!", type: "success" });
       await fetchProjectDetails();
     } catch (err: any) {
       setMilestoneError(err.message || "Failed to update milestone");
+      setToast({ message: err.message || "Failed to update milestone", type: "error" });
     } finally {
       setMilestoneActionLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -216,14 +235,18 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
     if (!confirm("Are you sure? Removing this milestone will remove it from this project. Existing status data for this milestone will be ignored but preserved in documents.")) return;
     setMilestoneActionLoading(true);
     setMilestoneError("");
+    setIsSyncing(true);
     try {
       const res = await deleteProjectMilestone(projectId, id);
       if (res.error) throw new Error(res.error);
+      setToast({ message: "Milestone deleted successfully!", type: "success" });
       await fetchProjectDetails();
     } catch (err: any) {
       setMilestoneError(err.message || "Failed to delete milestone");
+      setToast({ message: err.message || "Failed to delete milestone", type: "error" });
     } finally {
       setMilestoneActionLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -233,6 +256,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
 
     setMilestoneActionLoading(true);
     setMilestoneError("");
+    setIsSyncing(true);
 
     const newMilestones = [...milestoneKeys];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -247,10 +271,13 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
       const res = await reorderProjectMilestones(projectId, orders);
       if (res.error) throw new Error(res.error);
       setMilestoneKeys(newMilestones);
+      setToast({ message: "Milestone order saved!", type: "success" });
     } catch (err: any) {
       setMilestoneError(err.message || "Failed to reorder milestones");
+      setToast({ message: err.message || "Failed to reorder milestones", type: "error" });
     } finally {
       setMilestoneActionLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -313,6 +340,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
 
     setUploading(true);
     setUploadError("");
+    setIsSyncing(true);
 
     // Validations: File Type and Size (50MB)
     const allowedExtensions = ["pdf", "docx", "xlsx", "png", "jpg", "jpeg", "txt", "zip"];
@@ -320,12 +348,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
     if (!allowedExtensions.includes(ext)) {
       setUploadError("Unsupported file type. Supported types: PDF, DOCX, XLSX, PNG, JPG, TXT, ZIP");
       setUploading(false);
+      setIsSyncing(false);
       return;
     }
 
     if (uploadFile.size > 50 * 1024 * 1024) {
       setUploadError("File size exceeds 50 MB limit");
       setUploading(false);
+      setIsSyncing(false);
       return;
     }
 
@@ -343,6 +373,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
             finalReplaceId = duplicate.id;
           } else {
             setUploading(false);
+            setIsSyncing(false);
             return;
           }
         }
@@ -362,20 +393,23 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
         throw new Error(data.error || "Upload failed");
       }
 
+      setToast({ message: "Document uploaded successfully!", type: "success" });
       await Promise.all([fetchProjectDetails(), fetchAuditLogs()]);
       setUploadFile(null);
       setUploadCategory("Other Documents");
       setReplaceDocId(null);
     } catch (err: any) {
       setUploadError(err.message || "Failed to upload file");
+      setToast({ message: err.message || "Failed to upload document", type: "error" });
     } finally {
       setUploading(false);
+      setIsSyncing(false);
     }
   };
 
   const handleDeleteDoc = async (docId: string) => {
     if (!confirm("Are you sure you want to delete this document?")) return;
-
+    setIsSyncing(true);
     try {
       const res = await fetch(`/api/projects/${projectId}/documents?docId=${docId}`, {
         method: "DELETE",
@@ -386,12 +420,15 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
         throw new Error(data.error || "Failed to delete document");
       }
 
+      setToast({ message: "Document deleted successfully!", type: "success" });
       await Promise.all([fetchProjectDetails(), fetchAuditLogs()]);
       if (previewDoc && previewDoc.id === docId) {
         setPreviewDoc(null);
       }
     } catch (err: any) {
-      alert(err.message || "Failed to delete document");
+      setToast({ message: err.message || "Failed to delete document", type: "error" });
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -399,6 +436,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   const handleSaveMilestone = async (key: string) => {
     if (!project) return;
     setMsLoading(true);
+    setIsSyncing(true);
     try {
       const res = await updateProjectMilestone(project.id, key, {
         status: msStatus,
@@ -408,15 +446,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
         notes: msNotes
       });
       if (res && 'error' in res) {
-        alert(res.error || "Failed to update milestone");
+        setToast({ message: res.error || "Failed to update milestone", type: "error" });
       } else {
+        setToast({ message: "Milestone status updated successfully!", type: "success" });
         await Promise.all([fetchProjectDetails(), fetchAuditLogs()]);
         setEditingMilestoneKey(null);
       }
     } catch (err: any) {
-      alert(err.message || "An error occurred");
+      setToast({ message: err.message || "An error occurred", type: "error" });
     } finally {
       setMsLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -426,6 +466,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
     if (!project || !noteTitle.trim()) return;
     setNoteLoading(true);
     setNoteError("");
+    setIsSyncing(true);
     try {
       const res = await addProjectNote(project.id, {
         id: `note_${Date.now()}`,
@@ -437,7 +478,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
       });
       if (res && 'error' in res) {
         setNoteError(res.error || "Failed to add note");
+        setToast({ message: res.error || "Failed to add note", type: "error" });
       } else {
+        setToast({ message: "Note added successfully!", type: "success" });
         await Promise.all([fetchProjectDetails(), fetchAuditLogs()]);
         setNoteTitle('');
         setNoteDesc('');
@@ -446,8 +489,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
       }
     } catch (err: any) {
       setNoteError(err.message || "An error occurred");
+      setToast({ message: err.message || "An error occurred", type: "error" });
     } finally {
       setNoteLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -455,30 +500,38 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   const handleToggleNoteStatus = async (noteId: string, currentStatus: 'Open' | 'Resolved') => {
     if (!project) return;
     const nextStatus = currentStatus === 'Open' ? 'Resolved' : 'Open';
+    setIsSyncing(true);
     try {
       const res = await updateProjectNoteStatus(project.id, noteId, nextStatus);
       if (res && 'error' in res) {
-        alert(res.error || "Failed to update status");
+        setToast({ message: res.error || "Failed to update status", type: "error" });
       } else {
+        setToast({ message: `Note status marked as ${nextStatus}!`, type: "success" });
         await fetchProjectDetails();
       }
     } catch (err: any) {
-      alert(err.message || "An error occurred");
+      setToast({ message: err.message || "An error occurred", type: "error" });
+    } finally {
+      setIsSyncing(false);
     }
   };
 
   // Delete Note Handler
   const handleDeleteNote = async (noteId: string) => {
     if (!project || !confirm("Are you sure you want to delete this note/flag?")) return;
+    setIsSyncing(true);
     try {
       const res = await deleteProjectNote(project.id, noteId);
       if (res && 'error' in res) {
-        alert(res.error || "Failed to delete note");
+        setToast({ message: res.error || "Failed to delete note", type: "error" });
       } else {
+        setToast({ message: "Note deleted successfully!", type: "success" });
         await fetchProjectDetails();
       }
     } catch (err: any) {
-      alert(err.message || "An error occurred");
+      setToast({ message: err.message || "An error occurred", type: "error" });
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -601,7 +654,15 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   const progressPercent = Math.round((completedCount / totalMilestones) * 100);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
+    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300 relative">
+      {isSyncing && (
+        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
+            <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
+            <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing workspace details...</p>
+          </div>
+        </div>
+      )}
       {/* Top Header Navigation */}
       <div className="flex flex-col gap-4 border-b border-slate-100 pb-6">
         <Link href="/my-projects" className="inline-flex items-center gap-2 text-slate-500 hover:text-[#ed5c37] transition-colors text-sm font-bold">
@@ -1596,6 +1657,19 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {toast && (
+        <div className={`fixed bottom-5 right-5 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-xl animate-in slide-in-from-bottom-5 duration-300 ${
+          toast.type === "success" 
+            ? "bg-emerald-50 border-emerald-100 text-emerald-800" 
+            : "bg-red-50 border-red-100 text-red-800"
+        }`}>
+          {toast.type === "success" ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />}
+          <span className="text-sm font-bold">{toast.message}</span>
+          <button onClick={() => setToast(null)} className="ml-2 p-0.5 hover:bg-black/5 rounded text-slate-400 hover:text-slate-600 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

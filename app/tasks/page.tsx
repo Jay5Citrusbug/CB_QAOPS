@@ -13,7 +13,7 @@ import {
 import { 
   CheckCircle2, Circle, Clock, Calendar, Trash2, Plus, X, Search, 
   Star, Sun, Bell, Repeat, Paperclip, ChevronRight, MoreHorizontal, 
-  Home, List, User as UserIcon, Check, AlertCircle, LayoutGrid
+  Home, List, User as UserIcon, Check, AlertCircle, LayoutGrid, Loader2
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 
@@ -53,6 +53,15 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
   
   const { data: session } = useSession();
   const isAdmin = (session?.user as any)?.role === "ADMIN";
@@ -96,6 +105,7 @@ export default function TasksPage() {
   const handleCreateTask = async (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && newTaskTitle.trim()) {
       setLoading(true);
+      setIsSyncing(true);
       setError(null);
       try {
         const formData = new FormData();
@@ -103,33 +113,199 @@ export default function TasksPage() {
         const res = await createTask(formData, activeUserId || undefined);
         if (res && (res as any).error) {
           setError((res as any).error);
+          setToast({ message: (res as any).error, type: "error" });
         } else {
           setNewTaskTitle("");
-          fetchTasks(activeUserId || undefined);
+          await fetchTasks(activeUserId || undefined);
+          setToast({ message: "Task created successfully!", type: "success" });
         }
       } catch (err) {
         console.error("Creation failed", err);
         setError("Failed to create task. Please try again.");
+        setToast({ message: "Failed to create task.", type: "error" });
       } finally {
         setLoading(false);
+        setIsSyncing(false);
       }
     }
   };
 
   const handleToggleImportance = async (task: Task) => {
-    await updateTask(task.id, { isImportant: !task.isImportant });
-    fetchTasks(activeUserId || undefined);
+    setIsSyncing(true);
+    try {
+      const res = await updateTask(task.id, { isImportant: !task.isImportant });
+      if (res && (res as any).error) {
+        setToast({ message: (res as any).error, type: "error" });
+      } else {
+        await fetchTasks(activeUserId || undefined);
+        setToast({ 
+          message: task.isImportant ? "Task marked as not important" : "Task marked as important", 
+          type: "success" 
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setToast({ message: "Failed to update task importance.", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleToggleStatus = async (task: Task) => {
-    await toggleTaskStatus(task.id, task.status);
-    fetchTasks(activeUserId || undefined);
+    setIsSyncing(true);
+    try {
+      const res = await toggleTaskStatus(task.id, task.status);
+      if (res && (res as any).error) {
+        setToast({ message: (res as any).error, type: "error" });
+      } else {
+        await fetchTasks(activeUserId || undefined);
+        setToast({ 
+          message: task.status === "COMPLETED" ? "Task marked as active" : "Task marked as completed", 
+          type: "success" 
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setToast({ message: "Failed to update task status.", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    if (confirm("Delete this task?")) {
+      setIsSyncing(true);
+      try {
+        const res = await deleteTask(taskId);
+        if (res && (res as any).error) {
+          setToast({ message: (res as any).error, type: "error" });
+        } else {
+          setSelectedTaskId(null);
+          await fetchTasks(activeUserId || undefined);
+          setToast({ message: "Task deleted successfully!", type: "success" });
+        }
+      } catch (err) {
+        console.error(err);
+        setToast({ message: "Failed to delete task.", type: "error" });
+      } finally {
+        setIsSyncing(false);
+      }
+    }
+  };
+
+  const handleUpdateTaskTitle = async (taskId: string, currentTitle: string, newTitle: string) => {
+    if (newTitle.trim() && newTitle !== currentTitle) {
+      setIsSyncing(true);
+      try {
+        const res = await updateTask(taskId, { title: newTitle });
+        if (res && (res as any).error) {
+          setToast({ message: (res as any).error, type: "error" });
+        } else {
+          await fetchTasks(activeUserId || undefined);
+          setToast({ message: "Task title updated successfully!", type: "success" });
+        }
+      } catch (err) {
+        console.error(err);
+        setToast({ message: "Failed to update task title.", type: "error" });
+      } finally {
+        setIsSyncing(false);
+      }
+    }
+  };
+
+  const handleToggleStep = async (stepId: string, isCompleted: boolean) => {
+    setIsSyncing(true);
+    try {
+      const res = await toggleTaskStep(stepId, isCompleted);
+      if (res && (res as any).error) {
+        setToast({ message: (res as any).error, type: "error" });
+      } else {
+        await fetchTasks(activeUserId || undefined);
+        setToast({ 
+          message: isCompleted ? "Step marked as active" : "Step marked as completed", 
+          type: "success" 
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setToast({ message: "Failed to update step.", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleDeleteStep = async (stepId: string) => {
+    setIsSyncing(true);
+    try {
+      const res = await deleteTaskStep(stepId);
+      if (res && (res as any).error) {
+        setToast({ message: (res as any).error, type: "error" });
+      } else {
+        await fetchTasks(activeUserId || undefined);
+        setToast({ message: "Step deleted successfully!", type: "success" });
+      }
+    } catch (err) {
+      console.error(err);
+      setToast({ message: "Failed to delete step.", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleAddStep = async (taskId: string, title: string, inputEl: HTMLInputElement) => {
+    if (title.trim()) {
+      setIsSyncing(true);
+      try {
+        const res = await addTaskStep(taskId, title);
+        if (res && (res as any).error) {
+          setToast({ message: (res as any).error, type: "error" });
+        } else {
+          inputEl.value = "";
+          await fetchTasks(activeUserId || undefined);
+          setToast({ message: "Step added successfully!", type: "success" });
+        }
+      } catch (err) {
+        console.error(err);
+        setToast({ message: "Failed to add step.", type: "error" });
+      } finally {
+        setIsSyncing(false);
+      }
+    }
+  };
+
+  const handleUpdateTaskNotes = async (taskId: string, currentNotes: string | null, newNotes: string) => {
+    const prevNotes = currentNotes || "";
+    if (newNotes !== prevNotes) {
+      setIsSyncing(true);
+      try {
+        const res = await updateTask(taskId, { notes: newNotes });
+        if (res && (res as any).error) {
+          setToast({ message: (res as any).error, type: "error" });
+        } else {
+          await fetchTasks(activeUserId || undefined);
+          setToast({ message: "Task notes updated successfully!", type: "success" });
+        }
+      } catch (err) {
+        console.error(err);
+        setToast({ message: "Failed to update notes.", type: "error" });
+      } finally {
+        setIsSyncing(false);
+      }
+    }
   };
 
   const selectedTask = tasks.find(t => t.id === selectedTaskId);
 
   return (
     <div className="flex h-[calc(100vh-12rem)] bg-white rounded-2xl border border-slate-200 overflow-hidden relative group/page shadow-sm animate-in fade-in duration-500">
+      {isSyncing && (
+        <div className="absolute inset-0 bg-white/70 backdrop-blur-xs z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
+            <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
+            <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing tasks...</p>
+          </div>
+        </div>
+      )}
       {/* Sidebar - If Admin, show user list */}
       {isAdmin && (
         <div className="w-64 border-r border-slate-100 bg-slate-50/50 p-6 hidden md:block overflow-y-auto custom-scrollbar">
@@ -272,13 +448,7 @@ export default function TasksPage() {
             <div className="flex items-center justify-between">
                <button onClick={() => setSelectedTaskId(null)} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all"><X className="w-5 h-5" /></button>
                <button 
-                 onClick={async () => {
-                   if (confirm("Delete this task?")) {
-                     await deleteTask(selectedTask.id);
-                     setSelectedTaskId(null);
-                     fetchTasks(activeUserId || undefined);
-                   }
-                 }}
+                 onClick={() => handleDeleteTask(selectedTask.id)}
                  className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                >
                  <Trash2 className="w-4 h-4" />
@@ -295,12 +465,7 @@ export default function TasksPage() {
                   </button>
                   <textarea 
                     defaultValue={selectedTask.title}
-                    onBlur={async (e) => {
-                      if (e.target.value !== selectedTask.title) {
-                        await updateTask(selectedTask.id, { title: e.target.value });
-                        fetchTasks(activeUserId || undefined);
-                      }
-                    }}
+                    onBlur={(e) => handleUpdateTaskTitle(selectedTask.id, selectedTask.title, e.target.value)}
                     className={`flex-1 bg-transparent border-none outline-none text-base font-bold text-slate-800 resize-none h-12 leading-tight ${selectedTask.status === 'COMPLETED' ? 'text-slate-400 line-through' : ''}`}
                   />
                   <button 
@@ -317,20 +482,14 @@ export default function TasksPage() {
                      {selectedTask.steps.map(step => (
                        <div key={step.id} className="group flex items-center gap-3 p-2.5 hover:bg-slate-50 rounded-xl transition-all">
                           <button 
-                            onClick={async () => {
-                              await toggleTaskStep(step.id, step.isCompleted);
-                              fetchTasks(activeUserId || undefined);
-                            }}
+                            onClick={() => handleToggleStep(step.id, step.isCompleted)}
                             className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${step.isCompleted ? 'bg-[#ed5c37] border-[#ed5c37] text-white' : 'border-slate-200 hover:border-[#ed5c37]'}`}
                           >
                             <Check className="w-2 h-2 stroke-[4]" />
                           </button>
                           <span className={`text-sm font-medium flex-1 ${step.isCompleted ? 'text-slate-400 line-through' : 'text-slate-600'}`}>{step.title}</span>
                           <button 
-                            onClick={async () => {
-                              await deleteTaskStep(step.id);
-                              fetchTasks(activeUserId || undefined);
-                            }}
+                            onClick={() => handleDeleteStep(step.id)}
                             className="p-1 opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all"
                           >
                             <X className="w-3.5 h-3.5" />
@@ -344,11 +503,9 @@ export default function TasksPage() {
                        type="text" 
                        placeholder="Add step" 
                        className="flex-1 bg-transparent border-none outline-none text-sm text-slate-800 placeholder:text-[#ed5c37]/60 font-semibold"
-                       onKeyDown={async (e) => {
-                         if (e.key === "Enter" && (e.target as HTMLInputElement).value.trim()) {
-                           await addTaskStep(selectedTask.id, (e.target as HTMLInputElement).value);
-                           (e.target as HTMLInputElement).value = "";
-                           fetchTasks(activeUserId || undefined);
+                       onKeyDown={(e) => {
+                         if (e.key === "Enter") {
+                           handleAddStep(selectedTask.id, (e.target as HTMLInputElement).value, e.target as HTMLInputElement);
                          }
                        }}
                      />
@@ -375,12 +532,7 @@ export default function TasksPage() {
                   <textarea 
                     placeholder="Add note"
                     defaultValue={selectedTask.notes || ""}
-                    onBlur={async (e) => {
-                      if (e.target.value !== selectedTask.notes) {
-                        await updateTask(selectedTask.id, { notes: e.target.value });
-                        fetchTasks(activeUserId || undefined);
-                      }
-                    }}
+                    onBlur={(e) => handleUpdateTaskNotes(selectedTask.id, selectedTask.notes, e.target.value)}
                     className="w-full min-h-[140px] p-4 bg-slate-50 rounded-2xl border border-transparent focus:bg-white focus:border-slate-200 focus:shadow-inner outline-none text-slate-700 text-sm font-medium resize-none transition-all"
                   />
                </div>
@@ -392,6 +544,20 @@ export default function TasksPage() {
           </>
         )}
       </div>
+
+      {toast && (
+        <div className={`fixed bottom-5 right-5 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-xl animate-in slide-in-from-bottom-5 duration-300 ${
+          toast.type === "success" 
+            ? "bg-emerald-50 border-emerald-100 text-emerald-800" 
+            : "bg-red-50 border-red-100 text-red-800"
+        }`}>
+          {toast.type === "success" ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />}
+          <span className="text-sm font-bold">{toast.message}</span>
+          <button onClick={() => setToast(null)} className="ml-2 p-0.5 hover:bg-black/5 rounded text-slate-400 hover:text-slate-600 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {

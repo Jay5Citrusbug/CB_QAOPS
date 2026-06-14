@@ -34,6 +34,9 @@ import {
   FileSpreadsheet,
   Plus,
   Check,
+  Loader2,
+  AlertCircle,
+  X,
 } from "lucide-react";
 
 // Google Sheet Type Definitions
@@ -359,6 +362,16 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
   // Mode controller: 'google' (synced) or 'local' (offline import)
   const [mode, setMode] = useState<"google" | "local" | "uninitialized">("uninitialized");
+
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   // Navigation tabs for Google Mode
   const [activeTab, setActiveTab] = useState<"repository" | "history" | "audit">("repository");
@@ -805,6 +818,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       setMode("uninitialized");
       setLocalModuleFilter("all");
       setLocalJiraFilter("all");
+      setToast({ message: "Local cache cleared successfully!", type: "success" });
     }
   };
 
@@ -891,6 +905,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     setError("");
     setSuccessMessage("");
     setConnecting(true);
+    setIsSyncing(true);
 
     try {
       const res = await fetch(`/api/projects/${projectId}/google-sheet`, {
@@ -906,6 +921,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
       if (data.success) {
         setSuccessMessage(`Google Sheet connected and imported successfully! Imported ${data.importedCount} test cases.`);
+        setToast({ message: `Google Sheet connected and imported successfully!`, type: "success" });
         setTimeout(() => setSuccessMessage(""), 10000);
 
         setSheetConnection({
@@ -918,12 +934,14 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         setMode("google");
         setPage(1);
         setShowDirectConnectModal(false);
-        await Promise.all([fetchConnection(), fetchTestCases()]);
+        await Promise.all([fetchConnection(true), fetchTestCases()]);
       }
     } catch (err: any) {
       setError(err.message || "Unable to connect Google Sheet.");
+      setToast({ message: err.message || "Unable to connect Google Sheet.", type: "error" });
     } finally {
       setConnecting(false);
+      setIsSyncing(false);
     }
   };
 
@@ -937,6 +955,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     }
 
     setLoading(true);
+    setIsSyncing(true);
     setError("");
     try {
       const res = await fetch(`/api/projects/${projectId}/google-sheet`, {
@@ -948,15 +967,18 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         throw new Error(data.error || "Failed to disconnect.");
       }
 
+      setToast({ message: "Google Sheet disconnected successfully!", type: "success" });
       setSheetConnection(null);
       setTestCases([]);
       setTotalCases(0);
       setMode("uninitialized");
     } catch (err: any) {
       setError(err.message || "Disconnect request failed.");
+      setToast({ message: err.message || "Disconnect request failed.", type: "error" });
     } finally {
       setLoading(false);
-      fetchConnection();
+      setIsSyncing(false);
+      fetchConnection(true);
     }
   };
 
@@ -965,6 +987,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
     setError("");
     setSyncing(true);
+    setIsSyncing(true);
     setSyncSummary(null);
     setConflicts([]);
 
@@ -986,17 +1009,21 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
             initialResolutions[c.testCaseId] = "portal";
           });
           setConflictResolutions(initialResolutions);
+          setToast({ message: "Sync conflict detected!", type: "error" });
         } else {
           setSyncSummary(data.summary);
           setShowSyncResultModal(true);
+          setToast({ message: "Sync completed successfully!", type: "success" });
         }
 
-        await Promise.all([fetchConnection(), fetchTestCases()]);
+        await Promise.all([fetchConnection(true), fetchTestCases()]);
       }
     } catch (err: any) {
       setError(err.message || "Sync encountered a network issue.");
+      setToast({ message: err.message || "Sync encountered an issue.", type: "error" });
     } finally {
       setSyncing(false);
+      setIsSyncing(false);
     }
   };
 
@@ -1004,6 +1031,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     if (resolvingConflicts) return;
 
     setResolvingConflicts(true);
+    setIsSyncing(true);
     setError("");
 
     try {
@@ -1026,12 +1054,15 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       if (data.success) {
         setConflicts([]);
         setConflictResolutions({});
+        setToast({ message: "Conflicts resolved! Initiating sync...", type: "success" });
         handleSyncNow();
       }
     } catch (err: any) {
       setError(err.message || "Failed to resolve conflicts.");
+      setToast({ message: err.message || "Failed to resolve conflicts.", type: "error" });
     } finally {
       setResolvingConflicts(false);
+      setIsSyncing(false);
     }
   };
 
@@ -1039,6 +1070,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     if (!selectedCase) return;
 
     setSavingCase(true);
+    setIsSyncing(true);
     setError("");
 
     try {
@@ -1061,17 +1093,20 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
           prev.map(tc => (tc.testCaseId === selectedCase.testCaseId ? { ...tc, ...updatedFields } : tc))
         );
         setSelectedCase(prev => (prev ? { ...prev, ...updatedFields } : null));
+        setToast({ message: "Test case updated successfully!", type: "success" });
 
         if (data.synced) {
-          await fetchConnection();
+          await fetchConnection(true);
         } else if (data.syncError) {
-          alert(`Test Case updated in portal, but Google Sheet sync failed: ${data.syncError}`);
+          setToast({ message: `Updated in portal, sheet sync failed: ${data.syncError}`, type: "error" });
         }
       }
     } catch (err: any) {
       setError(err.message || "Failed to save test case.");
+      setToast({ message: err.message || "Failed to save test case.", type: "error" });
     } finally {
       setSavingCase(false);
+      setIsSyncing(false);
     }
   };
 
@@ -1156,6 +1191,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     }
 
     try {
+      setIsSyncing(true);
       const res = await fetch(`/api/projects/${projectId}/test-cases`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -1171,6 +1207,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         throw new Error(data.error || "Failed to update cell.");
       }
 
+      setToast({ message: "Cell updated successfully!", type: "success" });
       setTestCases(prev =>
         prev.map(t => {
           if (t.testCaseId === testCaseId) {
@@ -1185,10 +1222,8 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     } catch (err: any) {
       console.error("Failed to sync cell change:", err);
       setError(err.message || "Failed to sync cell change.");
+      setToast({ message: err.message || "Failed to sync cell change.", type: "error" });
       
-      // Revert React state
-      handleGoogleCellChangeState(testCaseId, columnName, oldValue);
-
       // Revert overallMetrics too
       if (normName === "qastatus") {
         setOverallMetrics((prev: any) => {
@@ -1207,6 +1242,8 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
           return newMetrics;
         });
       }
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -1311,7 +1348,15 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
   }
 
   return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-500">
+    <div className="space-y-6 pb-12 animate-in fade-in duration-500 relative">
+      {isSyncing && (
+        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
+            <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
+            <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing test cases...</p>
+          </div>
+        </div>
+      )}
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -2080,50 +2125,54 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                       )}
                     </select>
                     <button
-                      onClick={async () => {
-                        if (bulkUpdating) return;
-                        setBulkUpdating(true);
-                        setError("");
-                        try {
-                          const res = await fetch(`/api/projects/${projectId}/test-cases`, {
-                            method: "PUT",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              testCaseIds: selectedCaseIds,
-                              [bulkField]: bulkValue,
-                            }),
-                          });
-                          const data = await res.json();
-                          if (!res.ok || data.error) throw new Error(data.error || "Bulk update failed.");
-                          // Update local state
-                          setTestCases(prev =>
-                            prev.map(tc =>
-                              selectedCaseIds.includes(tc.testCaseId)
-                                ? { ...tc, [bulkField]: bulkValue }
-                                : tc
-                            )
-                          );
-                          setSelectedCaseIds([]);
-                          setSuccessMessage(`Updated ${selectedCaseIds.length} test case(s) successfully.`);
-                          setTimeout(() => setSuccessMessage(""), 5000);
-                          if (data.syncError) {
-                            console.warn("Sheet sync warning:", data.syncError);
-                          }
-                        } catch (err: any) {
-                          setError(err.message || "Bulk update failed.");
-                        } finally {
-                          setBulkUpdating(false);
+                    onClick={async () => {
+                      if (bulkUpdating) return;
+                      setBulkUpdating(true);
+                      setError("");
+                      setIsSyncing(true);
+                      try {
+                        const res = await fetch(`/api/projects/${projectId}/test-cases`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            testCaseIds: selectedCaseIds,
+                            [bulkField]: bulkValue,
+                          }),
+                        });
+                        const data = await res.json();
+                        if (!res.ok || data.error) throw new Error(data.error || "Bulk update failed.");
+                        // Update local state
+                        setTestCases(prev =>
+                          prev.map(tc =>
+                            selectedCaseIds.includes(tc.testCaseId)
+                              ? { ...tc, [bulkField]: bulkValue }
+                              : tc
+                          )
+                        );
+                        setSelectedCaseIds([]);
+                        setToast({ message: `Bulk updated ${selectedCaseIds.length} test case(s) successfully!`, type: "success" });
+                        setSuccessMessage(`Updated ${selectedCaseIds.length} test case(s) successfully.`);
+                        setTimeout(() => setSuccessMessage(""), 5000);
+                        if (data.syncError) {
+                          console.warn("Sheet sync warning:", data.syncError);
                         }
-                      }}
-                      disabled={bulkUpdating}
-                      className="btn-primary !py-1.5 !px-4 text-xs font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
-                    >
-                      {bulkUpdating ? (
-                        <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Updating...</>
-                      ) : (
-                        <><CheckCircle2 className="w-3.5 h-3.5" /> Apply to {selectedCaseIds.length}</>
-                      )}
-                    </button>
+                      } catch (err: any) {
+                        setError(err.message || "Bulk update failed.");
+                        setToast({ message: err.message || "Bulk update failed.", type: "error" });
+                      } finally {
+                        setBulkUpdating(false);
+                        setIsSyncing(false);
+                      }
+                    }}
+                    disabled={bulkUpdating}
+                    className="btn-primary !py-1.5 !px-4 text-xs font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {bulkUpdating ? (
+                      <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Updating...</>
+                    ) : (
+                      <><CheckCircle2 className="w-3.5 h-3.5" /> Apply to {selectedCaseIds.length}</>
+                    )}
+                  </button>
                   </div>
                   <button
                     onClick={() => setSelectedCaseIds([])}
@@ -2637,6 +2686,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                     return;
                   }
                   setAddingCaseLoading(true);
+                  setIsSyncing(true);
                   setError("");
                   try {
                     const res = await fetch(`/api/projects/${projectId}/test-cases`, {
@@ -2659,6 +2709,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                     });
                     const data = await res.json();
                     if (!res.ok || data.error) throw new Error(data.error || "Failed to create test case.");
+                    setToast({ message: `Test case "${newCaseId.trim()}" created successfully!`, type: "success" });
                     setSuccessMessage(`Test case "${newCaseId.trim()}" created successfully!${data.synced ? " Synced to Google Sheet." : ""}`);
                     setTimeout(() => setSuccessMessage(""), 6000);
                     setShowAddCaseModal(false);
@@ -2671,8 +2722,10 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                     await fetchTestCases();
                   } catch (err: any) {
                     setError(err.message || "Failed to create test case.");
+                    setToast({ message: err.message || "Failed to create test case.", type: "error" });
                   } finally {
                     setAddingCaseLoading(false);
+                    setIsSyncing(false);
                   }
                 }}
                 disabled={addingCaseLoading}
@@ -3054,6 +3107,19 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {toast && (
+        <div className={`fixed bottom-5 right-5 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-xl animate-in slide-in-from-bottom-5 duration-300 ${
+          toast.type === "success" 
+            ? "bg-emerald-50 border-emerald-100 text-emerald-800" 
+            : "bg-red-50 border-red-100 text-red-800"
+        }`}>
+          {toast.type === "success" ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />}
+          <span className="text-sm font-bold">{toast.message}</span>
+          <button onClick={() => setToast(null)} className="ml-2 p-0.5 hover:bg-black/5 rounded text-slate-400 hover:text-slate-600 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

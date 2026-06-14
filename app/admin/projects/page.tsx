@@ -69,14 +69,26 @@ export default function ProjectHubPage() {
   const [selectedDevEmails, setSelectedDevEmails] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [devDropdownOpen, setDevDropdownOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const fetchProjects = async () => {
+    setIsSyncing(true);
     try {
       const res = await fetch("/api/projects");
       const data = await res.json();
       setProjects(data);
     } catch (err) {
       console.error("Failed to fetch projects", err);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -121,8 +133,20 @@ export default function ProjectHubPage() {
 
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure? This will delete the project and cascade delete daily statuses!")) {
-      await deleteProject(id);
-      fetchProjects();
+      try {
+        setIsSyncing(true);
+        const res = await deleteProject(id);
+        if (res && 'error' in res) {
+          setToast({ message: res.error || "Failed to delete project.", type: "error" });
+        } else {
+          setToast({ message: "Project deleted successfully!", type: "success" });
+        }
+        await fetchProjects();
+      } catch (err: any) {
+        setToast({ message: err.message || "An error occurred during deletion.", type: "error" });
+      } finally {
+        setIsSyncing(false);
+      }
     }
   };
 
@@ -260,7 +284,15 @@ export default function ProjectHubPage() {
              </span>
           </div>
           
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto relative min-h-[200px]">
+            {isSyncing && (
+              <div className="absolute inset-0 bg-white/75 backdrop-blur-xs z-30 flex items-center justify-center animate-in fade-in duration-200">
+                <div className="flex flex-col items-center gap-2">
+                  <Clock className="w-8 h-8 text-[#ed5c37] animate-spin" />
+                  <p className="text-xs text-slate-500 font-bold">Syncing project data...</p>
+                </div>
+              </div>
+            )}
             <table className="w-full text-left text-sm border-collapse">
               <thead className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <tr>
@@ -438,20 +470,29 @@ export default function ProjectHubPage() {
               setLoading(true);
               setError("");
 
-              // Build multi-select values explicitly in case checked boxes aren't serialized
-              // Standard FormData handles multiple checkbox entries natively, but appending ensures it
-              const res = isEditing && currentProject 
-                ? await updateProject(currentProject.id, formData) 
-                : await createProject(formData);
-              
-              if (res && 'error' in res) {
-                setError(res.error || "An error occurred");
+              try {
+                const res = isEditing && currentProject 
+                  ? await updateProject(currentProject.id, formData) 
+                  : await createProject(formData);
+                
+                if (res && 'error' in res) {
+                  setError(res.error || "An error occurred");
+                  setToast({ message: res.error || "Failed to save project.", type: "error" });
+                  setLoading(false);
+                } else {
+                  setError("");
+                  setShowModal(false);
+                  await fetchProjects();
+                  setToast({ 
+                    message: isEditing ? "Project updated successfully!" : "Project registered successfully!", 
+                    type: "success" 
+                  });
+                  setLoading(false);
+                }
+              } catch (err: any) {
+                setError(err.message || "An unexpected error occurred.");
+                setToast({ message: err.message || "An unexpected error occurred.", type: "error" });
                 setLoading(false);
-              } else {
-                setError("");
-                setShowModal(false);
-                setLoading(false);
-                fetchProjects();
               }
             }} className="p-6 space-y-5 overflow-y-auto flex-1">
 
@@ -636,6 +677,19 @@ export default function ProjectHubPage() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+      {toast && (
+        <div className={`fixed bottom-5 right-5 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-xl animate-in slide-in-from-bottom-5 duration-300 ${
+          toast.type === "success" 
+            ? "bg-emerald-50 border-emerald-100 text-emerald-800" 
+            : "bg-red-50 border-red-100 text-red-800"
+        }`}>
+          {toast.type === "success" ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />}
+          <span className="text-sm font-bold">{toast.message}</span>
+          <button onClick={() => setToast(null)} className="ml-2 p-0.5 hover:bg-black/5 rounded text-slate-400 hover:text-slate-600 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

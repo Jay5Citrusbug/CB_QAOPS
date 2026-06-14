@@ -27,17 +27,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const isTaskBoard = pathname === '/task-board';
+
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       {/* Mobile Header Overlays */}
       <div className={`fixed inset-0 bg-slate-900/50 z-40 lg:hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
       
-      {/* Sidebar Container */}
+      {/* Sidebar Container - always fixed */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 transform lg:translate-x-0 transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
 
-      <div className="lg:ml-64 flex flex-col min-h-screen">
+      {/* Main content column */}
+      <div className="lg:ml-64 flex flex-col h-screen overflow-hidden">
         {/* Mobile Navbar */}
         <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200">
            <div className="flex items-center gap-3">
@@ -49,11 +52,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
            </button>
         </div>
 
-        <main className="main-container animate-in fade-in slide-in-from-bottom-2 duration-700">
-           {children}
-        </main>
+        {isTaskBoard ? (
+          /* Task Board: full-height no-scroll flex container */
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {children}
+          </div>
+        ) : (
+          /* All other pages: scrollable main area */
+          <main className="flex-1 overflow-y-auto main-container animate-in fade-in slide-in-from-bottom-2 duration-700">
+            {children}
+          </main>
+        )}
       </div>
     </div>
   );
 }
-

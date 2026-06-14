@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createUser, updateUser, deleteUser } from "@/lib/actions";
-import { Users, Plus, X, Search, Shield, User, Mail, MoreHorizontal, Clock, Eye, EyeOff, Edit2, Trash2, AlertTriangle } from "lucide-react";
+import { Users, Plus, X, Search, Shield, User, Mail, MoreHorizontal, Clock, Eye, EyeOff, Edit2, Trash2, AlertTriangle, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface UserData {
   id: string;
@@ -27,17 +27,29 @@ export default function AdminUsersPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   // Form states
   const [selectedRole, setSelectedRole] = useState("USER");
 
   const fetchUsers = async () => {
+    setIsSyncing(true);
     try {
       const res = await fetch("/api/admin/users");
       const data = await res.json();
       setUsers(data);
     } catch (err) {
       console.error("Failed to fetch users", err);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -66,11 +78,19 @@ export default function AdminUsersPage() {
 
   const handleDelete = async (userId: string) => {
     if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-      const res = await deleteUser(userId);
-      if (res?.error) {
-        alert(res.error);
-      } else {
-        fetchUsers();
+      try {
+        setIsSyncing(true);
+        const res = await deleteUser(userId);
+        if (res?.error) {
+          setToast({ message: res.error || "Failed to delete user.", type: "error" });
+        } else {
+          setToast({ message: "User deleted successfully!", type: "success" });
+        }
+        await fetchUsers();
+      } catch (err: any) {
+        setToast({ message: err.message || "An error occurred during deletion.", type: "error" });
+      } finally {
+        setIsSyncing(false);
       }
     }
   };
@@ -110,7 +130,15 @@ export default function AdminUsersPage() {
            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm">{filteredUsers.length} total users</span>
         </div>
         
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto relative min-h-[200px]">
+          {isSyncing && (
+            <div className="absolute inset-0 bg-white/75 backdrop-blur-xs z-30 flex items-center justify-center animate-in fade-in duration-200">
+              <div className="flex flex-col items-center gap-2">
+                <Clock className="w-8 h-8 text-[#ed5c37] animate-spin" />
+                <p className="text-xs text-slate-500 font-bold">Syncing user data...</p>
+              </div>
+            </div>
+          )}
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-500">
               <tr>
@@ -204,18 +232,29 @@ export default function AdminUsersPage() {
             
             <form action={async (formData) => {
               setLoading(true);
-              const res = editingUser 
-                ? await updateUser(editingUser.id, formData)
-                : await createUser(formData);
-              
-              if (res?.error) {
-                setError(res.error);
+              try {
+                const res = editingUser 
+                  ? await updateUser(editingUser.id, formData)
+                  : await createUser(formData);
+                
+                if (res?.error) {
+                  setError(res.error);
+                  setToast({ message: res.error || "Failed to save user.", type: "error" });
+                  setLoading(false);
+                } else {
+                  setError("");
+                  setShowModal(false);
+                  await fetchUsers();
+                  setToast({ 
+                    message: editingUser ? "User updated successfully!" : "User onboarded successfully!", 
+                    type: "success" 
+                  });
+                  setLoading(false);
+                }
+              } catch (err: any) {
+                setError(err.message || "An unexpected error occurred.");
+                setToast({ message: err.message || "An unexpected error occurred.", type: "error" });
                 setLoading(false);
-              } else {
-                setError("");
-                setShowModal(false);
-                setLoading(false);
-                fetchUsers();
               }
             }} className="p-6 space-y-5">
               <div className="grid grid-cols-2 gap-4">
@@ -310,6 +349,19 @@ export default function AdminUsersPage() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+      {toast && (
+        <div className={`fixed bottom-5 right-5 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-xl animate-in slide-in-from-bottom-5 duration-300 ${
+          toast.type === "success" 
+            ? "bg-emerald-50 border-emerald-100 text-emerald-800" 
+            : "bg-red-50 border-red-100 text-red-800"
+        }`}>
+          {toast.type === "success" ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />}
+          <span className="text-sm font-bold">{toast.message}</span>
+          <button onClick={() => setToast(null)} className="ml-2 p-0.5 hover:bg-black/5 rounded text-slate-400 hover:text-slate-600 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

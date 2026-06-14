@@ -1,0 +1,234 @@
+<USER_REQUEST>
+You can use the following prompt directly with your UI designer, Figma AI, Lovable, Cursor, Bolt, or any AI website builder:
+
+---
+
+# Dashboard Redesign Prompt
+
+Redesign the QA Portal Dashboard with a clean, modern, professional SaaS-style layout. The dashboard should focus on task visibility and daily productivity.
+
+## Layout Structure
+
+### Header Section
+
+Display a personalized greeting:
+
+**Good Morning, Jay!**
+*Here's what's happening today in your QA portal.*
+
+---
+
+## Row 1 (Two Equal Columns)
+
+### Left Card – Today's Tasks
+
+Title: **Today's Tasks**
+
+Purpose:
+Display all tasks assigned to the logged-in user that are due today from the Task Board.
+
+For each task show:
+
+* Task Name
+* Project / WorkPod Name
+* Priority Badge (High, Medium, Low)
+* Status Badge (Open, In Progress, Review, Completed)
+* Due Time
+* Quick View button
+
+Example:
+
+```
+Today's Tasks
+
+[High] Login API Validation
+Project: CB QOps
+Status: In Progress
+Due: 4:00 PM
+
+[Medium] Regression Testing
+Project: Student Portal
+Status: Open
+Due: 6:00 PM
+```
+
+If no tasks exist:
+
+```
+No tasks assigned for today.
+```
+
+Include:
+
+* View All Tasks link
+* Task count badge in header
+
+---
+
+### Right Card – Today's Status
+
+Title: **Today's Status**
+
+Purpose:
+Display the latest daily status submitted by the user.
+
+Show:
+
+* Today's status summary
+* Submission timestamp
+* Current submission status
+* Edit Status button
+* Submit Status button (if not submitted)
+
+Example:
+
+```
+Today's Status
+
+Completed smoke testing for Doc-to-Task feature.
+Validated task creation workflow.
+Logged 3 bugs.
+
+Submitted at: 02:39 PM
+Status: Submitted
+```
+
+Status Badge Colors:
+
+* Submitted → Green
+* Draft → Orange
+* Pending → Gray
+
+If no status submitted:
+
+```
+No status submitted today.
+```
+
+Display a prominent:
+**"Add Today's Status"** button.
+
+---
+
+## Row 2 (Full Width)
+
+### Upcoming Tasks
+
+Title: **Upcoming Tasks**
+
+Purpose:
+Display future assigned t
+<truncated 357 bytes>
+Tomorrow
+
+Automation Script Review
+Project: CB QOps
+Priority: Medium
+Due: 18 Jun
+```
+
+If no upcoming tasks:
+
+```
+No upcoming tasks scheduled.
+```
+
+---
+
+## UI Design Requirements
+
+### Design Style
+
+* Modern SaaS Dashboard
+* Clean spacing
+* Minimalistic cards
+* Soft shadows
+* Rounded corners (12px)
+* Professional QA/Productivity theme
+
+### Color Palette
+
+Primary:
+
+* #2563EB (Blue)
+
+Success:
+
+* #22C55E
+
+Warning:
+
+* #F59E0B
+
+Danger:
+
+* #EF4444
+
+Background:
+
+* #F8FAFC
+
+Cards:
+
+* White
+
+Text:
+
+* #0F172A
+
+Secondary Text:
+
+* #64748B
+
+### Responsive Behavior
+
+Desktop:
+
+* Today's Tasks (50%)
+* Today's Status (50%)
+
+Tablet:
+
+* Stack cards vertically
+
+Mobile:
+
+* Single-column layout
+
+### Additional Enhancements
+
+Add summary widgets above the cards:
+
+* Total Tasks Today
+* Open Tasks
+* In Progress Tasks
+* Completed Today
+
+Use compact KPI cards with icons.
+
+The dashboard should immediately help a QA engineer understand:
+
+1. What tasks need attention today.
+2. Whether today's status has been submitted.
+3. What upcoming work is planned.
+
+Focus on productivity, visibility, and quick action accessibility.
+
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-06-13T20:44:25+05:30.
+
+The user's current state is as follows:
+Active Document: d:\Automation\Playwright\CB QOps\.env (LANGUAGE_UNSPECIFIED)
+Cursor is on line: 20
+Other open documents:
+- d:\Automation\Playwright\CB QOps\app\test-cases\page.tsx (LANGUAGE_TSX)
+- d:\Automation\Playwright\CB QOps\.env (LANGUAGE_UNSPECIFIED)
+Browser State:
+  Page D474DC0863F8794396C335FA0327A14E (CB QOps - QA Work Management Portal) - http://localhost:3000/daily-status
+    Viewport: 1536x738, Page Height: 737
+  Page B8041A866E69ECAFEED0C62F48EE0655 (CB QOps - QA Work Management Portal) - http://localhost:3000/task-board [ACTIVE]
+    Viewport: 1536x738, Page Height: 737
+Running terminal commands:
+- npm run dev (in d:\Automation\Playwright\CB QOps, running for 1h30m21s)
+</ADDITIONAL_METADATA>

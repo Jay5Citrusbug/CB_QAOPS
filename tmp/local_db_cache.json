@@ -34,11 +34,11 @@
       "role": "ADMIN",
       "project_id": null,
       "name": "Jay Citrusbug",
+      "email": "jay5.citrusbug@gmail.com",
       "created_at": {
-        "seconds": 1779640357,
-        "nanoseconds": 587000000
-      },
-      "email": "jay5.citrusbug@gmail.com"
+        "seconds": 1781359681,
+        "nanoseconds": 36000000
+      }
     },
     "BguGkUgfbdMeooOOShVNZviiIE03": {
       "role": "DEV",
@@ -605,44 +605,329 @@
         "seconds": 1780847801,
         "nanoseconds": 557000000
       }
+    },
+    "x0mXnZcX8yJsWBccNvNG": {
+      "code": "PROJ-3579",
+      "name": "B2B",
+      "description": "",
+      "scope": "",
+      "requirements": "",
+      "startDate": null,
+      "targetReleaseDate": null,
+      "primaryQaEmail": "qa2@test.com",
+      "primaryQaName": "QA Assistant",
+      "supportingQaEmail": "",
+      "supportingQaName": "",
+      "teamLeadEmail": "",
+      "teamLeadName": "",
+      "developerEmails": [],
+      "developerNames": [],
+      "documents": [],
+      "timeline": {
+        "smokeTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "testCaseWriting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "designValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "integrationTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "regressionTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "uatSupport": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "releaseVerification": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "postReleaseValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        }
+      },
+      "notesAndFlags": [],
+      "tl_name": "QA Assistant",
+      "assignee_name": "QA Assistant",
+      "dev_name": "",
+      "created_at": {
+        "seconds": 1781363117,
+        "nanoseconds": 367000000
+      },
+      "updated_at": {
+        "seconds": 1781427116,
+        "nanoseconds": 856000000
+      },
+      "status": "INACTIVE"
+    },
+    "cKvgDIt1NbpyoLyIR58S": {
+      "code": "PROJ-2814",
+      "name": "Revenue",
+      "status": "ACTIVE",
+      "description": "",
+      "scope": "",
+      "requirements": "",
+      "startDate": null,
+      "targetReleaseDate": null,
+      "primaryQaEmail": "qa2@test.com",
+      "primaryQaName": "QA Assistant",
+      "supportingQaEmail": "",
+      "supportingQaName": "",
+      "teamLeadEmail": "",
+      "teamLeadName": "",
+      "developerEmails": [],
+      "developerNames": [],
+      "documents": [],
+      "timeline": {
+        "smokeTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "testCaseWriting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "designValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "integrationTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "regressionTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "uatSupport": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "releaseVerification": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "postReleaseValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        }
+      },
+      "notesAndFlags": [],
+      "tl_name": "QA Assistant",
+      "assignee_name": "QA Assistant",
+      "dev_name": "",
+      "updated_at": {
+        "seconds": 1781363128,
+        "nanoseconds": 593000000
+      },
+      "created_at": {
+        "seconds": 1781363128,
+        "nanoseconds": 593000000
+      }
+    },
+    "KBkxPwzNhyJP1aaZ9Pgf": {
+      "code": "PROJ-6699",
+      "name": "Citrusbug Technolabs",
+      "status": "ACTIVE",
+      "description": "",
+      "scope": "",
+      "requirements": "",
+      "startDate": null,
+      "targetReleaseDate": null,
+      "primaryQaEmail": "qa2@test.com",
+      "primaryQaName": "QA Assistant",
+      "supportingQaEmail": "",
+      "supportingQaName": "",
+      "teamLeadEmail": "",
+      "teamLeadName": "",
+      "developerEmails": [],
+      "developerNames": [],
+      "documents": [],
+      "timeline": {
+        "smokeTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "testCaseWriting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "designValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "integrationTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "regressionTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "uatSupport": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "releaseVerification": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "postReleaseValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        }
+      },
+      "notesAndFlags": [],
+      "tl_name": "QA Assistant",
+      "assignee_name": "QA Assistant",
+      "dev_name": "",
+      "updated_at": {
+        "seconds": 1781363138,
+        "nanoseconds": 567000000
+      },
+      "created_at": {
+        "seconds": 1781363138,
+        "nanoseconds": 567000000
+      }
     }
   },
   "tasks": {
     "task_001": {
-      "user_id": "user_003",
       "title": "Configure Firebase Auth Router",
-      "status": "PENDING",
-      "is_important": true,
+      "created_at": {
+        "seconds": 1779440400,
+        "nanoseconds": 0
+      },
       "my_day": true,
-      "notes": "Verify authorization callbacks and JWT validation inside NextAuth route",
-      "due_date": "2026-05-28T18:00:00.000Z",
-      "remind_at": "2026-05-28T09:00:00.000Z",
+      "remind_at": {
+        "seconds": 1779958800,
+        "nanoseconds": 0
+      },
+      "user_id": "user_003",
+      "status": "PENDING",
       "repeat": "none",
-      "created_at": "2026-05-22T09:00:00.000Z"
+      "is_important": true,
+      "notes": "Verify authorization callbacks and JWT validation inside NextAuth route",
+      "due_date": {
+        "seconds": 1779991200,
+        "nanoseconds": 0
+      }
     },
     "task_002": {
-      "user_id": "user_003",
       "title": "Implement seed script",
-      "status": "PENDING",
-      "is_important": false,
+      "created_at": {
+        "seconds": 1779442200,
+        "nanoseconds": 0
+      },
       "my_day": false,
-      "notes": "Must handle nested structures, batch transactions, and support clean re-runs",
-      "due_date": "2026-05-25T18:00:00.000Z",
       "remind_at": null,
+      "user_id": "user_003",
+      "status": "PENDING",
       "repeat": "none",
-      "created_at": "2026-05-22T09:30:00.000Z"
+      "is_important": false,
+      "notes": "Must handle nested structures, batch transactions, and support clean re-runs",
+      "due_date": {
+        "seconds": 1779732000,
+        "nanoseconds": 0
+      }
     },
     "task_003": {
-      "user_id": "user_002",
+      "created_at": {
+        "seconds": 1779534000,
+        "nanoseconds": 0
+      },
       "title": "Review Pull Request for Seeding Automation",
-      "status": "COMPLETED",
-      "is_important": true,
-      "my_day": false,
-      "notes": "Ensure that safety controls and idempotency are strictly preserved",
-      "due_date": null,
       "remind_at": null,
+      "user_id": "user_002",
+      "status": "COMPLETED",
+      "my_day": false,
       "repeat": "none",
-      "created_at": "2026-05-23T11:00:00.000Z"
+      "is_important": true,
+      "due_date": null,
+      "notes": "Ensure that safety controls and idempotency are strictly preserved"
     },
     "uzcGsjR2n1FHUEhPwfhM": {
       "user_id": "user_003",
@@ -653,60 +938,270 @@
       "user_id": "user_003",
       "title": "New Offline Task",
       "status": "PENDING"
+    },
+    "bt5MLMaj07UI5a0uV9hT": {
+      "task_list_id": "RDEEoAJh2nDmKcUwhcVi",
+      "task_number": 1002,
+      "title": "Verify checkout checkout flow",
+      "description": "",
+      "priority": "Critical",
+      "due_date": {
+        "seconds": 1781913600,
+        "nanoseconds": 0
+      },
+      "created_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781361865,
+        "nanoseconds": 731000000
+      },
+      "notes": "Test Notes 123",
+      "steps": [
+        {
+          "id": "step_1781361991024",
+          "title": "Step 1: Go to checkout page",
+          "isCompleted": false
+        }
+      ],
+      "assigned_to": "jay5.citrusbug@gmail.com",
+      "completed_at": {
+        "seconds": 1781363095,
+        "nanoseconds": 802000000
+      },
+      "updated_at": {
+        "seconds": 1781363095,
+        "nanoseconds": 802000000
+      },
+      "completed_by": "jay5.citrusbug@gmail.com",
+      "status": "Completed"
+    },
+    "mlWOLwNPyULYMNMW1r41": {
+      "task_list_id": "RDEEoAJh2nDmKcUwhcVi",
+      "task_number": 1003,
+      "title": "new task added by QA",
+      "description": "",
+      "notes": "",
+      "priority": "Medium",
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "steps": [],
+      "created_at": {
+        "seconds": 1781362565,
+        "nanoseconds": 838000000
+      },
+      "due_date": {
+        "seconds": 1781395200,
+        "nanoseconds": 0
+      },
+      "completed_at": {
+        "seconds": 1781426939,
+        "nanoseconds": 135000000
+      },
+      "updated_at": {
+        "seconds": 1781426939,
+        "nanoseconds": 135000000
+      },
+      "completed_by": "jay5.citrusbug@gmail.com",
+      "status": "Completed"
+    },
+    "sYj1UYFpazMJtgXtRv0m": {
+      "task_list_id": "RDEEoAJh2nDmKcUwhcVi",
+      "task_number": 1004,
+      "title": "Bluedrop",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1781427047,
+        "nanoseconds": 600000000
+      },
+      "updated_at": {
+        "seconds": 1781427073,
+        "nanoseconds": 354000000
+      },
+      "due_date": {
+        "seconds": 1781222400,
+        "nanoseconds": 0
+      }
+    },
+    "zR0igWihNjZRZTNUhrzJ": {
+      "task_list_id": "RDEEoAJh2nDmKcUwhcVi",
+      "task_number": 1005,
+      "title": "Optimistic Task Created",
+      "description": "",
+      "notes": "",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "steps": [],
+      "created_at": {
+        "seconds": 1781427815,
+        "nanoseconds": 65000000
+      },
+      "completed_at": {
+        "seconds": 1781427824,
+        "nanoseconds": 328000000
+      },
+      "updated_at": {
+        "seconds": 1781427824,
+        "nanoseconds": 328000000
+      },
+      "completed_by": "jay5.citrusbug@gmail.com",
+      "status": "Completed"
+    },
+    "FtgOLx019lbiEoLopTeM": {
+      "task_list_id": "RDEEoAJh2nDmKcUwhcVi",
+      "task_number": 1006,
+      "title": "hello",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "updated_at": {
+        "seconds": 1781428165,
+        "nanoseconds": 147000000
+      },
+      "created_at": {
+        "seconds": 1781428165,
+        "nanoseconds": 147000000
+      }
+    },
+    "197uHPFSPFQsMK9cI2Yb": {
+      "user_id": "boHO3GpjzJOQvXqr1nzEL0YlS0s2",
+      "title": "Verify Login UI",
+      "my_day": false,
+      "created_at": {
+        "seconds": 1781428717,
+        "nanoseconds": 781000000
+      },
+      "status": "COMPLETED",
+      "is_important": true,
+      "notes": "Some test notes for Verify Login UI task."
+    },
+    "lnnrxsmKDVkdto7pH3Kq": {
+      "task_list_id": "RDEEoAJh2nDmKcUwhcVi",
+      "task_number": 1007,
+      "title": "Hello",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "updated_at": {
+        "seconds": 1781440100,
+        "nanoseconds": 326000000
+      },
+      "created_at": {
+        "seconds": 1781440100,
+        "nanoseconds": 326000000
+      }
     }
   },
   "task_steps": {
     "step_001": {
-      "task_id": "task_001",
-      "title": "Install firebase packages",
       "is_completed": true,
-      "created_at": "2026-05-22T09:05:00.000Z"
+      "created_at": {
+        "seconds": 1779440700,
+        "nanoseconds": 0
+      },
+      "task_id": "task_001",
+      "title": "Install firebase packages"
     },
     "step_002": {
-      "task_id": "task_001",
-      "title": "Set up environment variables",
       "is_completed": true,
-      "created_at": "2026-05-22T09:10:00.000Z"
+      "created_at": {
+        "seconds": 1779441000,
+        "nanoseconds": 0
+      },
+      "task_id": "task_001",
+      "title": "Set up environment variables"
     },
     "step_003": {
+      "created_at": {
+        "seconds": 1779441300,
+        "nanoseconds": 0
+      },
       "task_id": "task_001",
-      "title": "Test user session redirection",
       "is_completed": false,
-      "created_at": "2026-05-22T09:15:00.000Z"
+      "title": "Test user session redirection"
     },
     "step_004": {
+      "created_at": {
+        "seconds": 1779442500,
+        "nanoseconds": 0
+      },
       "task_id": "task_002",
-      "title": "Draft JSON seed format",
       "is_completed": true,
-      "created_at": "2026-05-22T09:35:00.000Z"
+      "title": "Draft JSON seed format"
     },
     "step_005": {
+      "created_at": {
+        "seconds": 1779442800,
+        "nanoseconds": 0
+      },
       "task_id": "task_002",
-      "title": "Write TypeScript script",
       "is_completed": false,
-      "created_at": "2026-05-22T09:40:00.000Z"
+      "title": "Write TypeScript script"
+    },
+    "IfmLA0XazGQJrVvrqIBn": {
+      "task_id": "197uHPFSPFQsMK9cI2Yb",
+      "title": "Step 1",
+      "is_completed": false,
+      "created_at": {
+        "seconds": 1781428811,
+        "nanoseconds": 861000000
+      }
     }
   },
   "daily_statuses": {
     "status_001": {
-      "user_id": "user_003",
-      "project_id": "proj_001",
-      "date": "2026-05-23T00:00:00.000Z",
-      "work_done": "Configured standard Next.js route handlers with Firebase Admin SDK",
-      "planned_work": "Integrate seed automation and run verification tests",
+      "created_at": {
+        "seconds": 1779557400,
+        "nanoseconds": 0
+      },
+      "date": {
+        "seconds": 1779494400,
+        "nanoseconds": 0
+      },
       "hours": 6.5,
+      "work_done": "Configured standard Next.js route handlers with Firebase Admin SDK",
       "blockers": null,
-      "created_at": "2026-05-23T17:30:00.000Z"
+      "planned_work": "Integrate seed automation and run verification tests",
+      "project_id": "proj_001",
+      "user_id": "user_003"
     },
     "status_002": {
-      "user_id": "user_003",
-      "project_id": "proj_001",
-      "date": "2026-05-24T00:00:00.000Z",
-      "work_done": "Created complete Firestore schema mapping and validated composite index configurations",
       "planned_work": "Deploy production firestore.rules and conduct automated test coverage validations",
+      "project_id": "proj_001",
+      "user_id": "user_003",
       "hours": 8,
+      "work_done": "Created complete Firestore schema mapping and validated composite index configurations",
       "blockers": "Minor delay in service account credentials access",
-      "created_at": "2026-05-24T18:00:00.000Z"
+      "created_at": {
+        "seconds": 1779645600,
+        "nanoseconds": 0
+      },
+      "date": {
+        "seconds": 1779580800,
+        "nanoseconds": 0
+      }
     },
     "3UtLUEUm1ERZmsxiXOpi": {
       "user_id": "NKHZq66suVdup235yO8VgLfEMrl2",
@@ -738,6 +1233,86 @@
       "created_at": {
         "seconds": 1780744569,
         "nanoseconds": 368000000
+      }
+    },
+    "OstW0mPiiHegVrsfx8VI": {
+      "user_id": "boHO3GpjzJOQvXqr1nzEL0YlS0s2",
+      "project_id": "oBZuNXdgJKJ0B4hYNNNv",
+      "date": {
+        "seconds": 1781308800,
+        "nanoseconds": 0
+      },
+      "work_done": "Good work",
+      "planned_work": "No task",
+      "hours": 2,
+      "blockers": "No task",
+      "created_at": {
+        "seconds": 1781361581,
+        "nanoseconds": 355000000
+      }
+    },
+    "hvxO7B7qWcCDscCJqjny": {
+      "user_id": "boHO3GpjzJOQvXqr1nzEL0YlS0s2",
+      "project_id": "oBZuNXdgJKJ0B4hYNNNv",
+      "date": {
+        "seconds": 1781308800,
+        "nanoseconds": 0
+      },
+      "work_done": "QAQ",
+      "planned_work": "No",
+      "hours": 2,
+      "blockers": "no",
+      "created_at": {
+        "seconds": 1781363774,
+        "nanoseconds": 888000000
+      }
+    },
+    "l3Mxb3oVdj1iDjABA6HO": {
+      "user_id": "boHO3GpjzJOQvXqr1nzEL0YlS0s2",
+      "project_id": "ulbpPwxN1Mk7ucEvCCVy",
+      "date": {
+        "seconds": 1781395200,
+        "nanoseconds": 0
+      },
+      "work_done": "Testing dashboard redesign, completed checklist tasks. Verified by QA - Edited",
+      "planned_work": "Continue testing other modules",
+      "hours": 8,
+      "blockers": null,
+      "created_at": {
+        "seconds": 1781424016,
+        "nanoseconds": 992000000
+      }
+    },
+    "tJ8cRYlpsr7vr9puEpki": {
+      "user_id": "LndZTIrjOrXW39KFEwYm6CKthYy1",
+      "project_id": "x0mXnZcX8yJsWBccNvNG",
+      "date": {
+        "seconds": 1781740800,
+        "nanoseconds": 0
+      },
+      "work_done": "No task",
+      "planned_work": "No task",
+      "hours": 5,
+      "blockers": null,
+      "created_at": {
+        "seconds": 1781426368,
+        "nanoseconds": 739000000
+      }
+    },
+    "8iEZrSPqBWHMPIrpdKbu": {
+      "user_id": "boHO3GpjzJOQvXqr1nzEL0YlS0s2",
+      "project_id": "oBZuNXdgJKJ0B4hYNNNv",
+      "date": {
+        "seconds": 1781395200,
+        "nanoseconds": 0
+      },
+      "work_done": "Jay",
+      "planned_work": "New",
+      "hours": 5,
+      "blockers": null,
+      "created_at": {
+        "seconds": 1781440141,
+        "nanoseconds": 718000000
       }
     }
   },
@@ -1297,6 +1872,233 @@
       "timestamp": "2026-06-07T15:56:41.743Z",
       "details": {
         "newPrimaryQa": "bhargav@yopmail.com"
+      }
+    },
+    "sv87RzQBg35O2VEMC6Py": {
+      "user": "Jay Citrusbug",
+      "action": "Project Created",
+      "project_id": "x0mXnZcX8yJsWBccNvNG",
+      "details": {
+        "name": "B2B",
+        "code": "PROJ-3579"
+      },
+      "timestamp": {
+        "seconds": 1781363117,
+        "nanoseconds": 507000000
+      }
+    },
+    "ARH4m0jD2csFnHmsqqj2": {
+      "user": "Jay Citrusbug",
+      "action": "Primary QA Changed",
+      "project_id": "x0mXnZcX8yJsWBccNvNG",
+      "details": {
+        "newPrimaryQa": "qa2@test.com"
+      },
+      "timestamp": {
+        "seconds": 1781363117,
+        "nanoseconds": 657000000
+      }
+    },
+    "DNlH1MYPSwjZZulIkyQ8": {
+      "user": "Jay Citrusbug",
+      "action": "Project Created",
+      "project_id": "cKvgDIt1NbpyoLyIR58S",
+      "timestamp": "2026-06-13T15:05:28.137Z",
+      "details": {
+        "name": "Revenue",
+        "code": "PROJ-2814"
+      }
+    },
+    "pNuzsEhXmgaEzo7fOfev": {
+      "user": "Jay Citrusbug",
+      "action": "Primary QA Changed",
+      "project_id": "cKvgDIt1NbpyoLyIR58S",
+      "timestamp": "2026-06-13T15:05:28.236Z",
+      "details": {
+        "newPrimaryQa": "qa2@test.com"
+      }
+    },
+    "T4tCkxfQvEn9NItnwuME": {
+      "user": "Jay Citrusbug",
+      "action": "Project Created",
+      "project_id": "KBkxPwzNhyJP1aaZ9Pgf",
+      "timestamp": "2026-06-13T15:05:38.052Z",
+      "details": {
+        "name": "Citrusbug Technolabs",
+        "code": "PROJ-6699"
+      }
+    },
+    "R647naIxHFcjw7s4XKJf": {
+      "user": "Jay Citrusbug",
+      "action": "Primary QA Changed",
+      "project_id": "KBkxPwzNhyJP1aaZ9Pgf",
+      "timestamp": "2026-06-13T15:05:38.216Z",
+      "details": {
+        "newPrimaryQa": "qa2@test.com"
+      }
+    },
+    "hBcEdqefjkpcRJYXAKqZ": {
+      "user": "Jay Citrusbug",
+      "action": "Status Submitted",
+      "timestamp": "2026-06-13T15:16:15.547Z",
+      "details": {
+        "date": "2026-06-13",
+        "projectIds": [
+          "oBZuNXdgJKJ0B4hYNNNv"
+        ],
+        "hours": [
+          2
+        ]
+      }
+    },
+    "XYvUoGm8gGGnEs1Cv8Jv": {
+      "user": "System",
+      "action": "Discord Notification Sent",
+      "timestamp": "2026-06-13T15:16:17.337Z",
+      "details": {
+        "userName": "Jay Citrusbug",
+        "date": "2026-06-13"
+      }
+    },
+    "5hWJia5GbioVcIp3v21Q": {
+      "user": "Jay Citrusbug",
+      "action": "Status Submitted",
+      "timestamp": "2026-06-14T07:59:38.613Z",
+      "details": {
+        "date": "2026-06-14",
+        "projectIds": [
+          "ulbpPwxN1Mk7ucEvCCVy"
+        ],
+        "hours": [
+          8
+        ]
+      }
+    },
+    "WrsjyF7YlG3Jqe1i4pNb": {
+      "user": "System",
+      "action": "Discord Notification Sent",
+      "timestamp": "2026-06-14T07:59:40.052Z",
+      "details": {
+        "userName": "Jay Citrusbug",
+        "date": "2026-06-14"
+      }
+    },
+    "8vL8PAV4v2b054BFhLuk": {
+      "user": "Jay Citrusbug",
+      "action": "Status Updated",
+      "timestamp": "2026-06-14T08:00:17.729Z",
+      "details": {
+        "date": "2026-06-14",
+        "projectIds": [
+          "ulbpPwxN1Mk7ucEvCCVy"
+        ],
+        "hours": [
+          8
+        ]
+      }
+    },
+    "AEFjfeQSuo8g8tt9HzDo": {
+      "user": "System",
+      "action": "Discord Notification Sent",
+      "timestamp": "2026-06-14T08:00:19.148Z",
+      "details": {
+        "userName": "Jay Citrusbug",
+        "date": "2026-06-14"
+      }
+    },
+    "dhpSSO2cIacvXa8lCMG0": {
+      "user": "Bhargav",
+      "action": "Status Submitted",
+      "timestamp": "2026-06-14T08:38:31.058Z",
+      "details": {
+        "date": "2026-06-14",
+        "projectIds": [
+          "x0mXnZcX8yJsWBccNvNG"
+        ],
+        "hours": [
+          5
+        ]
+      }
+    },
+    "EJAztwOrnEVXVWR0y4Lm": {
+      "user": "System",
+      "action": "Discord Notification Sent",
+      "timestamp": "2026-06-14T08:38:32.857Z",
+      "details": {
+        "userName": "Bhargav",
+        "date": "2026-06-14"
+      }
+    },
+    "RRtsXZYUQ6Kry6E62igy": {
+      "user": "Bhargav",
+      "action": "Status Updated",
+      "timestamp": "2026-06-14T08:39:29.636Z",
+      "details": {
+        "date": "2026-06-18",
+        "projectIds": [
+          "x0mXnZcX8yJsWBccNvNG"
+        ],
+        "hours": [
+          5
+        ]
+      }
+    },
+    "VqZeHixODBCIuPmhooBX": {
+      "user": "System",
+      "action": "Discord Notification Sent",
+      "timestamp": "2026-06-14T08:39:31.178Z",
+      "details": {
+        "userName": "Bhargav",
+        "date": "2026-06-18"
+      }
+    },
+    "F0SjVcMPAMERPMSsq4F2": {
+      "user": "Jay Citrusbug",
+      "action": "Project Status Changed",
+      "project_id": "x0mXnZcX8yJsWBccNvNG",
+      "details": {
+        "oldStatus": "ACTIVE",
+        "newStatus": "INACTIVE"
+      },
+      "timestamp": {
+        "seconds": 1781427121,
+        "nanoseconds": 336000000
+      }
+    },
+    "GXis52JySEWO9FvnZI1Z": {
+      "user": "Jay Citrusbug",
+      "action": "Project Updated",
+      "project_id": "x0mXnZcX8yJsWBccNvNG",
+      "details": {
+        "name": "B2B",
+        "code": "PROJ-3579"
+      },
+      "timestamp": {
+        "seconds": 1781427131,
+        "nanoseconds": 496000000
+      }
+    },
+    "hdTvGeEJGTPl4rU3qfWp": {
+      "user": "Jay Citrusbug",
+      "action": "Status Submitted",
+      "timestamp": "2026-06-14T12:29:04.306Z",
+      "details": {
+        "date": "2026-06-14",
+        "projectIds": [
+          "oBZuNXdgJKJ0B4hYNNNv"
+        ],
+        "hours": [
+          5
+        ]
+      }
+    },
+    "P0K1aQOQqPqV0L3mzAkH": {
+      "user": "System",
+      "action": "Discord Notification Sent",
+      "timestamp": "2026-06-14T12:29:06.345Z",
+      "details": {
+        "userName": "Jay Citrusbug",
+        "date": "2026-06-14"
       }
     }
   },
@@ -2962,6 +3764,60 @@
       "message": "You have been assigned as Primary QA for Dynamic Test Project",
       "read": false,
       "createdAt": "2026-06-07T15:56:41.884Z"
+    },
+    "YDjNKYnLIuC2S6kzOni4": {
+      "userId": "FUbwCJwuQUh3FoUfhe8BSFdMWxz1",
+      "message": "You have been assigned as Primary QA for B2B",
+      "read": false,
+      "createdAt": "2026-06-13T15:05:17.153Z"
+    },
+    "KJkSPcFsFvqUnqaMfiZs": {
+      "userId": "FUbwCJwuQUh3FoUfhe8BSFdMWxz1",
+      "message": "You have been assigned as Primary QA for Revenue",
+      "read": false,
+      "createdAt": "2026-06-13T15:05:28.403Z"
+    },
+    "tc78g8dHaBf7WD4QCbYR": {
+      "userId": "FUbwCJwuQUh3FoUfhe8BSFdMWxz1",
+      "message": "You have been assigned as Primary QA for Citrusbug Technolabs",
+      "read": false,
+      "createdAt": "2026-06-13T15:05:38.349Z"
+    },
+    "pQ07WcPoVH2h5c7vi9LP": {
+      "userId": "FUbwCJwuQUh3FoUfhe8BSFdMWxz1",
+      "message": "Project \"B2B\" status updated to INACTIVE",
+      "read": false,
+      "createdAt": "2026-06-14T08:52:04.957Z"
+    },
+    "QWfrLXiiwbKIW09H4xJr": {
+      "userId": "qa_002",
+      "message": "Project \"B2B\" status updated to INACTIVE",
+      "read": false,
+      "createdAt": "2026-06-14T08:52:04.978Z"
+    },
+    "vjLTkYHVllrAzGCulBxJ": {
+      "userId": "FUbwCJwuQUh3FoUfhe8BSFdMWxz1",
+      "message": "Expected delivery date for project \"B2B\" has changed to N/A",
+      "read": false,
+      "createdAt": "2026-06-14T08:52:11.378Z"
+    },
+    "VxpiJcdPO8Wj3Rmq5iyR": {
+      "userId": "qa_002",
+      "message": "Expected delivery date for project \"B2B\" has changed to N/A",
+      "read": false,
+      "createdAt": "2026-06-14T08:52:11.489Z"
+    },
+    "1lCDsvIT0pjW3J8DBDSO": {
+      "userId": "FUbwCJwuQUh3FoUfhe8BSFdMWxz1",
+      "message": "Project \"B2B\" details have been updated",
+      "read": false,
+      "createdAt": "2026-06-14T08:52:19.482Z"
+    },
+    "D05fK3FKFaaPZHa10Wk5": {
+      "userId": "qa_002",
+      "message": "Project \"B2B\" details have been updated",
+      "read": false,
+      "createdAt": "2026-06-14T08:52:19.626Z"
     }
   },
   "milestones": {
@@ -2996,6 +3852,250 @@
     "postReleaseValidation": {
       "label": "Post Release Validation",
       "order": 8
+    }
+  },
+  "settings": {
+    "discord": {
+      "webhookUrl": "https://discord.com/api/webhooks/1512774455082881177/eIxELkoWDaIY4q_jdfNjj-qt6q-HH6Z1V7kMdAJScxU__Oc83RmSQexfuoJY2Sn67yIy",
+      "enabled": true,
+      "messageFormat": "📋 **Daily Status {actionLabel} by {userName}** ({userRole})\n\n📅 **Date**: {date}\n\n📂 **Projects & Hours**:\n{projectHoursList}\n\n✅ **Work Done**:\n{workDone}\n\n🎯 **Next Planned Work**:\n{plannedWork}\n\n🚧 **Blockers**:\n{blockers}\n\n🕒 **{actionLabel} At**: {timeFormatted}",
+      "updatedBy": "jay5.citrusbug@gmail.com",
+      "updatedAt": {
+        "seconds": 1781363801,
+        "nanoseconds": 130000000
+      }
+    }
+  },
+  "task_lists": {
+    "RDEEoAJh2nDmKcUwhcVi": {
+      "name": "Regression Sprint",
+      "description": "Verify all payments and checkouts",
+      "is_private": false,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1781361698,
+        "nanoseconds": 496000000
+      },
+      "created_at": {
+        "seconds": 1781361698,
+        "nanoseconds": 496000000
+      }
+    },
+    "hdORnrwL9ZTkMLfav5Th": {
+      "name": "Bluedrop",
+      "description": "NO task ",
+      "is_private": false,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1781361833,
+        "nanoseconds": 764000000
+      },
+      "created_at": {
+        "seconds": 1781361833,
+        "nanoseconds": 764000000
+      }
+    },
+    "qmcbriiLhITKapgWaqZn": {
+      "name": "QA",
+      "description": "sdv",
+      "shared_with": [],
+      "created_by": "jay5.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1781363301,
+        "nanoseconds": 99000000
+      },
+      "created_at": {
+        "seconds": 1781363301,
+        "nanoseconds": 99000000
+      }
+    }
+  },
+  "task_activities": {
+    "8f3VpKAw8o0pJdSbz2vA": {
+      "task_id": "bt5MLMaj07UI5a0uV9hT",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "Verify checkout checkout flow",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781361865,
+        "nanoseconds": 885000000
+      }
+    },
+    "Lf38toGeb3XuhPCVtD3w": {
+      "task_id": "bt5MLMaj07UI5a0uV9hT",
+      "action": "Task Updated",
+      "old_value": "No Notes",
+      "new_value": "Test Notes 123",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781361918,
+        "nanoseconds": 376000000
+      }
+    },
+    "9sJdxKegfc2BW28mDGEe": {
+      "task_id": "bt5MLMaj07UI5a0uV9hT",
+      "action": "Task Completed",
+      "old_value": "To Do",
+      "new_value": "Completed",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781362016,
+        "nanoseconds": 923000000
+      }
+    },
+    "uy1Y3DGEXyfhlNxYy0o6": {
+      "task_id": "bt5MLMaj07UI5a0uV9hT",
+      "action": "Task Reopened",
+      "old_value": "Completed",
+      "new_value": "To Do",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781362078,
+        "nanoseconds": 96000000
+      }
+    },
+    "fRI5uJa44v19v1W8Xm3n": {
+      "task_id": "bt5MLMaj07UI5a0uV9hT",
+      "action": "Task Assigned",
+      "old_value": "Unassigned",
+      "new_value": "jay5.citrusbug@gmail.com",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781362088,
+        "nanoseconds": 310000000
+      }
+    },
+    "GgNtVdDYwBtx5RhEwMyY": {
+      "task_id": "mlWOLwNPyULYMNMW1r41",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "new task added by QA",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781362565,
+        "nanoseconds": 934000000
+      }
+    },
+    "nMskjibzuag93tKjwrG8": {
+      "task_id": "mlWOLwNPyULYMNMW1r41",
+      "action": "Task Completed",
+      "old_value": "To Do",
+      "new_value": "Completed",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781362789,
+        "nanoseconds": 119000000
+      }
+    },
+    "AHvHe0GXFF1N33iAh1hE": {
+      "task_id": "bt5MLMaj07UI5a0uV9hT",
+      "action": "Task Completed",
+      "old_value": "To Do",
+      "new_value": "Completed",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781363095,
+        "nanoseconds": 802000000
+      }
+    },
+    "72sDB90LF48ZholwWOVW": {
+      "task_id": "mlWOLwNPyULYMNMW1r41",
+      "action": "Task Reopened",
+      "old_value": "Completed",
+      "new_value": "To Do",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781363167,
+        "nanoseconds": 929000000
+      }
+    },
+    "A9nWPfbhxpFV7126VIxM": {
+      "task_id": "mlWOLwNPyULYMNMW1r41",
+      "action": "Task Updated",
+      "old_value": "None",
+      "new_value": "2026-06-15",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781363363,
+        "nanoseconds": 572000000
+      }
+    },
+    "kSdTOAq6DIrLFojBvw1u": {
+      "task_id": "mlWOLwNPyULYMNMW1r41",
+      "action": "Task Updated",
+      "old_value": "2026-06-15",
+      "new_value": "2026-06-14",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781426836,
+        "nanoseconds": 991000000
+      }
+    },
+    "NrbC3XsfriU6F8E2Xelv": {
+      "task_id": "mlWOLwNPyULYMNMW1r41",
+      "action": "Task Completed",
+      "old_value": "To Do",
+      "new_value": "Completed",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781426939,
+        "nanoseconds": 135000000
+      }
+    },
+    "VgF469D1glqOk7nBLolN": {
+      "task_id": "sYj1UYFpazMJtgXtRv0m",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "Bluedrop",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781427047,
+        "nanoseconds": 821000000
+      }
+    },
+    "Llr44WL5MYjeyIvhwzUc": {
+      "task_id": "sYj1UYFpazMJtgXtRv0m",
+      "action": "Task Updated",
+      "old_value": "None",
+      "new_value": "2026-06-12",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781427073,
+        "nanoseconds": 354000000
+      }
+    },
+    "OVyzWWttdk33QaQo9aTV": {
+      "task_id": "zR0igWihNjZRZTNUhrzJ",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "Optimistic Task Created",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": "2026-06-14T09:03:35.709Z"
+    },
+    "u4NxUf3Fu15kzbTbpTng": {
+      "task_id": "zR0igWihNjZRZTNUhrzJ",
+      "action": "Task Completed",
+      "old_value": "To Do",
+      "new_value": "Completed",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": "2026-06-14T09:03:47.495Z"
+    },
+    "cMrLXr52SnrLlz5SB3GN": {
+      "task_id": "FtgOLx019lbiEoLopTeM",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "hello",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": "2026-06-14T09:09:25.491Z"
+    },
+    "QTNlLV2Rrt33eERwESHZ": {
+      "task_id": "lnnrxsmKDVkdto7pH3Kq",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "Hello",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": "2026-06-14T12:28:21.018Z"
     }
   }
 }
