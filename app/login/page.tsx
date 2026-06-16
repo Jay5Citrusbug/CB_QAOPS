@@ -75,7 +75,6 @@ export default function LoginPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 required
-                minLength={6}
                 className="w-full px-4 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-[#ed5c37]/20 transition-all outline-none pr-12"
                 placeholder="••••••••"
                 value={password}

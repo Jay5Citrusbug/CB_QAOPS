@@ -1,5 +1,16 @@
 {
-  "users": {},
+  "users": {
+    "wUpu9MdzSTaHMXmSgf77R64lwAQ2": {
+      "role": "ADMIN",
+      "project_id": null,
+      "name": "Jay Citrusbug",
+      "created_at": {
+        "seconds": 1781607497,
+        "nanoseconds": 651000000
+      },
+      "email": "jay5.citrusbug@gmail.com"
+    }
+  },
   "projects": {},
   "tasks": {
     "CJ3D8vCqHCPem7BW2SxP": {
