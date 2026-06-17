@@ -46,11 +46,7 @@ export async function POST(
       return NextResponse.json({ error: 'File size exceeds 25MB limit' }, { status: 400 });
     }
 
-    const ext = path.extname(file.name).toLowerCase().replace('.', '');
-    const allowedExts = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'zip', 'txt'];
-    if (!allowedExts.includes(ext)) {
-      return NextResponse.json({ error: `File type .${ext} is not allowed` }, { status: 400 });
-    }
+    const ext = path.extname(file.name).toLowerCase().replace('.', '') || 'unknown';
 
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'notes');
     if (!fs.existsSync(uploadsDir)) {

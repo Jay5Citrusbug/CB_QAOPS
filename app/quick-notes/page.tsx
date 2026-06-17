@@ -98,6 +98,51 @@ function RichTextEditor({
     if (editorRef.current) onChange(editorRef.current.innerHTML);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === " ") {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const node = range.startContainer;
+        const offset = range.startOffset;
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent || "";
+          const textBeforeCursor = text.substring(0, offset);
+          
+          if (textBeforeCursor === "1." || textBeforeCursor.endsWith(" 1.")) {
+            e.preventDefault();
+            const suffix = text.substring(offset);
+            const prefix = textBeforeCursor.substring(0, textBeforeCursor.length - 2);
+            node.textContent = prefix + suffix;
+            
+            const newOffset = prefix.length;
+            const newRange = document.createRange();
+            newRange.setStart(node, newOffset);
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+            
+            exec("insertOrderedList");
+          } else if (textBeforeCursor === "-" || textBeforeCursor.endsWith(" -")) {
+            e.preventDefault();
+            const suffix = text.substring(offset);
+            const prefix = textBeforeCursor.substring(0, textBeforeCursor.length - 1);
+            node.textContent = prefix + suffix;
+            
+            const newOffset = prefix.length;
+            const newRange = document.createRange();
+            newRange.setStart(node, newOffset);
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+            
+            exec("insertUnorderedList");
+          }
+        }
+      }
+    }
+  };
+
   const ToolBtn = ({
     onClick, title, children, active,
   }: {
@@ -182,6 +227,7 @@ function RichTextEditor({
         contentEditable
         suppressContentEditableWarning
         onInput={handleInput}
+        onKeyDown={handleKeyDown}
         data-placeholder={placeholder}
         className="min-h-[140px] max-h-[300px] overflow-y-auto px-4 py-3 text-sm text-slate-700 outline-none leading-relaxed
           [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5
@@ -206,6 +252,7 @@ function NoteModal({
   const [title, setTitle] = useState(note?.title ?? "");
   const [description, setDescription] = useState(note?.description ?? "");
   const [attachments, setAttachments] = useState<NoteAttachment[]>(note?.attachments ?? []);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -226,6 +273,7 @@ function NoteModal({
         if (!res.ok) throw new Error(data.error || "Failed to update note.");
         onSaved({ ...note!, title: title.trim(), description, attachments });
       } else {
+        // Create note first
         const res = await fetch("/api/quick-notes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -233,9 +281,34 @@ function NoteModal({
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to create note.");
+
+        const newNoteId = data.id;
+        const uploadedAttachments: NoteAttachment[] = [];
+
+        // Upload any pending files
+        if (pendingFiles.length > 0) {
+          for (const file of pendingFiles) {
+            const fd = new FormData();
+            fd.append("file", file);
+            const uploadRes = await fetch(`/api/quick-notes/${newNoteId}/attachments`, {
+              method: "POST",
+              body: fd,
+            });
+            const uploadData = await uploadRes.json();
+            if (!uploadRes.ok) {
+              throw new Error(uploadData.error || `Failed to upload ${file.name}`);
+            }
+            uploadedAttachments.push(uploadData.attachment);
+          }
+        }
+
         onSaved({
-          id: data.id, title: title.trim(), description,
-          attachments: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+          id: newNoteId,
+          title: title.trim(),
+          description,
+          attachments: uploadedAttachments,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         });
       }
     } catch (err: any) {
@@ -247,21 +320,34 @@ function NoteModal({
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !isEdit) return;
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch(`/api/quick-notes/${note!.id}/attachments`, {
-        method: "POST", body: fd,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Upload failed.");
-      setAttachments((prev) => [...prev, data.attachment]);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setUploading(false);
+    if (!file) return;
+
+    const MAX_SIZE = 25 * 1024 * 1024; // 25MB
+    if (file.size > MAX_SIZE) {
+      setError("File size exceeds 25MB limit.");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+
+    if (isEdit) {
+      setUploading(true);
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch(`/api/quick-notes/${note!.id}/attachments`, {
+          method: "POST", body: fd,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed.");
+        setAttachments((prev) => [...prev, data.attachment]);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setUploading(false);
+        if (fileRef.current) fileRef.current.value = "";
+      }
+    } else {
+      setPendingFiles((prev) => [...prev, file]);
       if (fileRef.current) fileRef.current.value = "";
     }
   };
@@ -344,64 +430,77 @@ function NoteModal({
               Attachments <span className="text-slate-400 font-medium">(optional)</span>
             </label>
 
-            {!isEdit && (
-              <p className="text-xs text-slate-400 bg-slate-50 border border-slate-100 rounded-xl p-3 font-medium">
-                💡 Save the note first, then you can upload attachments.
-              </p>
-            )}
+            <input
+              type="file"
+              ref={fileRef}
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-dashed border-slate-300 hover:border-[#ed5c37]/40 text-slate-600 text-sm font-semibold rounded-2xl transition-all w-full justify-center disabled:opacity-60"
+            >
+              {uploading ? (
+                <><Loader2 className="w-4 h-4 animate-spin text-[#ed5c37]" /> Uploading...</>
+              ) : (
+                <><Paperclip className="w-4 h-4" /> Attach File (max 25MB)</>
+              )}
+            </button>
 
-            {isEdit && (
-              <>
-                <input
-                  type="file"
-                  ref={fileRef}
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.gif,.webp,.zip,.txt"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  disabled={uploading}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-dashed border-slate-300 hover:border-[#ed5c37]/40 text-slate-600 text-sm font-semibold rounded-2xl transition-all w-full justify-center disabled:opacity-60"
-                >
-                  {uploading ? (
-                    <><Loader2 className="w-4 h-4 animate-spin text-[#ed5c37]" /> Uploading...</>
-                  ) : (
-                    <><Paperclip className="w-4 h-4" /> Attach File (max 25MB)</>
-                  )}
-                </button>
-
-                {attachments.length > 0 && (
-                  <div className="space-y-2 mt-2">
-                    {attachments.map((att) => (
-                      <div
-                        key={att.id}
-                        className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl group"
-                      >
-                        {getFileIcon(att.fileExt)}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold text-slate-700 truncate">{att.fileName}</p>
-                          <p className="text-[10px] text-slate-400 font-medium">{formatFileSize(att.fileSize)}</p>
-                        </div>
-                        <a
-                          href={att.filePath}
-                          download={att.fileName}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                        </a>
-                        <button
-                          onClick={() => handleDeleteAttachment(att)}
-                          className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
+            {(attachments.length > 0 || pendingFiles.length > 0) && (
+              <div className="space-y-2 mt-2">
+                {attachments.map((att) => (
+                  <div
+                    key={att.id}
+                    className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl group"
+                  >
+                    {getFileIcon(att.fileExt)}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-slate-700 truncate">{att.fileName}</p>
+                      <p className="text-[10px] text-slate-400 font-medium">{formatFileSize(att.fileSize)}</p>
+                    </div>
+                    <a
+                      href={att.filePath}
+                      download={att.fileName}
+                      className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAttachment(att)}
+                      className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                )}
-              </>
+                ))}
+
+                {pendingFiles.map((file, idx) => {
+                  const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+                  return (
+                    <div
+                      key={`pending-${idx}`}
+                      className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-150 rounded-xl group border-dashed"
+                    >
+                      {getFileIcon(fileExt)}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-slate-700 truncate">{file.name}</p>
+                        <p className="text-[10px] text-amber-600 font-medium">Pending upload ({formatFileSize(file.size)})</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setPendingFiles((prev) => prev.filter((_, i) => i !== idx))}
+                        className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
         </div>
@@ -435,7 +534,10 @@ function NoteCard({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
-    <div className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#ed5c37]/20 transition-all duration-200 flex flex-col overflow-hidden">
+    <div
+      onClick={onEdit}
+      className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#ed5c37]/20 transition-all duration-200 flex flex-col overflow-hidden cursor-pointer"
+    >
       {/* Color accent top bar */}
       <div className="h-1 bg-gradient-to-r from-[#ed5c37] to-orange-400 w-full" />
 
@@ -445,13 +547,13 @@ function NoteCard({
           <h3 className="font-bold text-slate-900 text-sm leading-snug line-clamp-2 flex-1">{note.title}</h3>
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
             <button
-              onClick={onEdit}
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
               className="p-1.5 text-slate-400 hover:text-[#ed5c37] hover:bg-[#ed5c37]/10 rounded-lg transition-all"
             >
               <Edit3 className="w-3.5 h-3.5" />
             </button>
             <button
-              onClick={() => setConfirmDelete(true)}
+              onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
               className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -488,7 +590,10 @@ function NoteCard({
 
       {/* Delete confirm overlay */}
       {confirmDelete && (
-        <div className="absolute inset-0 bg-white/95 rounded-2xl flex flex-col items-center justify-center gap-3 p-5 z-10">
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="absolute inset-0 bg-white/95 rounded-2xl flex flex-col items-center justify-center gap-3 p-5 z-10"
+        >
           <Trash2 className="w-8 h-8 text-red-400" />
           <p className="text-sm font-bold text-slate-700 text-center">Delete this note?</p>
           <p className="text-xs text-slate-400 text-center">This action cannot be undone.</p>
@@ -519,7 +624,10 @@ function NoteRow({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
-    <div className="group flex items-start gap-4 p-4 bg-white border border-slate-200 rounded-2xl hover:border-[#ed5c37]/20 hover:shadow-sm transition-all duration-200">
+    <div
+      onClick={onEdit}
+      className="group flex items-start gap-4 p-4 bg-white border border-slate-200 rounded-2xl hover:border-[#ed5c37]/20 hover:shadow-sm transition-all duration-200 cursor-pointer"
+    >
       <div className="mt-0.5 p-2 bg-[#ed5c37]/10 rounded-xl shrink-0">
         <StickyNote className="w-4 h-4 text-[#ed5c37]" />
       </div>
@@ -534,13 +642,13 @@ function NoteRow({
               </span>
             )}
             <button
-              onClick={onEdit}
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
               className="p-1.5 text-slate-400 hover:text-[#ed5c37] hover:bg-[#ed5c37]/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
             >
               <Edit3 className="w-3.5 h-3.5" />
             </button>
             {confirmDelete ? (
-              <div className="flex items-center gap-1 animate-in fade-in">
+              <div className="flex items-center gap-1 animate-in fade-in" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => setConfirmDelete(false)}
                   className="px-2 py-1 text-[10px] font-bold bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-all"
@@ -556,7 +664,7 @@ function NoteRow({
               </div>
             ) : (
               <button
-                onClick={() => setConfirmDelete(true)}
+                onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
                 className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -656,7 +764,7 @@ export default function QuickNotesPage() {
     <div className="space-y-6 pb-12 animate-in fade-in duration-300">
       {/* Sync overlay */}
       {isSyncing && (
-        <div className="fixed inset-0 bg-white/60 backdrop-blur-xs z-40 flex items-center justify-center pointer-events-none">
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-xs z-[100] flex items-center justify-center">
           <div className="bg-white/90 p-4 rounded-2xl border border-slate-100 shadow-xl flex items-center gap-3">
             <Loader2 className="w-5 h-5 animate-spin text-[#ed5c37]" />
             <span className="text-sm font-bold text-slate-600">Updating...</span>

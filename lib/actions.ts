@@ -1431,3 +1431,39 @@ export async function reorderProjectMilestones(projectId: string, orders: { key:
     return { error: error?.message || 'Failed to reorder milestones' };
   }
 }
+
+export async function updateSelfProfile(formData: FormData) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  const userId = (session.user as any).id;
+  const firstName = (formData.get('firstName') as string || '').trim();
+  const lastName = (formData.get('lastName') as string || '').trim();
+  const password = formData.get('password') as string || '';
+  const confirmPassword = formData.get('confirmPassword') as string || '';
+
+  if (!firstName) return { error: 'First name is required' };
+
+  if (password && password.length < 6) {
+    return { error: 'Password must be at least 6 characters' };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: 'Passwords do not match' };
+  }
+
+  try {
+    const fullName = `${firstName} ${lastName}`.trim();
+    const authUpdates: any = { displayName: fullName };
+    if (password) authUpdates.password = password;
+    await adminAuth.updateUser(userId, authUpdates);
+
+    await adminDb.collection('users').doc(userId).update({
+      name: fullName,
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to update profile' };
+  }
+}

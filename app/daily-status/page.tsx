@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import { getInitials } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { addDailyStatus, updateGroupedDailyStatus, deleteGroupedDailyStatus } from "@/lib/actions";
 import { Plus, X, Calendar, CheckCircle2, User, LayoutGrid, List, Search, Filter, Briefcase, Edit2, Trash2, Clock, ChevronDown, Check, Eye, Copy, BarChart2, AlertTriangle, AlertCircle } from "lucide-react";
@@ -309,7 +310,7 @@ export default function DailyStatusPage() {
         </div>
       </div>      <div className="relative min-h-[300px]">
         {isSyncing && (
-          <div className="absolute inset-0 bg-white/75 backdrop-blur-xs z-30 flex items-center justify-center animate-in fade-in duration-200">
+          <div className="fixed inset-0 bg-white/75 backdrop-blur-xs z-[100] flex items-center justify-center animate-in fade-in duration-200">
             <div className="flex flex-col items-center gap-2">
               <Clock className="w-8 h-8 text-[#ed5c37] animate-spin" />
               <p className="text-xs text-slate-500 font-bold">Syncing daily statuses...</p>
@@ -324,7 +325,7 @@ export default function DailyStatusPage() {
                 <div className="flex items-start justify-between border-b border-slate-100 pb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs uppercase">
-                      {group.user.name.substring(0, 2)}
+                      {getInitials(group.user.name)}
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">

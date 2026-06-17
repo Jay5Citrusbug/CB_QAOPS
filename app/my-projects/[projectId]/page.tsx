@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, use } from "react";
+import { getInitials } from "@/lib/utils";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { 
@@ -597,7 +598,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   };
 
   const getInitialsAvatar = (name: string, roleLabel: string) => {
-    const initials = name ? name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase() : "QA";
+    const initials = getInitials(name) || "QA";
     let bg = "bg-slate-700";
     if (roleLabel === "Primary QA") bg = "bg-[#ed5c37]";
     if (roleLabel === "Supporting QA") bg = "bg-blue-600";
@@ -656,7 +657,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300 relative">
       {isSyncing && (
-        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-[100] flex items-center justify-center">
           <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
             <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
             <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing workspace details...</p>

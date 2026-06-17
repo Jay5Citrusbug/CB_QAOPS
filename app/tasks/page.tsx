@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { getInitials } from "@/lib/utils";
 import { 
   createTask, 
   updateTask, 
@@ -299,7 +300,7 @@ export default function TasksPage() {
   return (
     <div className="flex h-[calc(100vh-12rem)] bg-white rounded-2xl border border-slate-200 overflow-hidden relative group/page shadow-sm animate-in fade-in duration-500">
       {isSyncing && (
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-xs z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-[100] flex items-center justify-center">
           <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
             <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
             <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing tasks...</p>
@@ -324,7 +325,7 @@ export default function TasksPage() {
                   onClick={() => { setActiveUserId(u.id); fetchTasks(u.id); }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${activeUserId === u.id ? 'bg-[#ed5c37]/10 text-[#ed5c37]' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'}`}
                 >
-                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold uppercase transition-colors ${activeUserId === u.id ? 'bg-[#ed5c37] text-white' : 'bg-slate-200 text-slate-500'}`}>{u.name.substring(0,2)}</div>
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold uppercase transition-colors ${activeUserId === u.id ? 'bg-[#ed5c37] text-white' : 'bg-slate-200 text-slate-500'}`}>{getInitials(u.name)}</div>
                   <span className="text-sm font-semibold truncate">{u.name}</span>
                 </button>
               ))}

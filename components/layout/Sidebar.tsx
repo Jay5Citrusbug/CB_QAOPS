@@ -14,7 +14,7 @@ const menuItems = [
   { name: "Quick Notes", href: "/quick-notes", icon: StickyNote, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },
   { name: "Project Hub", href: "/admin/projects", icon: Briefcase, allowedRoles: ["ADMIN"] },
   { name: "Team Hub", href: "/admin/users", icon: Users, allowedRoles: ["ADMIN"] },
-  { name: "Settings", href: "/admin/settings", icon: Settings, allowedRoles: ["ADMIN"] },
+  { name: "Settings", href: "/settings", icon: Settings, allowedRoles: ["ADMIN", "TL", "DEV", "USER"] },
 ];
 
 export default function Sidebar({ onClose }: { onClose?: () => void }) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useTransition, useEffect } from "react";
+import { getInitials } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { addDailyStatus, updateGroupedDailyStatus } from "@/lib/actions";
 import { 
@@ -523,7 +524,7 @@ export default function DashboardClient({
                   <div className="flex items-start justify-between border-b border-slate-100 pb-3 mb-4">
                     <div className="flex items-center gap-3 truncate">
                       <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-sm uppercase shrink-0">
-                        {user.name.substring(0, 2)}
+                        {getInitials(user.name)}
                       </div>
                       <div className="truncate">
                         <h3 className="font-bold text-slate-800 truncate leading-snug">{user.name}</h3>
@@ -1072,7 +1073,7 @@ export default function DashboardClient({
                     <p className="text-[9px] text-slate-400 uppercase tracking-wider">Assignee</p>
                     <div className="flex items-center gap-1.5 text-slate-700 mt-1">
                       <div className="w-4 h-4 rounded-full bg-slate-200 text-[9px] text-slate-600 flex items-center justify-center uppercase font-black font-sans shrink-0">
-                        {activeTask.assignedTo ? activeTask.assignedTo.substring(0, 2) : '?'}
+                        {activeTask.assignedTo ? getInitials(activeTask.assignedTo.includes('@') ? activeTask.assignedTo.split('@')[0].replace(/[\._-]/g, ' ') : activeTask.assignedTo) : '?'}
                       </div>
                       <span className="truncate">{activeTask.assignedTo || "Unassigned"}</span>
                     </div>

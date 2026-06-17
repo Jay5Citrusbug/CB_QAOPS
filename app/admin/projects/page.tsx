@@ -70,6 +70,7 @@ export default function ProjectHubPage() {
   const [search, setSearch] = useState("");
   const [devDropdownOpen, setDevDropdownOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   useEffect(() => {
@@ -112,8 +113,12 @@ export default function ProjectHubPage() {
   };
 
   useEffect(() => {
-    fetchProjects();
-    fetchUsers();
+    async function init() {
+      setLoadingData(true);
+      await Promise.all([fetchProjects(), fetchUsers()]);
+      setLoadingData(false);
+    }
+    init();
   }, []);
 
   const filteredProjects = projects.filter(p => 
@@ -215,6 +220,17 @@ export default function ProjectHubPage() {
     });
   };
 
+  if (loadingData) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] bg-slate-50/50 rounded-3xl border border-slate-100">
+        <div className="flex flex-col items-center gap-4">
+          <Clock className="w-12 h-12 text-[#ed5c37] animate-spin" />
+          <p className="text-slate-500 font-medium animate-pulse text-sm">Loading Project Hub...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
       {/* Header */}
@@ -286,7 +302,7 @@ export default function ProjectHubPage() {
           
           <div className="overflow-x-auto relative min-h-[200px]">
             {isSyncing && (
-              <div className="absolute inset-0 bg-white/75 backdrop-blur-xs z-30 flex items-center justify-center animate-in fade-in duration-200">
+              <div className="fixed inset-0 bg-white/75 backdrop-blur-xs z-[100] flex items-center justify-center animate-in fade-in duration-200">
                 <div className="flex flex-col items-center gap-2">
                   <Clock className="w-8 h-8 text-[#ed5c37] animate-spin" />
                   <p className="text-xs text-slate-500 font-bold">Syncing project data...</p>

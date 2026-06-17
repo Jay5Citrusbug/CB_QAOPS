@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, useTransition } from "react";
+import { getInitials } from "@/lib/utils";
 import { 
   CheckSquare, Plus, X, Search, ChevronRight, ChevronDown, Check, 
   Trash2, User, Calendar, Clock, AlertCircle, FileText, Download, 
@@ -835,7 +836,7 @@ export default function TaskBoardPage() {
   return (
     <div className="flex-1 flex h-full min-h-0 bg-[#F8FAFC] overflow-hidden relative animate-in fade-in duration-500">
       {(isPending || isSyncing) && (
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-xs z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-[100] flex items-center justify-center">
           <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
             <Loader2 className="w-10 h-10 text-[#F46A3A] animate-spin" />
             <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing task board...</p>
@@ -1057,7 +1058,7 @@ export default function TaskBoardPage() {
                               className="w-7 h-7 rounded-full bg-[#1D283A] text-white flex items-center justify-center text-[10px] font-black uppercase shrink-0 border border-slate-700 shadow-sm"
                               title={`Assigned to ${task.assignedTo}`}
                             >
-                              {task.assignedTo.substring(0, 2)}
+                              {getInitials(task.assignedTo.includes('@') ? task.assignedTo.split('@')[0].replace(/[\._-]/g, ' ') : task.assignedTo)}
                             </div>
                           ) : (
                             <div 
@@ -1114,7 +1115,7 @@ export default function TaskBoardPage() {
 
                               {task.assignedTo && (
                                 <div className="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[10px] font-black uppercase shrink-0">
-                                  {task.assignedTo.substring(0, 2)}
+                                  {getInitials(task.assignedTo.includes('@') ? task.assignedTo.split('@')[0].replace(/[\._-]/g, ' ') : task.assignedTo)}
                                 </div>
                               )}
                             </div>
@@ -1589,7 +1590,7 @@ export default function TaskBoardPage() {
                               className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 cursor-pointer transition-colors"
                             >
                               <div className="w-7 h-7 rounded-full bg-[#1D283A] text-white flex items-center justify-center text-[10px] font-black shrink-0">
-                                {u.name.substring(0, 2).toUpperCase()}
+                                {getInitials(u.name)}
                               </div>
                               <div className="min-w-0">
                                 <p className="text-xs font-bold text-slate-800 truncate">{u.name}</p>

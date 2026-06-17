@@ -1350,7 +1350,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-500 relative">
       {isSyncing && (
-        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-[100] flex items-center justify-center">
           <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
             <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
             <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing test cases...</p>

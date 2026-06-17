@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createUser, updateUser, deleteUser } from "@/lib/actions";
 import { Users, Plus, X, Search, Shield, User, Mail, MoreHorizontal, Clock, Eye, EyeOff, Edit2, Trash2, AlertTriangle, CheckCircle2, AlertCircle } from "lucide-react";
+import { getInitials } from "@/lib/utils";
 
 interface UserData {
   id: string;
@@ -28,6 +29,7 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   useEffect(() => {
@@ -39,6 +41,10 @@ export default function AdminUsersPage() {
 
   // Form states
   const [selectedRole, setSelectedRole] = useState("USER");
+  const [formName, setFormName] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formPassword, setFormPassword] = useState("");
+  const [formProjectId, setFormProjectId] = useState("");
 
   const fetchUsers = async () => {
     setIsSyncing(true);
@@ -64,13 +70,21 @@ export default function AdminUsersPage() {
   };
 
   useEffect(() => {
-    fetchUsers();
-    fetchProjects();
+    async function init() {
+      setLoadingData(true);
+      await Promise.all([fetchUsers(), fetchProjects()]);
+      setLoadingData(false);
+    }
+    init();
   }, []);
 
   const handleOpenModal = (user: UserData | null = null) => {
     setEditingUser(user);
     setSelectedRole(user ? user.role : "USER");
+    setFormName(user ? user.name : "");
+    setFormEmail(user ? user.email : "");
+    setFormPassword("");
+    setFormProjectId(user?.projectId || "");
     setError("");
     setShowPassword(false);
     setShowModal(true);
@@ -99,6 +113,17 @@ export default function AdminUsersPage() {
     u.name.toLowerCase().includes(search.toLowerCase()) || 
     u.email.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (loadingData) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] bg-slate-50/50 rounded-3xl border border-slate-100">
+        <div className="flex flex-col items-center gap-4">
+          <Clock className="w-12 h-12 text-[#ed5c37] animate-spin" />
+          <p className="text-slate-500 font-medium animate-pulse text-sm">Loading Team Hub...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -132,7 +157,7 @@ export default function AdminUsersPage() {
         
         <div className="overflow-x-auto relative min-h-[200px]">
           {isSyncing && (
-            <div className="absolute inset-0 bg-white/75 backdrop-blur-xs z-30 flex items-center justify-center animate-in fade-in duration-200">
+            <div className="fixed inset-0 bg-white/75 backdrop-blur-xs z-[100] flex items-center justify-center animate-in fade-in duration-200">
               <div className="flex flex-col items-center gap-2">
                 <Clock className="w-8 h-8 text-[#ed5c37] animate-spin" />
                 <p className="text-xs text-slate-500 font-bold">Syncing user data...</p>
@@ -155,7 +180,7 @@ export default function AdminUsersPage() {
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs uppercase shadow-sm">
-                        {user.name.substring(0, 2)}
+                        {getInitials(user.name)}
                       </div>
                       <span className="font-bold text-slate-900">{user.name}</span>
                     </div>
@@ -190,7 +215,7 @@ export default function AdminUsersPage() {
                     {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center justify-end gap-2">
                       <button 
                         onClick={() => handleOpenModal(user)}
                         className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-all"
@@ -264,7 +289,8 @@ export default function AdminUsersPage() {
                     type="text" 
                     name="name" 
                     required 
-                    defaultValue={editingUser?.name || ""}
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
                     placeholder="User Name" 
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" 
                    />
@@ -292,7 +318,8 @@ export default function AdminUsersPage() {
                   <select 
                     name="projectId" 
                     required={selectedRole === "DEV"}
-                    defaultValue={editingUser?.projectId || ""}
+                    value={formProjectId}
+                    onChange={(e) => setFormProjectId(e.target.value)}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white rounded-xl font-bold text-sm text-slate-700 outline-none transition-all appearance-none"
                   >
                     <option value="">Select a project...</option>
@@ -310,7 +337,8 @@ export default function AdminUsersPage() {
                   type="email" 
                   name="email" 
                   required 
-                  defaultValue={editingUser?.email || ""}
+                  value={formEmail}
+                  onChange={(e) => setFormEmail(e.target.value)}
                   placeholder="email@qops.com" 
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" 
                 />
@@ -326,6 +354,8 @@ export default function AdminUsersPage() {
                     name="password" 
                     required={!editingUser} 
                     minLength={6} 
+                    value={formPassword}
+                    onChange={(e) => setFormPassword(e.target.value)}
                     placeholder="••••••••" 
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all pr-12" 
                   />

@@ -1,20 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getDiscordSettings, saveDiscordSettings, testDiscordConnection } from "@/lib/actions";
+import { 
+  getDiscordSettings, 
+  saveDiscordSettings, 
+  testDiscordConnection, 
+  updateSelfProfile 
+} from "@/lib/actions";
 import { 
   Settings, 
   Link2, 
   CheckCircle2, 
   XCircle, 
   Loader2, 
-  Sliders, 
   HelpCircle, 
   Save, 
   Send, 
   Info,
   ChevronRight,
-  RotateCcw
+  RotateCcw,
+  User,
+  Lock,
+  Eye,
+  EyeOff,
+  Clock
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -37,73 +46,123 @@ const DEFAULT_TEMPLATE = `📋 **Daily Status {actionLabel} by {userName}** ({us
 
 🕒 **{actionLabel} At**: {timeFormatted}`;
 
-export default function AdminSettingsPage() {
+export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Settings state
+  // Active section tab
+  const [activeTab, setActiveTab] = useState("profile");
+
+  // Profile Form States
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Discord Integration States
   const [webhookUrl, setWebhookUrl] = useState("");
   const [enabled, setEnabled] = useState(false);
   const [messageFormat, setMessageFormat] = useState("");
-
-  // Loading & feedback states
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [testing, setTesting] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [error, setError] = useState("");
-  const [testResult, setTestResult] = useState<{ success?: boolean; error?: string } | null>(null);
-
-  // Active sub-section
-  const [activeTab, setActiveTab] = useState("integrations");
   const [activeIntegration, setActiveIntegration] = useState("discord");
 
+  // Loading, saving & feedback states
+  const [loadingSettings, setLoadingSettings] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [testResult, setTestResult] = useState<{ success?: boolean; error?: string } | null>(null);
+
+  // Sync session name on load
   useEffect(() => {
-    // Redirect if not ADMIN (after session finishes loading)
-    if (status === "unauthenticated") {
-      router.push("/login");
-    } else if (status === "authenticated" && (session?.user as any)?.role !== "ADMIN") {
-      router.push("/dashboard");
+    if (session?.user?.name) {
+      const nameParts = session.user.name.split(" ");
+      setFirstName(nameParts[0] || "");
+      setLastName(nameParts.slice(1).join(" ") || "");
     }
-  }, [session, status, router]);
+  }, [session]);
 
   useEffect(() => {
+    // Redirect if not authenticated
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  // Load Discord settings if ADMIN
+  useEffect(() => {
     async function loadSettings() {
-      if (status !== "authenticated" || (session?.user as any)?.role !== "ADMIN") return;
+      if (status !== "authenticated" || (session?.user as any)?.role !== "ADMIN") {
+        setLoadingSettings(false);
+        return;
+      }
       try {
         const res = await getDiscordSettings();
         if (res && 'error' in res) {
-          setError(res.error || "Failed to load Discord settings.");
+          setErrorMsg(res.error || "Failed to load Discord settings.");
         } else if (res) {
           setWebhookUrl(res.webhookUrl || "");
           setEnabled(res.enabled || false);
           setMessageFormat((res as any).messageFormat || "");
         }
       } catch (err: any) {
-        setError(err.message || "An unexpected error occurred.");
+        setErrorMsg(err.message || "An unexpected error occurred.");
       } finally {
-        setLoading(false);
+        setLoadingSettings(false);
       }
     }
     loadSettings();
   }, [session, status]);
 
-  const handleSave = async (e: React.FormEvent) => {
+  const isAdmin = (session?.user as any)?.role === "ADMIN";
+
+  const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setSaveSuccess(false);
-    setError("");
+    setSuccessMsg("");
+    setErrorMsg("");
+
+    const formData = new FormData();
+    formData.append("firstName", firstName);
+    formData.append("lastName", lastName);
+    formData.append("password", password);
+    formData.append("confirmPassword", confirmPassword);
+
+    try {
+      const res = await updateSelfProfile(formData);
+      if (res && 'error' in res) {
+        setErrorMsg(res.error || "Failed to update profile.");
+      } else {
+        setSuccessMsg("Account profile updated successfully! Refresh your browser to see the changes.");
+        setPassword("");
+        setConfirmPassword("");
+        // Reload page details
+        router.refresh();
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "An error occurred.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDiscordSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setSuccessMsg("");
+    setErrorMsg("");
 
     try {
       const res = await saveDiscordSettings(webhookUrl, enabled, messageFormat);
       if (res && 'error' in res) {
-        setError(res.error || "Failed to save settings.");
+        setErrorMsg(res.error || "Failed to save settings.");
       } else {
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000);
+        setSuccessMsg("Discord integration settings saved successfully!");
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+      setErrorMsg(err.message || "An unexpected error occurred.");
     } finally {
       setSaving(false);
     }
@@ -111,12 +170,12 @@ export default function AdminSettingsPage() {
 
   const handleTest = async () => {
     if (!webhookUrl) {
-      setError("Please enter a webhook URL first before testing.");
+      setErrorMsg("Please enter a webhook URL first before testing.");
       return;
     }
     setTesting(true);
     setTestResult(null);
-    setError("");
+    setErrorMsg("");
 
     try {
       const res = await testDiscordConnection(webhookUrl);
@@ -145,7 +204,6 @@ export default function AdminSettingsPage() {
     const newValue = before + placeholder + after;
     setMessageFormat(newValue);
     
-    // Reset cursor position after state updates
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(start + placeholder.length, start + placeholder.length);
@@ -156,8 +214,8 @@ export default function AdminSettingsPage() {
     const templateToRender = text || DEFAULT_TEMPLATE;
     
     const mockData = {
-      userName: "John Doe",
-      userRole: "QA ENGINEER",
+      userName: session?.user?.name || "John Doe",
+      userRole: (session?.user as any)?.role === "ADMIN" ? "ADMIN" : "QA ENGINEER",
       actionLabel: "Submitted",
       date: "2026-06-13",
       projectHoursList: "• Project Alpha: 5.5 hrs\n• Project Beta: 2.5 hrs",
@@ -197,7 +255,7 @@ export default function AdminSettingsPage() {
     });
   };
 
-  if (status === "loading" || loading) {
+  if (status === "loading" || (isAdmin && loadingSettings)) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] bg-slate-50">
         <div className="flex flex-col items-center gap-4">
@@ -212,7 +270,7 @@ export default function AdminSettingsPage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="page-header !mb-0">
         <h1 className="page-title">Settings Center</h1>
-        <p className="page-desc">Manage global platform configurations, integrations, and webhooks</p>
+        <p className="page-desc">Manage your account profile, change security password, and configure integrations</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -222,32 +280,37 @@ export default function AdminSettingsPage() {
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 py-2 block">Settings</span>
             
             <button 
-              onClick={() => {}} 
-              disabled 
-              className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-400 text-sm font-semibold cursor-not-allowed text-left hover:bg-slate-50/50"
-            >
-              <span className="flex items-center gap-2">
-                <Sliders className="w-4 h-4" /> General
-              </span>
-              <span className="text-[9px] bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full font-bold">Planned</span>
-            </button>
-
-            <button 
-              onClick={() => setActiveTab("integrations")} 
+              onClick={() => setActiveTab("profile")} 
               className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all text-left cursor-pointer ${
-                activeTab === "integrations" 
+                activeTab === "profile" 
                   ? "bg-[#ed5c37]/5 text-[#ed5c37]" 
                   : "text-slate-600 hover:bg-slate-50"
               }`}
             >
               <span className="flex items-center gap-2">
-                <Link2 className="w-4 h-4" /> Integrations
+                <User className="w-4 h-4" /> Account Settings
               </span>
               <ChevronRight className="w-4 h-4" />
             </button>
+
+            {isAdmin && (
+              <button 
+                onClick={() => setActiveTab("integrations")} 
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all text-left cursor-pointer ${
+                  activeTab === "integrations" 
+                    ? "bg-[#ed5c37]/5 text-[#ed5c37]" 
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <Link2 className="w-4 h-4" /> Integrations
+                </span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
-          {activeTab === "integrations" && (
+          {activeTab === "integrations" && isAdmin && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-3 space-y-1 animate-in slide-in-from-top-2 duration-300">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-4 py-2 block">Channels</span>
               
@@ -272,7 +335,149 @@ export default function AdminSettingsPage() {
 
         {/* Right Column: Active configuration form */}
         <div className="lg:col-span-3 space-y-6">
-          {activeTab === "integrations" && activeIntegration === "discord" && (
+          
+          {/* PROFILE SETTINGS TAB */}
+          {activeTab === "profile" && (
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-300">
+              <div className="p-8 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-700 font-black shadow-inner">
+                    👤
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">Account Settings</h2>
+                    <p className="text-sm font-medium text-slate-500 mt-1">Update your display profile and secure password credentials</p>
+                  </div>
+                </div>
+              </div>
+
+              <form onSubmit={handleProfileSave} className="p-8 space-y-6">
+                
+                {/* Email (Disabled for Edit) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Email Address (Read-only)</label>
+                  <div className="relative group">
+                    <input 
+                      type="email" 
+                      disabled
+                      value={session?.user?.email || ""}
+                      className="w-full px-5 py-3 bg-slate-100 border border-slate-200 text-slate-400 rounded-xl font-bold text-sm outline-none cursor-not-allowed" 
+                    />
+                  </div>
+                </div>
+
+                {/* Name fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">First Name</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First name"
+                      className="w-full px-5 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" 
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Last Name</label>
+                    <input 
+                      type="text" 
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last name"
+                      className="w-full px-5 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all" 
+                    />
+                  </div>
+                </div>
+
+                <div className="h-px bg-slate-100 my-2" />
+
+                {/* Password fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">New Password</label>
+                    <div className="relative">
+                      <input 
+                        type={showPassword ? "text" : "password"} 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••" 
+                        minLength={6}
+                        className="w-full px-5 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all pr-12" 
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Confirm New Password</label>
+                    <div className="relative">
+                      <input 
+                        type={showConfirmPassword ? "text" : "password"} 
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="••••••••" 
+                        minLength={6}
+                        className="w-full px-5 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/30 rounded-xl font-bold text-sm text-slate-700 outline-none transition-all pr-12" 
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Feedback notes */}
+                {errorMsg && (
+                  <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-shake">
+                    <XCircle className="w-5 h-5 text-red-500 shrink-0" />
+                    <span className="text-xs font-bold text-red-700">{errorMsg}</span>
+                  </div>
+                )}
+
+                {successMsg && (
+                  <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3 animate-in fade-in duration-300">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <span className="text-xs font-bold text-emerald-700">{successMsg}</span>
+                  </div>
+                )}
+
+                {/* Save profile button */}
+                <div className="pt-6 border-t border-slate-100 flex items-center justify-end">
+                  <button 
+                    type="submit"
+                    disabled={saving}
+                    className="btn-primary py-3 px-6 text-xs font-bold cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Saving Profile...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" /> Save Profile
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* INTEGRATIONS / DISCORD TAB */}
+          {activeTab === "integrations" && isAdmin && activeIntegration === "discord" && (
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-300">
               <div className="p-8 border-b border-slate-100 bg-slate-50/50">
                 <div className="flex items-center gap-3">
@@ -286,7 +491,7 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
 
-              <form onSubmit={handleSave} className="p-8 space-y-8">
+              <form onSubmit={handleDiscordSave} className="p-8 space-y-8">
                 <div className="space-y-6">
                   {/* Toggle integration switch */}
                   <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100">
@@ -393,18 +598,15 @@ export default function AdminSettingsPage() {
                       <div className="xl:col-span-2 flex flex-col space-y-2">
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Live Discord Chat Preview</span>
                         <div className="flex-1 min-h-[300px] bg-[#313338] text-[#dbdee1] rounded-2xl p-4 shadow-inner border border-slate-800 font-sans text-sm flex gap-3 select-none leading-normal">
-                          {/* Avatar */}
                           <div className="w-10 h-10 rounded-full bg-[#ed5c37]/10 flex items-center justify-center text-lg shadow-inner shrink-0 mt-0.5 border border-[#ed5c37]/25">
                             🤖
                           </div>
-                          {/* Chat body */}
                           <div className="space-y-1.5 overflow-hidden w-full">
                             <div className="flex items-center gap-1.5">
                               <span className="font-semibold text-white text-sm hover:underline cursor-pointer">CB QOps Bot</span>
                               <span className="bg-[#5865f2] text-[9px] font-bold text-white px-1.5 py-0.5 rounded uppercase tracking-wider scale-90">Bot</span>
                               <span className="text-xs text-[#949ba4] font-medium ml-1">Today at 7:17 PM</span>
                             </div>
-                            {/* Message text rendering */}
                             <div className="text-sm font-medium space-y-0.5 leading-relaxed text-[#dbdee1]">
                               {renderPreview(messageFormat)}
                             </div>
@@ -416,17 +618,17 @@ export default function AdminSettingsPage() {
                 </div>
 
                 {/* Validation and saving feedback */}
-                {error && (
+                {errorMsg && (
                   <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-shake">
                     <XCircle className="w-5 h-5 text-red-500 shrink-0" />
-                    <span className="text-xs font-bold text-red-700">{error}</span>
+                    <span className="text-xs font-bold text-red-700">{errorMsg}</span>
                   </div>
                 )}
 
-                {saveSuccess && (
+                {successMsg && (
                   <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3 animate-in fade-in duration-300">
                     <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <span className="text-xs font-bold text-emerald-700">Discord integration settings saved successfully!</span>
+                    <span className="text-xs font-bold text-emerald-700">{successMsg}</span>
                   </div>
                 )}
 

@@ -94,5 +94,5 @@ export const authOptions: NextAuthOptions = {
 
   pages: { signIn: '/login' },
   session: { strategy: 'jwt' },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "cb-qops-super-secret-key-1234567890",
 };

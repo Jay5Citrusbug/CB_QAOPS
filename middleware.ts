@@ -17,7 +17,7 @@ function getDefaultRoute(role: string): string {
 }
 
 export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || "cb-qops-super-secret-key-1234567890" });
   const { pathname } = req.nextUrl;
 
   // 1. Allow auth-related paths and public files
