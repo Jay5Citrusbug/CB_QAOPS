@@ -73,7 +73,7 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     };
     try {
-      const logDir = path.join(process.cwd(), 'tmp');
+      const logDir = process.env.VERCEL ? '/tmp' : path.join(process.cwd(), 'tmp');
       if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
       fs.appendFileSync(path.join(logDir, 'api_error.log'), JSON.stringify(errorLog, null, 2) + '\n');
     } catch (e) {}

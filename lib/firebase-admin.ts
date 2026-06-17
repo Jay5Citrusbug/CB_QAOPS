@@ -69,7 +69,7 @@ function loadCacheIfNeeded() {
   if (cacheLoaded && (now - lastCacheReadTime < CACHE_MIN_READ_INTERVAL_MS)) return;
   const fs = require('fs');
   const path = require('path');
-  const cacheDir = path.join(process.cwd(), 'tmp');
+  const cacheDir = process.env.VERCEL ? '/tmp' : path.join(process.cwd(), 'tmp');
   const cachePath = path.join(cacheDir, 'local_db_cache.json');
   try {
     if (!fs.existsSync(cacheDir)) {
@@ -113,7 +113,8 @@ function loadCacheIfNeeded() {
 function saveCache() {
   const fs = require('fs');
   const path = require('path');
-  const cachePath = path.join(process.cwd(), 'tmp', 'local_db_cache.json');
+  const cacheDir = process.env.VERCEL ? '/tmp' : path.join(process.cwd(), 'tmp');
+  const cachePath = path.join(cacheDir, 'local_db_cache.json');
   try {
     fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2), 'utf8');
   } catch (err) {
