@@ -29,11 +29,10 @@ function getAdminApp() {
     enterOfflineMode();
 
     return admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: "mock-project-id",
-        clientEmail: "mock-client@mock.iam.gserviceaccount.com",
-        privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASC\n-----END PRIVATE KEY-----\n",
-      } as admin.ServiceAccount),
+      credential: {
+        getAccessToken: () => Promise.resolve({ access_token: 'mock-token', expires_in: 3600 }),
+      } as any,
+      projectId: 'mock-project',
     });
   }
 
