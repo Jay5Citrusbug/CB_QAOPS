@@ -1338,10 +1338,49 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="w-10 h-10 text-[#ed5c37] animate-spin" />
-          <p className="text-slate-500 font-semibold text-sm">Loading Project Test Cases...</p>
+      <div className="space-y-6 pb-12 animate-pulse relative">
+        {/* Top Header Skeleton */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-slate-200" />
+            <div className="space-y-2">
+              <div className="h-6 w-48 bg-slate-200 rounded-md" />
+              <div className="h-4 w-72 bg-slate-100 rounded-md" />
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-28 h-10 rounded-xl bg-slate-200" />
+            <div className="w-10 h-10 rounded-xl bg-slate-100" />
+          </div>
+        </div>
+
+        {/* Dashboard Metrics Panel Skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="premium-card !p-4 flex flex-col justify-between h-28 bg-white border border-slate-200 rounded-2xl">
+              <div className="h-3 w-16 bg-slate-200 rounded" />
+              <div className="h-8 w-12 bg-slate-300 rounded" />
+              <div className="h-2 w-8 bg-slate-100 rounded" />
+            </div>
+          ))}
+        </div>
+
+        {/* Table Skeleton */}
+        <div className="premium-card !p-0 overflow-hidden border border-slate-200 rounded-3xl bg-white">
+          <div className="bg-slate-50 border-b border-slate-100 h-12 w-full flex items-center px-6 gap-4">
+            {[...Array(6)].map((_, idx) => (
+              <div key={idx} className="h-4 w-24 bg-slate-200 rounded" />
+            ))}
+          </div>
+          <div className="divide-y divide-slate-100 px-6 py-4 space-y-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center gap-4 py-2">
+                {[...Array(6)].map((_, idx) => (
+                  <div key={idx} className="h-4 bg-slate-100 rounded flex-1" style={{ width: idx === 2 ? '40%' : '15%' }} />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -1350,12 +1389,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-500 relative">
       {isSyncing && (
-        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-[100] flex items-center justify-center">
-          <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
-            <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
-            <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing test cases...</p>
-          </div>
-        </div>
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#ed5c37] animate-pulse z-50 rounded-t-2xl" />
       )}
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

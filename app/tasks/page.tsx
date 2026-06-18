@@ -300,12 +300,7 @@ export default function TasksPage() {
   return (
     <div className="flex h-[calc(100vh-12rem)] bg-white rounded-2xl border border-slate-200 overflow-hidden relative group/page shadow-sm animate-in fade-in duration-500">
       {isSyncing && (
-        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-[100] flex items-center justify-center">
-          <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
-            <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
-            <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing tasks...</p>
-          </div>
-        </div>
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#ed5c37] animate-pulse z-50" />
       )}
       {/* Sidebar - If Admin, show user list */}
       {isAdmin && (
@@ -365,8 +360,17 @@ export default function TasksPage() {
         {/* Tasks List */}
         <div className="flex-1 overflow-y-auto px-8 py-4 space-y-1 custom-scrollbar">
           {refreshing && tasks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full gap-4 text-slate-200">
-               <div className="w-8 h-8 border-3 border-current border-t-[#ed5c37] rounded-full animate-spin" />
+            <div className="space-y-3 animate-pulse w-full">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4 p-3.5 rounded-xl border-b border-slate-50 bg-white">
+                  <div className="w-5 h-5 rounded-full bg-slate-200" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-1/3 bg-slate-200 rounded-md" />
+                    <div className="h-3 w-20 bg-slate-100 rounded-md" />
+                  </div>
+                  <div className="w-4 h-4 rounded bg-slate-100" />
+                </div>
+              ))}
             </div>
           ) : tasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-6 px-12 text-center">

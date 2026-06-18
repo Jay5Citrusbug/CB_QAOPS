@@ -77,12 +77,12 @@ interface Project {
   requirements: string;
   startDate: string | null;
   targetReleaseDate: string | null;
-  primaryQaEmail: string;
-  primaryQaName: string;
-  supportingQaEmail: string;
-  supportingQaName: string;
-  teamLeadEmail: string;
-  teamLeadName: string;
+  primaryQaEmail: string | string[];
+  primaryQaName: string | string[];
+  supportingQaEmail: string | string[];
+  supportingQaName: string | string[];
+  teamLeadEmail: string | string[];
+  teamLeadName: string | string[];
   developerEmails: string[];
   developerNames: string[];
   documents: Document[];
@@ -327,8 +327,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   const userEmail = session?.user?.email || "";
   const userRole = (session?.user as any)?.role || "";
   
+  const matchUser = (field: any, email: string) => {
+    if (!field) return false;
+    if (Array.isArray(field)) return field.includes(email);
+    return field === email;
+  };
+
   const isLeadOrAdmin = userRole === "ADMIN" || userRole === "TL";
-  const isOwnerOrBackup = project ? (project.primaryQaEmail === userEmail || project.supportingQaEmail === userEmail) : false;
+  const isOwnerOrBackup = project ? (matchUser(project.primaryQaEmail, userEmail) || matchUser(project.supportingQaEmail, userEmail)) : false;
   
   // Permissions
   const canManageTimeline = isLeadOrAdmin || isOwnerOrBackup;
@@ -790,37 +796,73 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
                 
                 <div className="space-y-3">
                   {/* Team Lead */}
-                  {project.teamLeadEmail && (
-                    <div className="flex items-center gap-3.5 p-2.5 rounded-2xl hover:bg-slate-50 transition-colors">
-                      {getInitialsAvatar(project.teamLeadName, "Team Lead")}
-                      <div>
-                        <span className="text-sm font-bold text-slate-800 block">{project.teamLeadName}</span>
-                        <span className="text-[9px] font-semibold text-slate-400 block uppercase tracking-wider">Team Lead</span>
-                      </div>
-                    </div>
-                  )}
+                  {(() => {
+                    const getArray = (val: any) => {
+                      if (!val) return [];
+                      if (Array.isArray(val)) return val;
+                      return [val];
+                    };
+                    const leads = getArray(project.teamLeadEmail);
+                    const leadNames = getArray(project.teamLeadName);
+                    return leads.map((email, idx) => {
+                      const name = leadNames[idx] || email;
+                      return (
+                        <div key={email} className="flex items-center gap-3.5 p-2.5 rounded-2xl hover:bg-slate-50 transition-colors">
+                          {getInitialsAvatar(name, "Team Lead")}
+                          <div>
+                            <span className="text-sm font-bold text-slate-800 block">{name}</span>
+                            <span className="text-[9px] font-semibold text-slate-400 block uppercase tracking-wider">Team Lead</span>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
 
                   {/* Primary QA */}
-                  {project.primaryQaEmail && (
-                    <div className="flex items-center gap-3.5 p-2.5 rounded-2xl hover:bg-slate-50 transition-colors">
-                      {getInitialsAvatar(project.primaryQaName, "Primary QA")}
-                      <div>
-                        <span className="text-sm font-bold text-slate-800 block">{project.primaryQaName}</span>
-                        <span className="text-[9px] font-semibold text-slate-400 block uppercase tracking-wider">Primary QA</span>
-                      </div>
-                    </div>
-                  )}
+                  {(() => {
+                    const getArray = (val: any) => {
+                      if (!val) return [];
+                      if (Array.isArray(val)) return val;
+                      return [val];
+                    };
+                    const qas = getArray(project.primaryQaEmail);
+                    const qaNames = getArray(project.primaryQaName);
+                    return qas.map((email, idx) => {
+                      const name = qaNames[idx] || email;
+                      return (
+                        <div key={email} className="flex items-center gap-3.5 p-2.5 rounded-2xl hover:bg-slate-50 transition-colors">
+                          {getInitialsAvatar(name, "Primary QA")}
+                          <div>
+                            <span className="text-sm font-bold text-slate-800 block">{name}</span>
+                            <span className="text-[9px] font-semibold text-slate-400 block uppercase tracking-wider">Primary QA</span>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
 
                   {/* Supporting QA */}
-                  {project.supportingQaEmail && (
-                    <div className="flex items-center gap-3.5 p-2.5 rounded-2xl hover:bg-slate-50 transition-colors">
-                      {getInitialsAvatar(project.supportingQaName, "Supporting QA")}
-                      <div>
-                        <span className="text-sm font-bold text-slate-800 block">{project.supportingQaName}</span>
-                        <span className="text-[9px] font-semibold text-slate-400 block uppercase tracking-wider">Supporting QA (Backup)</span>
-                      </div>
-                    </div>
-                  )}
+                  {(() => {
+                    const getArray = (val: any) => {
+                      if (!val) return [];
+                      if (Array.isArray(val)) return val;
+                      return [val];
+                    };
+                    const backups = getArray(project.supportingQaEmail);
+                    const backupNames = getArray(project.supportingQaName);
+                    return backups.map((email, idx) => {
+                      const name = backupNames[idx] || email;
+                      return (
+                        <div key={email} className="flex items-center gap-3.5 p-2.5 rounded-2xl hover:bg-slate-50 transition-colors">
+                          {getInitialsAvatar(name, "Supporting QA")}
+                          <div>
+                            <span className="text-sm font-bold text-slate-800 block">{name}</span>
+                            <span className="text-[9px] font-semibold text-slate-400 block uppercase tracking-wider">Supporting QA (Backup)</span>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
 
                   {/* Developers list */}
                   {project.developerEmails?.map((email, idx) => {

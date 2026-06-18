@@ -309,16 +309,68 @@ export default function DailyStatusPage() {
            <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm" />
         </div>
       </div>      <div className="relative min-h-[300px]">
-        {isSyncing && (
-          <div className="fixed inset-0 bg-white/75 backdrop-blur-xs z-[100] flex items-center justify-center animate-in fade-in duration-200">
-            <div className="flex flex-col items-center gap-2">
-              <Clock className="w-8 h-8 text-[#ed5c37] animate-spin" />
-              <p className="text-xs text-slate-500 font-bold">Syncing daily statuses...</p>
-            </div>
-          </div>
+        {isSyncing && statuses.length > 0 && (
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#ed5c37] animate-pulse z-50 rounded-t-2xl" />
         )}
 
-        {viewMode === 'CARD' ? (
+        {isSyncing && statuses.length === 0 ? (
+          viewMode === 'CARD' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full animate-pulse">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="premium-card space-y-5 border border-slate-200 p-6 rounded-3xl bg-white">
+                  <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-200" />
+                      <div className="space-y-2">
+                        <div className="h-4 w-28 bg-slate-200 rounded-md" />
+                        <div className="h-3 w-36 bg-slate-100 rounded-md" />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-slate-100" />
+                      <div className="w-8 h-8 rounded-lg bg-slate-100" />
+                    </div>
+                  </div>
+                  <div className="space-y-4 pt-1">
+                    <div className="flex gap-4">
+                      <div className="w-2 h-2 bg-slate-200 rounded-full mt-1.5 shrink-0" />
+                      <div className="space-y-2 flex-1">
+                        <div className="h-2 w-10 bg-slate-200 rounded-sm" />
+                        <div className="h-3 w-5/6 bg-slate-100 rounded-md" />
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="w-2 h-2 bg-slate-200 rounded-full mt-1.5 shrink-0" />
+                      <div className="space-y-2 flex-1">
+                        <div className="h-2 w-10 bg-slate-200 rounded-sm" />
+                        <div className="h-3 w-4/6 bg-slate-100 rounded-md" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="premium-card !p-0 overflow-hidden border border-slate-200 rounded-3xl bg-white animate-pulse w-full">
+              <div className="bg-slate-50/50 border-b border-slate-100 h-12 w-full" />
+              <div className="divide-y divide-slate-100">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="px-6 py-5 flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="h-5 w-24 bg-slate-200 rounded-md" />
+                      <div className="h-4 w-1/2 bg-slate-100 rounded-md" />
+                    </div>
+                    <div className="h-4 w-20 bg-slate-100 rounded-md" />
+                    <div className="flex gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-slate-100" />
+                      <div className="w-8 h-8 rounded-lg bg-slate-100" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        ) : viewMode === 'CARD' ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {groupedStatuses.map((group) => (
               <div key={group.id} className="premium-card space-y-5">

@@ -550,9 +550,29 @@ export async function createProject(formData: FormData) {
   const startDate = formData.get('startDate') as string || '';
   const targetReleaseDate = formData.get('targetReleaseDate') as string || '';
   
-  const primaryQaEmail = formData.get('primaryQaEmail') as string || '';
-  const supportingQaEmail = formData.get('supportingQaEmail') as string || '';
-  const teamLeadEmail = formData.get('teamLeadEmail') as string || '';
+  let primaryQaEmails: string[] = [];
+  const primaryQaEmailsRaw = formData.getAll('primaryQaEmail');
+  if (primaryQaEmailsRaw.length === 1 && typeof primaryQaEmailsRaw[0] === 'string' && primaryQaEmailsRaw[0].includes(',')) {
+    primaryQaEmails = primaryQaEmailsRaw[0].split(',').map((e: string) => e.trim()).filter(Boolean);
+  } else {
+    primaryQaEmails = primaryQaEmailsRaw.map((e: any) => String(e).trim()).filter(Boolean);
+  }
+
+  let supportingQaEmails: string[] = [];
+  const supportingQaEmailsRaw = formData.getAll('supportingQaEmail');
+  if (supportingQaEmailsRaw.length === 1 && typeof supportingQaEmailsRaw[0] === 'string' && supportingQaEmailsRaw[0].includes(',')) {
+    supportingQaEmails = supportingQaEmailsRaw[0].split(',').map((e: string) => e.trim()).filter(Boolean);
+  } else {
+    supportingQaEmails = supportingQaEmailsRaw.map((e: any) => String(e).trim()).filter(Boolean);
+  }
+
+  let teamLeadEmails: string[] = [];
+  const teamLeadEmailsRaw = formData.getAll('teamLeadEmail');
+  if (teamLeadEmailsRaw.length === 1 && typeof teamLeadEmailsRaw[0] === 'string' && teamLeadEmailsRaw[0].includes(',')) {
+    teamLeadEmails = teamLeadEmailsRaw[0].split(',').map((e: string) => e.trim()).filter(Boolean);
+  } else {
+    teamLeadEmails = teamLeadEmailsRaw.map((e: any) => String(e).trim()).filter(Boolean);
+  }
   
   let devEmails: string[] = [];
   const devEmailsRaw = formData.getAll('developerEmails');
@@ -562,7 +582,7 @@ export async function createProject(formData: FormData) {
     devEmails = devEmailsRaw.map((e: any) => String(e).trim()).filter(Boolean);
   }
 
-  if (!name || !primaryQaEmail || !status) {
+  if (!name || !primaryQaEmails.length || !status) {
     return { error: 'Project Name, Primary QA, and Status are required.' };
   }
 
@@ -589,9 +609,9 @@ export async function createProject(formData: FormData) {
     }
 
     // Resolve QA, Team Lead & Developer details
-    const primaryQa = await getUserInfoByEmail(primaryQaEmail);
-    const supportingQa = await getUserInfoByEmail(supportingQaEmail);
-    const teamLead = await getUserInfoByEmail(teamLeadEmail);
+    const primaryQas = await getUsersInfoByEmails(primaryQaEmails);
+    const supportingQas = await getUsersInfoByEmails(supportingQaEmails);
+    const teamLeads = await getUsersInfoByEmails(teamLeadEmails);
     const devs = await getUsersInfoByEmails(devEmails);
 
     const newProjectData: any = {
@@ -603,12 +623,12 @@ export async function createProject(formData: FormData) {
       requirements,
       startDate: startDate || null,
       targetReleaseDate: targetReleaseDate || null,
-      primaryQaEmail: primaryQa ? primaryQa.email : primaryQaEmail,
-      primaryQaName: primaryQa ? primaryQa.name : primaryQaEmail.split('@')[0],
-      supportingQaEmail: supportingQa ? supportingQa.email : supportingQaEmail,
-      supportingQaName: supportingQa ? supportingQa.name : (supportingQaEmail ? supportingQaEmail.split('@')[0] : ''),
-      teamLeadEmail: teamLead ? teamLead.email : teamLeadEmail,
-      teamLeadName: teamLead ? teamLead.name : (teamLeadEmail ? teamLeadEmail.split('@')[0] : ''),
+      primaryQaEmail: primaryQas.map(q => q.email),
+      primaryQaName: primaryQas.map(q => q.name),
+      supportingQaEmail: supportingQas.map(q => q.email),
+      supportingQaName: supportingQas.map(q => q.name),
+      teamLeadEmail: teamLeads.map(q => q.email),
+      teamLeadName: teamLeads.map(q => q.name),
       developerEmails: devs.map(d => d.email),
       developerNames: devs.map(d => d.name),
       documents: [],
@@ -626,8 +646,8 @@ export async function createProject(formData: FormData) {
       created_at: admin.firestore.FieldValue.serverTimestamp(),
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
       // Backward compatibility fields:
-      tl_name: primaryQa ? primaryQa.name : (teamLead ? teamLead.name : ''),
-      assignee_name: primaryQa ? primaryQa.name : '',
+      tl_name: teamLeads.map(q => q.name).join(', ') || '',
+      assignee_name: primaryQas.map(q => q.name).join(', ') || '',
       dev_name: devs.map(d => d.name).join(', ') || '',
     };
 
@@ -636,13 +656,13 @@ export async function createProject(formData: FormData) {
 
     // Create Audit Logs
     await logProjectAudit(adminUserName, projectId, 'Project Created', { name, code });
-    if (primaryQa) {
+    for (const primaryQa of primaryQas) {
       await logProjectAudit(adminUserName, projectId, 'Primary QA Changed', {
         newPrimaryQa: primaryQa.email,
       });
       await createNotification(primaryQa.id, `You have been assigned as Primary QA for ${name}`);
     }
-    if (supportingQa) {
+    for (const supportingQa of supportingQas) {
       await logProjectAudit(adminUserName, projectId, 'Supporting QA Changed', {
         newSupportingQa: supportingQa.email,
       });
@@ -675,9 +695,29 @@ export async function updateProject(projectId: string, formData: FormData) {
   const startDate = formData.get('startDate') as string || '';
   const targetReleaseDate = formData.get('targetReleaseDate') as string || '';
   
-  const primaryQaEmail = formData.get('primaryQaEmail') as string || '';
-  const supportingQaEmail = formData.get('supportingQaEmail') as string || '';
-  const teamLeadEmail = formData.get('teamLeadEmail') as string || '';
+  let primaryQaEmails: string[] = [];
+  const primaryQaEmailsRaw = formData.getAll('primaryQaEmail');
+  if (primaryQaEmailsRaw.length === 1 && typeof primaryQaEmailsRaw[0] === 'string' && primaryQaEmailsRaw[0].includes(',')) {
+    primaryQaEmails = primaryQaEmailsRaw[0].split(',').map((e: string) => e.trim()).filter(Boolean);
+  } else {
+    primaryQaEmails = primaryQaEmailsRaw.map((e: any) => String(e).trim()).filter(Boolean);
+  }
+
+  let supportingQaEmails: string[] = [];
+  const supportingQaEmailsRaw = formData.getAll('supportingQaEmail');
+  if (supportingQaEmailsRaw.length === 1 && typeof supportingQaEmailsRaw[0] === 'string' && supportingQaEmailsRaw[0].includes(',')) {
+    supportingQaEmails = supportingQaEmailsRaw[0].split(',').map((e: string) => e.trim()).filter(Boolean);
+  } else {
+    supportingQaEmails = supportingQaEmailsRaw.map((e: any) => String(e).trim()).filter(Boolean);
+  }
+
+  let teamLeadEmails: string[] = [];
+  const teamLeadEmailsRaw = formData.getAll('teamLeadEmail');
+  if (teamLeadEmailsRaw.length === 1 && typeof teamLeadEmailsRaw[0] === 'string' && teamLeadEmailsRaw[0].includes(',')) {
+    teamLeadEmails = teamLeadEmailsRaw[0].split(',').map((e: string) => e.trim()).filter(Boolean);
+  } else {
+    teamLeadEmails = teamLeadEmailsRaw.map((e: any) => String(e).trim()).filter(Boolean);
+  }
   
   let devEmails: string[] = [];
   const devEmailsRaw = formData.getAll('developerEmails');
@@ -687,7 +727,7 @@ export async function updateProject(projectId: string, formData: FormData) {
     devEmails = devEmailsRaw.map((e: any) => String(e).trim()).filter(Boolean);
   }
 
-  if (!name || !primaryQaEmail) {
+  if (!name || !primaryQaEmails.length) {
     return { error: 'Project Name and Primary QA are required.' };
   }
 
@@ -722,9 +762,9 @@ export async function updateProject(projectId: string, formData: FormData) {
       };
     }
 
-    const primaryQa = await getUserInfoByEmail(primaryQaEmail);
-    const supportingQa = await getUserInfoByEmail(supportingQaEmail);
-    const teamLead = await getUserInfoByEmail(teamLeadEmail);
+    const primaryQas = await getUsersInfoByEmails(primaryQaEmails);
+    const supportingQas = await getUsersInfoByEmails(supportingQaEmails);
+    const teamLeads = await getUsersInfoByEmails(teamLeadEmails);
 
     const updateData: any = {
       code,
@@ -735,18 +775,18 @@ export async function updateProject(projectId: string, formData: FormData) {
       requirements,
       startDate: startDate || null,
       targetReleaseDate: targetReleaseDate || null,
-      primaryQaEmail: primaryQa ? primaryQa.email : primaryQaEmail,
-      primaryQaName: primaryQa ? primaryQa.name : primaryQaEmail.split('@')[0],
-      supportingQaEmail: supportingQa ? supportingQa.email : supportingQaEmail,
-      supportingQaName: supportingQa ? supportingQa.name : (supportingQaEmail ? supportingQaEmail.split('@')[0] : ''),
-      teamLeadEmail: teamLead ? teamLead.email : teamLeadEmail,
-      teamLeadName: teamLead ? teamLead.name : (teamLeadEmail ? teamLeadEmail.split('@')[0] : ''),
+      primaryQaEmail: primaryQas.map(q => q.email),
+      primaryQaName: primaryQas.map(q => q.name),
+      supportingQaEmail: supportingQas.map(q => q.email),
+      supportingQaName: supportingQas.map(q => q.name),
+      teamLeadEmail: teamLeads.map(q => q.email),
+      teamLeadName: teamLeads.map(q => q.name),
       developerEmails: finalDevs.emails,
       developerNames: finalDevs.names,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
       // Backward compatibility fields:
-      tl_name: primaryQa ? primaryQa.name : (teamLead ? teamLead.name : ''),
-      assignee_name: primaryQa ? primaryQa.name : '',
+      tl_name: teamLeads.map(q => q.name).join(', ') || '',
+      assignee_name: primaryQas.map(q => q.name).join(', ') || '',
       dev_name: finalDevs.devNameStr,
     };
 
@@ -769,6 +809,14 @@ export async function updateProject(projectId: string, formData: FormData) {
 
     await projectRef.update(updateData);
 
+    // helper to compare string arrays/strings
+    const areEqual = (a: any, b: any) => {
+      const arrA = Array.isArray(a) ? a : (a ? [a] : []);
+      const arrB = Array.isArray(b) ? b : (b ? [b] : []);
+      if (arrA.length !== arrB.length) return false;
+      return arrA.every(x => arrB.includes(x));
+    };
+
     // Audit logs & Notifications comparisons
     // 1. Status Changed
     if (oldData.status !== status) {
@@ -780,28 +828,34 @@ export async function updateProject(projectId: string, formData: FormData) {
     }
 
     // 2. Primary QA Changed
-    const qaChanged = oldData.primaryQaEmail !== (primaryQa ? primaryQa.email : primaryQaEmail);
+    const qaChanged = !areEqual(oldData.primaryQaEmail, primaryQaEmails);
     if (qaChanged) {
       await logProjectAudit(adminUserName, projectId, 'Primary QA Changed', {
         oldPrimaryQa: oldData.primaryQaEmail || '',
-        newPrimaryQa: primaryQa ? primaryQa.email : primaryQaEmail,
+        newPrimaryQa: primaryQaEmails,
       });
 
-      if (primaryQa) {
-        await createNotification(primaryQa.id, `You have been assigned as Primary QA for ${name}`);
+      for (const primaryQa of primaryQas) {
+        const oldPrimaryEmails = Array.isArray(oldData.primaryQaEmail) ? oldData.primaryQaEmail : (oldData.primaryQaEmail ? [oldData.primaryQaEmail] : []);
+        if (!oldPrimaryEmails.includes(primaryQa.email)) {
+          await createNotification(primaryQa.id, `You have been assigned as Primary QA for ${name}`);
+        }
       }
     }
 
     // 3. Supporting QA Changed
-    const supportingQaChanged = oldData.supportingQaEmail !== (supportingQa ? supportingQa.email : supportingQaEmail);
+    const supportingQaChanged = !areEqual(oldData.supportingQaEmail, supportingQaEmails);
     if (supportingQaChanged) {
       await logProjectAudit(adminUserName, projectId, 'Supporting QA Changed', {
         oldSupportingQa: oldData.supportingQaEmail || '',
-        newSupportingQa: supportingQa ? supportingQa.email : supportingQaEmail,
+        newSupportingQa: supportingQaEmails,
       });
 
-      if (supportingQa) {
-        await createNotification(supportingQa.id, `You have been assigned as Supporting QA for ${name}`);
+      for (const supportingQa of supportingQas) {
+        const oldSupportingEmails = Array.isArray(oldData.supportingQaEmail) ? oldData.supportingQaEmail : (oldData.supportingQaEmail ? [oldData.supportingQaEmail] : []);
+        if (!oldSupportingEmails.includes(supportingQa.email)) {
+          await createNotification(supportingQa.id, `You have been assigned as Supporting QA for ${name}`);
+        }
       }
     }
 

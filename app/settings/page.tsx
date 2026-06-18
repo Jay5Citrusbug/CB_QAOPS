@@ -257,10 +257,75 @@ export default function SettingsPage() {
 
   if (status === "loading" || (isAdmin && loadingSettings)) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 text-[#ed5c37] animate-spin" />
-          <p className="text-slate-500 font-medium animate-pulse text-sm">Loading settings panel...</p>
+      <div className="space-y-8 max-w-7xl mx-auto animate-pulse">
+        {/* Page Header Skeleton */}
+        <div className="space-y-2.5">
+          <div className="h-8 w-48 bg-slate-200 rounded-xl" />
+          <div className="h-4 w-96 bg-slate-100 rounded-lg" />
+        </div>
+
+        {/* Grid Split Panel Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Left Menu Skeleton */}
+          <div className="lg:col-span-1 space-y-3">
+            <div className="bg-white rounded-2xl border border-slate-200 p-3 space-y-3">
+              <div className="h-3 w-16 bg-slate-200 rounded-md block mx-4 my-2" />
+              <div className="h-10 bg-slate-100 rounded-xl block w-full" />
+              <div className="h-10 bg-slate-50 rounded-xl block w-full" />
+            </div>
+          </div>
+
+          {/* Right Active Form Skeleton */}
+          <div className="lg:col-span-3 space-y-6">
+            <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+              <div className="p-8 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
+                <div className="w-12 h-12 bg-slate-200 rounded-2xl shrink-0" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-6 w-40 bg-slate-200 rounded-md" />
+                  <div className="h-4 w-72 bg-slate-100 rounded-md" />
+                </div>
+              </div>
+
+              <div className="p-8 space-y-6">
+                {/* Email placeholder */}
+                <div className="space-y-2">
+                  <div className="h-3.5 w-48 bg-slate-200 rounded-md" />
+                  <div className="h-11 bg-slate-100 rounded-xl w-full" />
+                </div>
+
+                {/* Names placeholders */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <div className="h-3.5 w-24 bg-slate-200 rounded-md" />
+                    <div className="h-11 bg-slate-100 rounded-xl w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3.5 w-24 bg-slate-200 rounded-md" />
+                    <div className="h-11 bg-slate-100 rounded-xl w-full" />
+                  </div>
+                </div>
+
+                <div className="h-px bg-slate-100 my-2" />
+
+                {/* Password placeholders */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <div className="h-3.5 w-28 bg-slate-200 rounded-md" />
+                    <div className="h-11 bg-slate-100 rounded-xl w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3.5 w-36 bg-slate-200 rounded-md" />
+                    <div className="h-11 bg-slate-100 rounded-xl w-full" />
+                  </div>
+                </div>
+
+                {/* Save button placeholder */}
+                <div className="pt-6 border-t border-slate-100 flex justify-end">
+                  <div className="h-11 w-32 bg-slate-200 rounded-xl animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

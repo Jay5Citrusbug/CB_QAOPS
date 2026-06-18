@@ -51,7 +51,97 @@
       }
     }
   },
-  "projects": {},
+  "projects": {
+    "0KQVSKzD9xakHPjTWjKU": {
+      "code": "PROJ-6649",
+      "name": "Ziplyst",
+      "status": "ACTIVE",
+      "description": "",
+      "scope": "",
+      "requirements": "",
+      "startDate": null,
+      "targetReleaseDate": null,
+      "primaryQaEmail": "tirth.citrusbug@gmail.com",
+      "primaryQaName": "Tirth Mistry",
+      "supportingQaEmail": "Prachi.citrusbug@gmail.com",
+      "supportingQaName": "Prachi Mewada",
+      "teamLeadEmail": "",
+      "teamLeadName": "",
+      "developerEmails": [],
+      "developerNames": [],
+      "documents": [],
+      "timeline": {
+        "smokeTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "testCaseWriting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "designValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "integrationTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "regressionTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "uatSupport": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "releaseVerification": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "postReleaseValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        }
+      },
+      "notesAndFlags": [],
+      "tl_name": "Tirth Mistry",
+      "assignee_name": "Tirth Mistry",
+      "dev_name": "",
+      "updated_at": {
+        "seconds": 1781698871,
+        "nanoseconds": 568000000
+      },
+      "created_at": {
+        "seconds": 1781698871,
+        "nanoseconds": 568000000
+      }
+    }
+  },
   "tasks": {
     "CJ3D8vCqHCPem7BW2SxP": {
       "user_id": "user_003",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createProject, updateProject, deleteProject } from "@/lib/actions";
@@ -37,12 +37,12 @@ interface Project {
   requirements: string;
   startDate: string | null;
   targetReleaseDate: string | null;
-  primaryQaEmail: string;
-  primaryQaName: string;
-  supportingQaEmail: string;
-  supportingQaName: string;
-  teamLeadEmail: string;
-  teamLeadName: string;
+  primaryQaEmail: string | string[];
+  primaryQaName: string | string[];
+  supportingQaEmail: string | string[];
+  supportingQaName: string | string[];
+  teamLeadEmail: string | string[];
+  teamLeadName: string | string[];
   developerEmails: string[];
   developerNames: string[];
   documents: any[];
@@ -67,11 +67,49 @@ export default function ProjectHubPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [selectedDevEmails, setSelectedDevEmails] = useState<string[]>([]);
-  const [search, setSearch] = useState("");
+  
+  // Multi-select QA and Lead states
+  const [selectedTlEmails, setSelectedTlEmails] = useState<string[]>([]);
+  const [selectedPrimaryQaEmails, setSelectedPrimaryQaEmails] = useState<string[]>([]);
+  const [selectedSupportingQaEmails, setSelectedSupportingQaEmails] = useState<string[]>([]);
+
+  const [tlDropdownOpen, setTlDropdownOpen] = useState(false);
+  const [primaryQaDropdownOpen, setPrimaryQaDropdownOpen] = useState(false);
+  const [supportingQaDropdownOpen, setSupportingQaDropdownOpen] = useState(false);
   const [devDropdownOpen, setDevDropdownOpen] = useState(false);
+
+  // Refs for click outside detection
+  const tlDropdownRef = useRef<HTMLDivElement>(null);
+  const primaryQaDropdownRef = useRef<HTMLDivElement>(null);
+  const supportingQaDropdownRef = useRef<HTMLDivElement>(null);
+  const devDropdownRef = useRef<HTMLDivElement>(null);
+
+  const [search, setSearch] = useState("");
   const [isSyncing, setIsSyncing] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  // Click outside listener
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (tlDropdownRef.current && !tlDropdownRef.current.contains(event.target as Node)) {
+        setTlDropdownOpen(false);
+      }
+      if (primaryQaDropdownRef.current && !primaryQaDropdownRef.current.contains(event.target as Node)) {
+        setPrimaryQaDropdownOpen(false);
+      }
+      if (supportingQaDropdownRef.current && !supportingQaDropdownRef.current.contains(event.target as Node)) {
+        setSupportingQaDropdownOpen(false);
+      }
+      if (devDropdownRef.current && !devDropdownRef.current.contains(event.target as Node)) {
+        setDevDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (toast) {
@@ -121,18 +159,31 @@ export default function ProjectHubPage() {
     init();
   }, []);
 
-  const filteredProjects = projects.filter(p => 
-    p.name.toLowerCase().includes(search.toLowerCase()) || 
-    (p.code || '').toLowerCase().includes(search.toLowerCase()) ||
-    p.primaryQaName.toLowerCase().includes(search.toLowerCase())
-  );
+  const getArray = (val: any) => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    return [val];
+  };
+
+  const filteredProjects = projects.filter(p => {
+    const nameStr = Array.isArray(p.primaryQaName) ? p.primaryQaName.join(', ') : (p.primaryQaName || '');
+    return p.name.toLowerCase().includes(search.toLowerCase()) || 
+      (p.code || '').toLowerCase().includes(search.toLowerCase()) ||
+      nameStr.toLowerCase().includes(search.toLowerCase());
+  });
 
   const handleEdit = (project: Project) => {
     setIsEditing(true);
     setCurrentProject(project);
     setSelectedDevEmails(project.developerEmails || []);
+    setSelectedTlEmails(getArray(project.teamLeadEmail));
+    setSelectedPrimaryQaEmails(getArray(project.primaryQaEmail));
+    setSelectedSupportingQaEmails(getArray(project.supportingQaEmail));
     setError("");
     setDevDropdownOpen(false);
+    setTlDropdownOpen(false);
+    setPrimaryQaDropdownOpen(false);
+    setSupportingQaDropdownOpen(false);
     setShowModal(true);
   };
 
@@ -159,8 +210,14 @@ export default function ProjectHubPage() {
     setIsEditing(false);
     setCurrentProject(null);
     setSelectedDevEmails([]);
+    setSelectedTlEmails([]);
+    setSelectedPrimaryQaEmails([]);
+    setSelectedSupportingQaEmails([]);
     setError("");
     setDevDropdownOpen(false);
+    setTlDropdownOpen(false);
+    setPrimaryQaDropdownOpen(false);
+    setSupportingQaDropdownOpen(false);
     setShowModal(true);
   };
 
@@ -171,7 +228,10 @@ export default function ProjectHubPage() {
 
   // QA Workload Calculation
   const qaWorkloads = qaUsers.map(qa => {
-    const primaryProjects = projects.filter(p => p.primaryQaEmail === qa.email);
+    const primaryProjects = projects.filter(p => {
+      const pQa = p.primaryQaEmail;
+      return Array.isArray(pQa) ? pQa.includes(qa.email) : pQa === qa.email;
+    });
     const primaryCount = primaryProjects.length;
     const totalCount = primaryCount;
     const activeCount = primaryProjects.filter(p => p.status === "ACTIVE").length;
@@ -222,17 +282,75 @@ export default function ProjectHubPage() {
 
   if (loadingData) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-slate-50/50 rounded-3xl border border-slate-100">
-        <div className="flex flex-col items-center gap-4">
-          <Clock className="w-12 h-12 text-[#ed5c37] animate-spin" />
-          <p className="text-slate-500 font-medium animate-pulse text-sm">Loading Project Hub...</p>
+      <div className="space-y-8 max-w-7xl mx-auto animate-pulse">
+        {/* Header Skeleton */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2.5">
+            <div className="h-8 w-48 bg-slate-200 rounded-xl" />
+            <div className="h-4 w-72 bg-slate-100 rounded-lg" />
+          </div>
+          <div className="h-11 w-36 bg-slate-200 rounded-xl shrink-0" />
+        </div>
+
+        {/* Tabs Skeleton */}
+        <div className="flex items-center gap-6 border-b border-slate-200 pb-px">
+          <div className="h-10 w-28 bg-slate-200 rounded-t-lg" />
+          <div className="h-10 w-44 bg-slate-100 rounded-t-lg" />
+          <div className="h-10 w-36 bg-slate-100 rounded-t-lg" />
+        </div>
+
+        {/* Content Table Card Skeleton */}
+        <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden animate-pulse">
+          {/* Search bar placeholder */}
+          <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
+            <div className="h-10 w-96 bg-slate-200 rounded-xl" />
+            <div className="h-6 w-32 bg-slate-100 rounded-lg" />
+          </div>
+          
+          {/* Table skeleton */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm border-collapse">
+              <thead className="bg-slate-50 border-b border-slate-100">
+                <tr>
+                  <th className="px-6 py-4"><div className="h-4 w-28 bg-slate-200 rounded-md" /></th>
+                  <th className="px-6 py-4"><div className="h-4 w-16 bg-slate-200 rounded-md" /></th>
+                  <th className="px-6 py-4"><div className="h-4 w-24 bg-slate-200 rounded-md" /></th>
+                  <th className="px-6 py-4 text-center"><div className="h-4 w-12 bg-slate-200 mx-auto rounded-md" /></th>
+                  <th className="px-6 py-4 text-right"><div className="h-4 w-20 bg-slate-200 ml-auto rounded-md" /></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {[...Array(5)].map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-6 py-5"><div className="h-5 w-40 bg-slate-200 rounded-md" /></td>
+                    <td className="px-6 py-5"><div className="h-5 w-16 bg-slate-100 rounded-full" /></td>
+                    <td className="px-6 py-5">
+                      <div className="h-4 w-24 bg-slate-200 rounded-md mb-1.5" />
+                      <div className="h-3 w-36 bg-slate-100 rounded-md" />
+                    </td>
+                    <td className="px-6 py-5 text-center"><div className="h-5 w-8 bg-slate-100 mx-auto rounded-md" /></td>
+                    <td className="px-6 py-5 text-right">
+                      <div className="flex justify-end gap-2">
+                        <div className="h-8 w-8 bg-slate-100 rounded-xl" />
+                        <div className="h-8 w-8 bg-slate-100 rounded-xl" />
+                        <div className="h-8 w-8 bg-slate-100 rounded-xl" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
+    <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto relative">
+      {isSyncing && (
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#ed5c37] animate-pulse z-[100]" />
+      )}
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="page-header !mb-0">
@@ -301,14 +419,6 @@ export default function ProjectHubPage() {
           </div>
           
           <div className="overflow-x-auto relative min-h-[200px]">
-            {isSyncing && (
-              <div className="fixed inset-0 bg-white/75 backdrop-blur-xs z-[100] flex items-center justify-center animate-in fade-in duration-200">
-                <div className="flex flex-col items-center gap-2">
-                  <Clock className="w-8 h-8 text-[#ed5c37] animate-spin" />
-                  <p className="text-xs text-slate-500 font-bold">Syncing project data...</p>
-                </div>
-              </div>
-            )}
             <table className="w-full text-left text-sm border-collapse">
               <thead className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <tr>
@@ -338,8 +448,14 @@ export default function ProjectHubPage() {
                       </td>
                       <td className="px-6 py-4.5">{getStatusBadge(project.status)}</td>
                       <td className="px-6 py-4.5">
-                        <span className="font-semibold text-slate-800">{project.primaryQaName || "Unassigned"}</span>
-                        {project.primaryQaEmail && <span className="text-[10px] text-slate-400 block">{project.primaryQaEmail}</span>}
+                        <span className="font-semibold text-slate-800">
+                          {Array.isArray(project.primaryQaName) ? project.primaryQaName.join(', ') : (project.primaryQaName || "Unassigned")}
+                        </span>
+                        {project.primaryQaEmail && (
+                          <span className="text-[10px] text-slate-400 block">
+                            {Array.isArray(project.primaryQaEmail) ? project.primaryQaEmail.join(', ') : project.primaryQaEmail}
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4.5 text-center">
                         <span className="px-2 py-0.5 bg-slate-100 rounded-md font-bold text-xs border border-slate-200 text-slate-600">
@@ -451,7 +567,9 @@ export default function ProjectHubPage() {
                     >
                       <td className="px-6 py-4.5 font-bold text-slate-800 hover:text-[#ed5c37] transition-colors">{p.name}</td>
                       <td className="px-6 py-4.5">
-                        <span className="font-semibold text-slate-800">{p.primaryQaName || "Unassigned"}</span>
+                        <span className="font-semibold text-slate-800">
+                          {Array.isArray(p.primaryQaName) ? p.primaryQaName.join(', ') : (p.primaryQaName || "Unassigned")}
+                        </span>
                       </td>
                       <td className="px-6 py-4.5">{getStatusBadge(p.status)}</td>
                       <td className="px-6 py-4.5 text-xs font-medium text-slate-500">{formatDate(p.startDate)}</td>
@@ -542,51 +660,151 @@ export default function ProjectHubPage() {
 
               {/* ── Row 2: Team Lead | Primary QA ── */}
               <div className="grid grid-cols-2 gap-5">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 relative" ref={tlDropdownRef}>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block ml-1">Team Lead</label>
-                  <select
-                    name="teamLeadEmail"
-                    defaultValue={currentProject?.teamLeadEmail || ""}
-                    className="w-full px-4 py-[11px] bg-slate-50 border border-slate-200 focus:bg-white rounded-xl font-semibold text-sm text-slate-700 outline-none transition-all cursor-pointer"
+                  <button
+                    type="button"
+                    onClick={() => setTlDropdownOpen(!tlDropdownOpen)}
+                    className="w-full px-4 py-[11px] bg-slate-50 border border-slate-200 focus:bg-white rounded-xl font-semibold text-sm text-slate-700 outline-none transition-all cursor-pointer text-left flex justify-between items-center"
                   >
-                    <option value="">Select Team Lead</option>
-                    {tlUsers.map(tl => (
-                      <option key={tl.email} value={tl.email}>{tl.name} ({tl.email})</option>
-                    ))}
-                  </select>
+                    <span className="truncate pr-2 block">
+                      {selectedTlEmails.length === 0
+                        ? "Select Team Lead"
+                        : `${selectedTlEmails.length} team lead${selectedTlEmails.length > 1 ? "s" : ""} selected`}
+                    </span>
+                    <span className="text-slate-400 text-xs shrink-0">▼</span>
+                  </button>
+                  {tlDropdownOpen && (
+                    <div className="absolute z-[70] left-0 right-0 mt-1 p-3 bg-white border border-slate-200 rounded-xl shadow-xl max-h-44 overflow-y-auto space-y-1.5 animate-in fade-in duration-150">
+                      {tlUsers.map(tl => {
+                        const isChecked = selectedTlEmails.includes(tl.email);
+                        return (
+                          <label key={tl.email} className="flex items-center gap-2.5 p-1.5 hover:bg-slate-50 rounded-lg text-sm font-semibold text-slate-700 cursor-pointer transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedTlEmails([...selectedTlEmails, tl.email]);
+                                } else {
+                                  setSelectedTlEmails(selectedTlEmails.filter(email => email !== tl.email));
+                                }
+                              }}
+                              className="rounded border-slate-300 text-[#ed5c37] focus:ring-[#ed5c37]"
+                            />
+                            <span>{tl.name}</span>
+                          </label>
+                        );
+                      })}
+                      {tlUsers.length === 0 && <span className="text-xs text-slate-400 p-2 block text-center">No team leads available</span>}
+                    </div>
+                  )}
+                  {selectedTlEmails.map(email => (
+                    <input key={email} type="hidden" name="teamLeadEmail" value={email} />
+                  ))}
+                  {selectedTlEmails.length === 0 && (
+                    <input type="hidden" name="teamLeadEmail" value="" />
+                  )}
                 </div>
-                <div className="space-y-1.5">
+                
+                <div className="space-y-1.5 relative" ref={primaryQaDropdownRef}>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block ml-1">Primary QA <span className="text-[#ed5c37]">*</span></label>
-                  <select
-                    name="primaryQaEmail"
-                    required
-                    defaultValue={currentProject?.primaryQaEmail || ""}
-                    className="w-full px-4 py-[11px] bg-slate-50 border border-slate-200 focus:bg-white rounded-xl font-semibold text-sm text-slate-700 outline-none transition-all cursor-pointer"
+                  <button
+                    type="button"
+                    onClick={() => setPrimaryQaDropdownOpen(!primaryQaDropdownOpen)}
+                    className="w-full px-4 py-[11px] bg-slate-50 border border-slate-200 focus:bg-white rounded-xl font-semibold text-sm text-slate-700 outline-none transition-all cursor-pointer text-left flex justify-between items-center"
                   >
-                    <option value="" disabled>Select Primary QA</option>
-                    {qaUsers.map(qa => (
-                      <option key={qa.email} value={qa.email}>{qa.name} ({qa.email})</option>
-                    ))}
-                  </select>
+                    <span className="truncate pr-2 block">
+                      {selectedPrimaryQaEmails.length === 0
+                        ? "Select Primary QA"
+                        : `${selectedPrimaryQaEmails.length} QA${selectedPrimaryQaEmails.length > 1 ? "s" : ""} selected`}
+                    </span>
+                    <span className="text-slate-400 text-xs shrink-0">▼</span>
+                  </button>
+                  {primaryQaDropdownOpen && (
+                    <div className="absolute z-[70] left-0 right-0 mt-1 p-3 bg-white border border-slate-200 rounded-xl shadow-xl max-h-44 overflow-y-auto space-y-1.5 animate-in fade-in duration-150">
+                      {qaUsers.map(qa => {
+                        const isChecked = selectedPrimaryQaEmails.includes(qa.email);
+                        return (
+                          <label key={qa.email} className="flex items-center gap-2.5 p-1.5 hover:bg-slate-50 rounded-lg text-sm font-semibold text-slate-700 cursor-pointer transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedPrimaryQaEmails([...selectedPrimaryQaEmails, qa.email]);
+                                } else {
+                                  setSelectedPrimaryQaEmails(selectedPrimaryQaEmails.filter(email => email !== qa.email));
+                                }
+                              }}
+                              className="rounded border-slate-300 text-[#ed5c37] focus:ring-[#ed5c37]"
+                            />
+                            <span>{qa.name}</span>
+                          </label>
+                        );
+                      })}
+                      {qaUsers.length === 0 && <span className="text-xs text-slate-400 p-2 block text-center">No QA users available</span>}
+                    </div>
+                  )}
+                  {selectedPrimaryQaEmails.map(email => (
+                    <input key={email} type="hidden" name="primaryQaEmail" value={email} />
+                  ))}
+                  {selectedPrimaryQaEmails.length === 0 && (
+                    <input type="text" className="opacity-0 absolute w-0 h-0 pointer-events-none" required value="" readOnly name="primaryQaEmail-required-placeholder" />
+                  )}
                 </div>
               </div>
 
               {/* ── Row 3: Supporting QA | Assigned Developers ── */}
               <div className="grid grid-cols-2 gap-5">
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 relative" ref={supportingQaDropdownRef}>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block ml-1">Supporting QA <span className="text-slate-300">(Optional)</span></label>
-                  <select
-                    name="supportingQaEmail"
-                    defaultValue={currentProject?.supportingQaEmail || ""}
-                    className="w-full px-4 py-[11px] bg-slate-50 border border-slate-200 focus:bg-white rounded-xl font-semibold text-sm text-slate-700 outline-none transition-all cursor-pointer"
+                  <button
+                    type="button"
+                    onClick={() => setSupportingQaDropdownOpen(!supportingQaDropdownOpen)}
+                    className="w-full px-4 py-[11px] bg-slate-50 border border-slate-200 focus:bg-white rounded-xl font-semibold text-sm text-slate-700 outline-none transition-all cursor-pointer text-left flex justify-between items-center"
                   >
-                    <option value="">None</option>
-                    {qaUsers.map(qa => (
-                      <option key={qa.email} value={qa.email}>{qa.name} ({qa.email})</option>
-                    ))}
-                  </select>
+                    <span className="truncate pr-2 block">
+                      {selectedSupportingQaEmails.length === 0
+                        ? "None"
+                        : `${selectedSupportingQaEmails.length} QA${selectedSupportingQaEmails.length > 1 ? "s" : ""} selected`}
+                    </span>
+                    <span className="text-slate-400 text-xs shrink-0">▼</span>
+                  </button>
+                  {supportingQaDropdownOpen && (
+                    <div className="absolute z-[70] left-0 right-0 mt-1 p-3 bg-white border border-slate-200 rounded-xl shadow-xl max-h-44 overflow-y-auto space-y-1.5 animate-in fade-in duration-150">
+                      {qaUsers.map(qa => {
+                        const isChecked = selectedSupportingQaEmails.includes(qa.email);
+                        return (
+                          <label key={qa.email} className="flex items-center gap-2.5 p-1.5 hover:bg-slate-50 rounded-lg text-sm font-semibold text-slate-700 cursor-pointer transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedSupportingQaEmails([...selectedSupportingQaEmails, qa.email]);
+                                } else {
+                                  setSelectedSupportingQaEmails(selectedSupportingQaEmails.filter(email => email !== qa.email));
+                                }
+                              }}
+                              className="rounded border-slate-300 text-[#ed5c37] focus:ring-[#ed5c37]"
+                            />
+                            <span>{qa.name}</span>
+                          </label>
+                        );
+                      })}
+                      {qaUsers.length === 0 && <span className="text-xs text-slate-400 p-2 block text-center">No QA users available</span>}
+                    </div>
+                  )}
+                  {selectedSupportingQaEmails.map(email => (
+                    <input key={email} type="hidden" name="supportingQaEmail" value={email} />
+                  ))}
+                  {selectedSupportingQaEmails.length === 0 && (
+                    <input type="hidden" name="supportingQaEmail" value="" />
+                  )}
                 </div>
-                <div className="space-y-1.5 relative">
+
+                <div className="space-y-1.5 relative" ref={devDropdownRef}>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block ml-1">Assigned Developers</label>
                   <button
                     type="button"
@@ -618,7 +836,7 @@ export default function ProjectHubPage() {
                               }}
                               className="rounded border-slate-300 text-[#ed5c37] focus:ring-[#ed5c37]"
                             />
-                            <span>{dev.name} <span className="text-slate-400 font-normal">({dev.email})</span></span>
+                            <span>{dev.name}</span>
                           </label>
                         );
                       })}

@@ -483,7 +483,7 @@ function NoteModal({
                   return (
                     <div
                       key={`pending-${idx}`}
-                      className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-150 rounded-xl group border-dashed"
+                      className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl group border-dashed"
                     >
                       {getFileIcon(fileExt)}
                       <div className="flex-1 min-w-0">
@@ -761,15 +761,10 @@ export default function QuickNotesPage() {
   );
 
   return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-300">
+    <div className="space-y-6 pb-12 animate-in fade-in duration-300 relative">
       {/* Sync overlay */}
       {isSyncing && (
-        <div className="fixed inset-0 bg-white/60 backdrop-blur-xs z-[100] flex items-center justify-center">
-          <div className="bg-white/90 p-4 rounded-2xl border border-slate-100 shadow-xl flex items-center gap-3">
-            <Loader2 className="w-5 h-5 animate-spin text-[#ed5c37]" />
-            <span className="text-sm font-bold text-slate-600">Updating...</span>
-          </div>
-        </div>
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#ed5c37] animate-pulse z-[100]" />
       )}
 
       {/* Page Header */}
@@ -830,10 +825,38 @@ export default function QuickNotesPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-4 text-slate-300">
-          <Loader2 className="w-10 h-10 animate-spin text-[#ed5c37]" />
-          <p className="text-sm font-semibold text-slate-400">Loading your notes...</p>
-        </div>
+        viewMode === "grid" ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[200px]">
+                <div className="h-1 bg-slate-200 w-full" />
+                <div className="p-5 flex-1 flex flex-col gap-3">
+                  <div className="h-5 bg-slate-200 rounded-md w-3/4" />
+                  <div className="space-y-1.5 flex-1">
+                    <div className="h-3.5 bg-slate-100 rounded-md w-full" />
+                    <div className="h-3.5 bg-slate-100 rounded-md w-5/6" />
+                    <div className="h-3.5 bg-slate-100 rounded-md w-4/5" />
+                  </div>
+                  <div className="h-4 bg-slate-100 rounded-md w-1/4 mt-2" />
+                  <div className="h-4 bg-slate-100 rounded-md w-1/2 mt-1" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-2.5 animate-pulse">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-start gap-4 p-4 bg-white border border-slate-200 rounded-2xl">
+                <div className="p-2.5 bg-slate-100 rounded-xl shrink-0 h-9 w-9" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-slate-200 rounded-md w-1/3" />
+                  <div className="h-3 bg-slate-100 rounded-md w-5/6" />
+                  <div className="h-3 bg-slate-100 rounded-md w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )
       ) : filteredNotes.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 gap-5 text-center">
           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">

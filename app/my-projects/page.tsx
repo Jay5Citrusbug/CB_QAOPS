@@ -37,12 +37,12 @@ interface Project {
   requirements: string;
   startDate: string | null;
   targetReleaseDate: string | null;
-  primaryQaEmail: string;
-  primaryQaName: string;
-  supportingQaEmail: string;
-  supportingQaName: string;
-  teamLeadEmail: string;
-  teamLeadName: string;
+  primaryQaEmail: string | string[];
+  primaryQaName: string | string[];
+  supportingQaEmail: string | string[];
+  supportingQaName: string | string[];
+  teamLeadEmail: string | string[];
+  teamLeadName: string | string[];
   developerEmails: string[];
   developerNames: string[];
   documents: any[];
@@ -118,15 +118,34 @@ export default function MyProjectsPage() {
 
   // Filter projects depending on the role
   // QA Engineers (role USER/DEV) should only see projects where they are assigned as primary or supporting
+  // Filter projects depending on the role
+  // QA Engineers (role USER/DEV) should only see projects where they are assigned as primary or supporting
   const myInvolvedProjects = projects.filter(p => {
     if (isQaLead) return true;
-    return p.primaryQaEmail === userEmail || p.supportingQaEmail === userEmail || p.developerEmails?.includes(userEmail);
+    const pQa = p.primaryQaEmail;
+    const sQa = p.supportingQaEmail;
+    const isPrimary = Array.isArray(pQa) ? pQa.includes(userEmail) : pQa === userEmail;
+    const isSupporting = Array.isArray(sQa) ? sQa.includes(userEmail) : sQa === userEmail;
+    return isPrimary || isSupporting || p.developerEmails?.includes(userEmail);
   });
 
   // Unique Primary QAs in the user's projects for filter dropdowns
-  const uniquePrimaryQAs = Array.from(
-    new Map(projects.filter(p => p.primaryQaEmail).map(p => [p.primaryQaEmail, p.primaryQaName])).entries()
-  );
+  const uniquePrimaryQAsMap = new Map<string, string>();
+  projects.forEach(p => {
+    if (p.primaryQaEmail) {
+      if (Array.isArray(p.primaryQaEmail)) {
+        p.primaryQaEmail.forEach((email, idx) => {
+          if (email) {
+            const name = (Array.isArray(p.primaryQaName) ? p.primaryQaName[idx] : p.primaryQaName) || email;
+            uniquePrimaryQAsMap.set(email, name);
+          }
+        });
+      } else {
+        uniquePrimaryQAsMap.set(p.primaryQaEmail, (p.primaryQaName as string) || p.primaryQaEmail);
+      }
+    }
+  });
+  const uniquePrimaryQAs = Array.from(uniquePrimaryQAsMap.entries());
 
   // Apply filters
   const filteredProjects = myInvolvedProjects.filter(p => {
@@ -139,7 +158,11 @@ export default function MyProjectsPage() {
     const matchesStatus = statusFilter === "all" || p.status === statusFilter;
 
     // Primary QA Filter
-    const matchesPrimary = primaryFilter === "all" || p.primaryQaEmail === primaryFilter;
+    const matchesPrimary = primaryFilter === "all" || (
+      Array.isArray(p.primaryQaEmail) 
+        ? p.primaryQaEmail.includes(primaryFilter) 
+        : p.primaryQaEmail === primaryFilter
+    );
 
     return matchesSearch && matchesStatus && matchesPrimary;
   });
@@ -149,14 +172,38 @@ export default function MyProjectsPage() {
   const activeProjectsCount = projects.filter(p => p.status === "ACTIVE").length;
   const onHoldProjectsCount = projects.filter(p => p.status === "ON_HOLD" || p.status === "ON HOLD").length;
   const completedProjectsCount = projects.filter(p => p.status === "COMPLETED").length;
-  const myOwnedProjectsCount = projects.filter(p => p.primaryQaEmail === userEmail).length;
-  const mySupportingProjectsCount = projects.filter(p => p.supportingQaEmail === userEmail).length;
+  const myOwnedProjectsCount = projects.filter(p => {
+    const pQa = p.primaryQaEmail;
+    return Array.isArray(pQa) ? pQa.includes(userEmail) : pQa === userEmail;
+  }).length;
+  const mySupportingProjectsCount = projects.filter(p => {
+    const sQa = p.supportingQaEmail;
+    return Array.isArray(sQa) ? sQa.includes(userEmail) : sQa === userEmail;
+  }).length;
 
   // Calculate Metrics for "My Accountability" Section (based on logged in user's role/involvement)
-  const personalOwned = myInvolvedProjects.filter(p => p.primaryQaEmail === userEmail).length;
-  const personalSupported = myInvolvedProjects.filter(p => p.supportingQaEmail === userEmail).length;
-  const personalActive = myInvolvedProjects.filter(p => p.status === "ACTIVE" && (p.primaryQaEmail === userEmail || p.supportingQaEmail === userEmail)).length;
-  const personalCompleted = myInvolvedProjects.filter(p => p.status === "COMPLETED" && (p.primaryQaEmail === userEmail || p.supportingQaEmail === userEmail)).length;
+  const personalOwned = myInvolvedProjects.filter(p => {
+    const pQa = p.primaryQaEmail;
+    return Array.isArray(pQa) ? pQa.includes(userEmail) : pQa === userEmail;
+  }).length;
+  const personalSupported = myInvolvedProjects.filter(p => {
+    const sQa = p.supportingQaEmail;
+    return Array.isArray(sQa) ? sQa.includes(userEmail) : sQa === userEmail;
+  }).length;
+  const personalActive = myInvolvedProjects.filter(p => {
+    const pQa = p.primaryQaEmail;
+    const sQa = p.supportingQaEmail;
+    const isPrimary = Array.isArray(pQa) ? pQa.includes(userEmail) : pQa === userEmail;
+    const isSupporting = Array.isArray(sQa) ? sQa.includes(userEmail) : sQa === userEmail;
+    return p.status === "ACTIVE" && (isPrimary || isSupporting);
+  }).length;
+  const personalCompleted = myInvolvedProjects.filter(p => {
+    const pQa = p.primaryQaEmail;
+    const sQa = p.supportingQaEmail;
+    const isPrimary = Array.isArray(pQa) ? pQa.includes(userEmail) : pQa === userEmail;
+    const isSupporting = Array.isArray(sQa) ? sQa.includes(userEmail) : sQa === userEmail;
+    return p.status === "COMPLETED" && (isPrimary || isSupporting);
+  }).length;
 
   // Derive Upcoming Delivery Dates for My Accountability
   const upcomingDeliveries = myInvolvedProjects
@@ -170,11 +217,12 @@ export default function MyProjectsPage() {
           dVal = new Date(p.targetReleaseDate);
         }
       }
+      const isOwner = Array.isArray(p.primaryQaEmail) ? p.primaryQaEmail.includes(userEmail) : p.primaryQaEmail === userEmail;
       return {
         id: p.id,
         name: p.name,
         dueDate: dVal && !isNaN(dVal.getTime()) ? dVal : null,
-        role: p.primaryQaEmail === userEmail ? "Owner" : "Backup"
+        role: isOwner ? "Owner" : "Backup"
       };
     })
     .filter(d => d.dueDate !== null)
@@ -201,7 +249,11 @@ export default function MyProjectsPage() {
   myInvolvedProjects.forEach(p => {
     if (p.timeline) {
       Object.entries(p.timeline).forEach(([key, val]) => {
-        if (val.status !== "Completed" && (p.primaryQaEmail === userEmail || p.supportingQaEmail === userEmail)) {
+        const pQa = p.primaryQaEmail;
+        const sQa = p.supportingQaEmail;
+        const isPrimary = Array.isArray(pQa) ? pQa.includes(userEmail) : pQa === userEmail;
+        const isSupporting = Array.isArray(sQa) ? sQa.includes(userEmail) : sQa === userEmail;
+        if (val.status !== "Completed" && (isPrimary || isSupporting)) {
           pendingMilestones.push({
             projectName: p.name,
             projectId: p.id,
@@ -280,9 +332,136 @@ export default function MyProjectsPage() {
 
   if (loading) {
     return (
-      <div className="p-8 flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="w-12 h-12 border-4 border-[#ed5c37] border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-slate-500 font-semibold text-sm animate-pulse">Loading Accountability Hub...</p>
+      <div className="p-8 max-w-7xl mx-auto space-y-8 animate-pulse">
+        {/* Page Header Skeleton */}
+        <div className="flex items-center justify-between border-b border-slate-100 pb-5">
+          <div className="space-y-2.5">
+            <div className="h-8 w-64 bg-slate-200 rounded-xl" />
+            <div className="h-4 w-96 bg-slate-100 rounded-lg" />
+          </div>
+        </div>
+
+        {/* Dashboard Summary Skeleton */}
+        <div className="space-y-3">
+          <div className="h-4 w-48 bg-slate-200 rounded-md" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="p-5 bg-white rounded-3xl border border-slate-200 flex flex-col justify-between min-h-[100px]">
+                <div className="h-3 w-20 bg-slate-200 rounded-md" />
+                <div className="h-8 w-10 bg-slate-200 rounded-md mt-3 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Search & Filters Skeleton */}
+        <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <div className="h-10 bg-slate-100 rounded-2xl flex-1" />
+            <div className="flex gap-3">
+              <div className="h-10 w-32 bg-slate-100 rounded-2xl" />
+              <div className="h-10 w-32 bg-slate-100 rounded-2xl" />
+            </div>
+          </div>
+        </div>
+
+        {/* Table skeleton */}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="py-4 px-6"><div className="h-4 w-28 bg-slate-200 rounded-md" /></th>
+                  <th className="py-4 px-4"><div className="h-4 w-20 bg-slate-200 rounded-md" /></th>
+                  <th className="py-4 px-4"><div className="h-4 w-20 bg-slate-200 rounded-md" /></th>
+                  <th className="py-4 px-4"><div className="h-4 w-16 bg-slate-200 rounded-md" /></th>
+                  <th className="py-4 px-4"><div className="h-4 w-28 bg-slate-200 rounded-md" /></th>
+                  <th className="py-4 px-4 text-center"><div className="h-4 w-12 bg-slate-200 mx-auto rounded-md" /></th>
+                  <th className="py-4 px-4 text-center"><div className="h-4 w-12 bg-slate-200 mx-auto rounded-md" /></th>
+                  <th className="py-4 px-4"><div className="h-4 w-24 bg-slate-200 rounded-md" /></th>
+                  <th className="py-4 px-6 text-right"><div className="h-4 w-20 bg-slate-200 ml-auto rounded-md" /></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {[...Array(4)].map((_, i) => (
+                  <tr key={i}>
+                    <td className="py-4.5 px-6">
+                      <div className="h-5 w-40 bg-slate-200 rounded-md mb-1.5" />
+                      <div className="h-3.5 w-16 bg-slate-100 rounded-md" />
+                    </td>
+                    <td className="py-4.5 px-4"><div className="h-5 w-24 bg-slate-200 rounded-md" /></td>
+                    <td className="py-4.5 px-4"><div className="h-5 w-24 bg-slate-100 rounded-md" /></td>
+                    <td className="py-4.5 px-4"><div className="h-5 w-16 bg-slate-100 rounded-full" /></td>
+                    <td className="py-4.5 px-4"><div className="h-5 w-28 bg-slate-200 rounded-md" /></td>
+                    <td className="py-4.5 px-4 text-center"><div className="h-5 w-8 bg-slate-100 mx-auto rounded-md" /></td>
+                    <td className="py-4.5 px-4 text-center"><div className="h-5 w-8 bg-slate-100 mx-auto rounded-md" /></td>
+                    <td className="py-4.5 px-4"><div className="h-4 w-24 bg-slate-100 rounded-md" /></td>
+                    <td className="py-4.5 px-6 text-right"><div className="h-7 w-24 bg-slate-200 rounded-xl ml-auto animate-pulse" /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Bottom panels skeleton */}
+        <div className="space-y-4">
+          <div className="h-4 w-36 bg-slate-200 rounded-md" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Panel 1 */}
+            <div className="p-6 bg-slate-800 rounded-3xl min-h-[300px] flex flex-col justify-between">
+              <div>
+                <div className="h-4 w-32 bg-slate-700 rounded-md" />
+                <div className="h-6 w-40 bg-slate-700 rounded-md mt-2" />
+                <div className="grid grid-cols-2 gap-3 mt-5">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="bg-slate-700/50 p-3 rounded-2xl">
+                      <div className="h-3 w-16 bg-slate-600 rounded-md" />
+                      <div className="h-6 w-8 bg-slate-600 rounded-md mt-1" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="h-10 bg-slate-700/40 rounded-xl mt-4" />
+            </div>
+
+            {/* Panel 2 */}
+            <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm min-h-[300px] flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="h-4 w-36 bg-slate-200 rounded-md" />
+                <div className="space-y-2.5">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="p-3 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
+                      <div className="space-y-1.5">
+                        <div className="h-3 w-16 bg-slate-200 rounded-md" />
+                        <div className="h-4 w-24 bg-slate-200 rounded-md" />
+                      </div>
+                      <div className="h-6 w-12 bg-slate-200 rounded-md" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Panel 3 */}
+            <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm min-h-[300px] flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="h-4 w-36 bg-slate-200 rounded-md" />
+                <div className="space-y-2.5">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="p-3 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
+                      <div className="space-y-1.5">
+                        <div className="h-4 w-32 bg-slate-200 rounded-md" />
+                        <div className="h-3 w-12 bg-slate-100 rounded-md" />
+                      </div>
+                      <div className="h-4 w-16 bg-slate-200 rounded-md" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -446,8 +625,12 @@ export default function MyProjectsPage() {
                             {p.code && <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider mt-0.5">{p.code}</span>}
                           </div>
                         </td>
-                        <td className="py-4.5 px-4 font-semibold text-slate-800">{p.primaryQaName || "Unassigned"}</td>
-                        <td className="py-4.5 px-4 text-slate-600 font-medium">{p.supportingQaName || "None"}</td>
+                        <td className="py-4.5 px-4 font-semibold text-slate-800">
+                          {Array.isArray(p.primaryQaName) ? p.primaryQaName.join(', ') : (p.primaryQaName || "Unassigned")}
+                        </td>
+                        <td className="py-4.5 px-4 text-slate-600 font-medium">
+                          {Array.isArray(p.supportingQaName) ? p.supportingQaName.join(', ') : (p.supportingQaName || "None")}
+                        </td>
                         <td className="py-4.5 px-4">{getStatusBadge(p.status)}</td>
                         <td className="py-4.5 px-4 text-slate-600 font-semibold">{formatDate(p.targetReleaseDate)}</td>
                         <td className="py-4.5 px-4 text-center">
@@ -512,7 +695,9 @@ export default function MyProjectsPage() {
                           </div>
                         </td>
                         <td className="py-4.5 px-4">{getStatusBadge(p.status)}</td>
-                        <td className="py-4.5 px-4 font-semibold text-slate-800">{p.primaryQaName || "Unassigned"}</td>
+                        <td className="py-4.5 px-4 font-semibold text-slate-800">
+                          {Array.isArray(p.primaryQaName) ? p.primaryQaName.join(', ') : (p.primaryQaName || "Unassigned")}
+                        </td>
                         <td className="py-4.5 px-4 text-slate-600 font-semibold">{formatDate(p.targetReleaseDate)}</td>
                         <td className="py-4.5 px-6 text-right" onClick={(e) => e.stopPropagation()}>
                           <Link href={`/my-projects/${p.id}`} className="px-4 py-1.5 bg-slate-900 hover:bg-[#ed5c37] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5 whitespace-nowrap">

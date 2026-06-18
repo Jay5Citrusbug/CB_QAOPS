@@ -116,10 +116,40 @@ export default function AdminUsersPage() {
 
   if (loadingData) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-slate-50/50 rounded-3xl border border-slate-100">
-        <div className="flex flex-col items-center gap-4">
-          <Clock className="w-12 h-12 text-[#ed5c37] animate-spin" />
-          <p className="text-slate-500 font-medium animate-pulse text-sm">Loading Team Hub...</p>
+      <div className="space-y-8 animate-pulse">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-6 w-32 bg-slate-200 rounded-md" />
+            <div className="h-4 w-64 bg-slate-100 rounded-md" />
+          </div>
+          <div className="w-32 h-10 rounded-xl bg-slate-200" />
+        </div>
+
+        <div className="premium-card !p-0 overflow-hidden border border-slate-200 rounded-3xl bg-white">
+          <div className="bg-slate-50 border-b border-slate-100 h-12 w-full flex items-center px-6 gap-6 justify-between">
+            <div className="h-4 w-32 bg-slate-200 rounded" />
+            <div className="h-4 w-32 bg-slate-200 rounded" />
+            <div className="h-4 w-32 bg-slate-200 rounded" />
+            <div className="h-4 w-20 bg-slate-200 rounded" />
+            <div className="h-4 w-16 bg-slate-200 rounded" />
+          </div>
+          <div className="divide-y divide-slate-100">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="px-6 py-5 flex items-center justify-between gap-6">
+                <div className="flex items-center gap-4 w-1/4">
+                  <div className="w-10 h-10 rounded-xl bg-slate-200 shrink-0" />
+                  <div className="h-4 w-24 bg-slate-100 rounded" />
+                </div>
+                <div className="h-4 w-1/4 bg-slate-100 rounded" />
+                <div className="h-5 w-28 bg-slate-100 rounded-lg" />
+                <div className="h-4 w-24 bg-slate-100 rounded" />
+                <div className="flex gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100" />
+                  <div className="w-8 h-8 rounded-lg bg-slate-100" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -157,12 +187,7 @@ export default function AdminUsersPage() {
         
         <div className="overflow-x-auto relative min-h-[200px]">
           {isSyncing && (
-            <div className="fixed inset-0 bg-white/75 backdrop-blur-xs z-[100] flex items-center justify-center animate-in fade-in duration-200">
-              <div className="flex flex-col items-center gap-2">
-                <Clock className="w-8 h-8 text-[#ed5c37] animate-spin" />
-                <p className="text-xs text-slate-500 font-bold">Syncing user data...</p>
-              </div>
-            </div>
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#ed5c37] animate-pulse z-50 rounded-t-2xl" />
           )}
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-500">
