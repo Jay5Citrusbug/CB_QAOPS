@@ -1,4 +1,5 @@
 import admin from "firebase-admin";
+import initialCacheData from "../tmp/local_db_cache.json";
 
 let isMockMode = false;
 let isOfflineMode = false;
@@ -56,13 +57,6 @@ export function getAdminDb(): admin.firestore.Firestore {
   return _adminDb;
 }
 
-export function getAdminAuth(): admin.auth.Auth {
-  if (!_adminAuth) {
-    _adminAuth = getAdminApp().auth();
-  }
-  return _adminAuth;
-}
-
 // Backwards-compatible named exports (used throughout the codebase)
 export const adminDb = new Proxy({} as admin.firestore.Firestore, {
   get(_target, prop) {
@@ -76,6 +70,12 @@ export const adminAuth = new Proxy({} as admin.auth.Auth, {
   },
 });
 
+export function getAdminAuth(): admin.auth.Auth {
+  if (!_adminAuth) {
+    _adminAuth = getAdminApp().auth();
+  }
+  return _adminAuth;
+}
 
 // ─── FIRESTORE LOCAL FALLBACK ENGINE ──────────────────────────────────────────
 
@@ -102,38 +102,13 @@ function loadCacheIfNeeded() {
       lastCacheReadTime = now;
       console.log('✅ Loaded Firestore local cache from file.');
     } else {
-      // Check if there is a committed local_db_cache.json in process.cwd()/tmp
-      const committedCachePath = path.join(process.cwd(), 'tmp', 'local_db_cache.json');
-      if (fs.existsSync(committedCachePath)) {
-        const data = fs.readFileSync(committedCachePath, 'utf8');
-        cacheData = JSON.parse(data);
-        // Save it to Vercel's /tmp so subsequent writes can succeed
-        fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2), 'utf8');
-        cacheLoaded = true;
-        lastCacheReadTime = now;
-        console.log('✅ Loaded Firestore local cache from committed local_db_cache.json.');
-      } else {
-        const seedPath = path.join(process.cwd(), 'seed-data.json');
-        if (fs.existsSync(seedPath)) {
-          const seedRaw = fs.readFileSync(seedPath, 'utf8');
-          const seedObj = JSON.parse(seedRaw);
-          cacheData = {};
-          for (const colName of Object.keys(seedObj)) {
-            cacheData[colName] = {};
-            for (const item of seedObj[colName]) {
-              const { id, ...payload } = item;
-              cacheData[colName][id] = payload;
-            }
-          }
-          fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2), 'utf8');
-          cacheLoaded = true;
-          console.log('✅ Initialized Firestore local cache from seed-data.json.');
-        } else {
-          cacheData = {};
-          cacheLoaded = true;
-          console.warn('⚠️ No seed-data.json found. Firestore local cache initialized as empty.');
-        }
-      }
+      // Initialize cacheData from the bundled JSON!
+      cacheData = JSON.parse(JSON.stringify(initialCacheData));
+      // Save it to Vercel's /tmp so subsequent writes can succeed
+      fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2), 'utf8');
+      cacheLoaded = true;
+      lastCacheReadTime = now;
+      console.log('✅ Loaded Firestore local cache from bundled JSON.');
     }
   } catch (err) {
     console.error('Failed to initialize local Firestore cache:', err);
