@@ -1,5 +1,18 @@
 import admin from "firebase-admin";
 
+let isMockMode = false;
+let isOfflineMode = false;
+let lastQuotaCheckTime = 0;
+const QUOTA_RETRY_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+
+function enterOfflineMode() {
+  if (!isOfflineMode) {
+    isOfflineMode = true;
+    lastQuotaCheckTime = Date.now();
+    console.warn(`⚠️ [Firestore Fallback] Entering offline fallback mode. All subsequent database operations will load instantly from local cache.`);
+  }
+}
+
 function getAdminApp() {
   if (admin.apps.length > 0) {
     return admin.apps[0]!;
@@ -10,10 +23,17 @@ function getAdminApp() {
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
   if (!projectId || !clientEmail || !privateKey) {
-    throw new Error(
-      "Firebase Admin SDK environment variables are not configured. " +
-      "Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in your environment."
-    );
+    console.warn("⚠️ Firebase Admin SDK environment variables are not configured. Using dummy/mock credentials and forcing offline mode.");
+    isMockMode = true;
+    enterOfflineMode();
+
+    return admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: "mock-project-id",
+        clientEmail: "mock-client@mock.iam.gserviceaccount.com",
+        privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASC\n-----END PRIVATE KEY-----\n",
+      } as admin.ServiceAccount),
+    });
   }
 
   return admin.initializeApp({
@@ -82,25 +102,37 @@ function loadCacheIfNeeded() {
       lastCacheReadTime = now;
       console.log('✅ Loaded Firestore local cache from file.');
     } else {
-      const seedPath = path.join(process.cwd(), 'seed-data.json');
-      if (fs.existsSync(seedPath)) {
-        const seedRaw = fs.readFileSync(seedPath, 'utf8');
-        const seedObj = JSON.parse(seedRaw);
-        cacheData = {};
-        for (const colName of Object.keys(seedObj)) {
-          cacheData[colName] = {};
-          for (const item of seedObj[colName]) {
-            const { id, ...payload } = item;
-            cacheData[colName][id] = payload;
-          }
-        }
+      // Check if there is a committed local_db_cache.json in process.cwd()/tmp
+      const committedCachePath = path.join(process.cwd(), 'tmp', 'local_db_cache.json');
+      if (fs.existsSync(committedCachePath)) {
+        const data = fs.readFileSync(committedCachePath, 'utf8');
+        cacheData = JSON.parse(data);
+        // Save it to Vercel's /tmp so subsequent writes can succeed
         fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2), 'utf8');
         cacheLoaded = true;
-        console.log('✅ Initialized Firestore local cache from seed-data.json.');
+        lastCacheReadTime = now;
+        console.log('✅ Loaded Firestore local cache from committed local_db_cache.json.');
       } else {
-        cacheData = {};
-        cacheLoaded = true;
-        console.warn('⚠️ No seed-data.json found. Firestore local cache initialized as empty.');
+        const seedPath = path.join(process.cwd(), 'seed-data.json');
+        if (fs.existsSync(seedPath)) {
+          const seedRaw = fs.readFileSync(seedPath, 'utf8');
+          const seedObj = JSON.parse(seedRaw);
+          cacheData = {};
+          for (const colName of Object.keys(seedObj)) {
+            cacheData[colName] = {};
+            for (const item of seedObj[colName]) {
+              const { id, ...payload } = item;
+              cacheData[colName][id] = payload;
+            }
+          }
+          fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2), 'utf8');
+          cacheLoaded = true;
+          console.log('✅ Initialized Firestore local cache from seed-data.json.');
+        } else {
+          cacheData = {};
+          cacheLoaded = true;
+          console.warn('⚠️ No seed-data.json found. Firestore local cache initialized as empty.');
+        }
       }
     }
   } catch (err) {
@@ -424,19 +456,8 @@ function createMockQuerySnapshot(query: any, filteredDocs: Array<{ id: string; d
 }
 
 // Intercept DocumentReference methods
-let isOfflineMode = false;
-let lastQuotaCheckTime = 0;
-const QUOTA_RETRY_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
-
-function enterOfflineMode() {
-  if (!isOfflineMode) {
-    isOfflineMode = true;
-    lastQuotaCheckTime = Date.now();
-    console.warn(`⚠️ [Firestore Fallback] Entering offline fallback mode. All subsequent database operations will load instantly from local cache.`);
-  }
-}
-
 function shouldTryLive(): boolean {
+  if (isMockMode) return false;
   if (!isOfflineMode) return true;
   const now = Date.now();
   if (now - lastQuotaCheckTime >= QUOTA_RETRY_INTERVAL_MS) {
