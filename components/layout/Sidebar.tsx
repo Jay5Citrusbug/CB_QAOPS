@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Calendar, CheckSquare, Users, LogOut, Briefcase, X, FlaskConical, Settings, Folder, StickyNote } from "lucide-react";
+import { LayoutDashboard, Calendar, CheckSquare, Users, LogOut, Briefcase, X, FlaskConical, Settings, Folder, StickyNote, FileText, Star, HardDrive, BookOpen } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
 const menuItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, allowedRoles: ["ADMIN", "USER"] },
   { name: "Daily Status", href: "/daily-status", icon: Calendar, allowedRoles: ["ADMIN", "USER"] },
   { name: "My Projects", href: "/my-projects", icon: Folder, allowedRoles: ["ADMIN", "TL", "USER"] },
+  { name: "Project Docs", href: "/project-docs", icon: FileText, allowedRoles: ["ADMIN", "TL", "DEV", "USER"] },
+  { name: "QA Docs", href: "/qa-docs", icon: BookOpen, allowedRoles: ["ADMIN", "TL", "DEV", "USER"] },
+  { name: "Favorites", href: "/favorites", icon: Star, allowedRoles: ["ADMIN", "TL", "DEV", "USER"] },
+  { name: "My Drive", href: "/my-drive", icon: HardDrive, allowedRoles: ["ADMIN", "TL", "DEV", "USER"] },
   { name: "Test Cases", href: "/test-cases", icon: FlaskConical, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },
   { name: "Task Board", href: "/task-board", icon: CheckSquare, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },
   { name: "Quick Notes", href: "/quick-notes", icon: StickyNote, allowedRoles: ["ADMIN", "USER", "TL", "DEV"] },

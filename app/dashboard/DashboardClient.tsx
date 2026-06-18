@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useTransition, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { getInitials } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { addDailyStatus, updateGroupedDailyStatus } from "@/lib/actions";
@@ -34,9 +35,15 @@ export default function DashboardClient({
   const userRole = session?.user?.role || "USER";
   const isQaLead = userRole === "ADMIN" || userRole === "TL";
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Navigation & Filtering State
   const [activeTab, setActiveTab] = useState<"MY_DASH" | "TEAM_OVERVIEW">("MY_DASH");
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
+  const [tasksView, setTasksView] = useState<"PERSONAL" | "TEAM">("TEAM");
 
   // Form State
   const [showForm, setShowForm] = useState(false);
@@ -120,10 +127,19 @@ export default function DashboardClient({
     };
   }, [todayStatuses, projects]);
 
-  // 2. Filter tasks within user scope (assigned to or created by)
-  const myTasks = useMemo(() => {
+  // 2. Filter tasks based on selected view (Personal vs Team)
+  const currentViewTasks = useMemo(() => {
+    if (viewingUserId) {
+      // Always show that user's tasks when inspecting their dashboard
+      return allTasks.filter(t => t.assignedTo === targetUserEmail || t.createdBy === targetUserEmail || t.user_id === targetUserId);
+    }
+    if (tasksView === "TEAM") {
+      // Show all tasks across all users
+      return allTasks;
+    }
+    // Default: Show logged in user's personal tasks
     return allTasks.filter(t => t.assignedTo === targetUserEmail || t.createdBy === targetUserEmail || t.user_id === targetUserId);
-  }, [allTasks, targetUserEmail, targetUserId]);
+  }, [allTasks, tasksView, viewingUserId, targetUserEmail, targetUserId]);
 
   // 3. Map Task List ID to Names
   const listsMap = useMemo(() => {
@@ -132,15 +148,15 @@ export default function DashboardClient({
 
   // 4. Today's Tasks
   const todayTasks = useMemo(() => {
-    return myTasks.filter(t => t.dueDate && isSameDay(t.dueDate, todayStr));
-  }, [myTasks, todayStr]);
+    return currentViewTasks.filter(t => t.dueDate && isSameDay(t.dueDate, todayStr));
+  }, [currentViewTasks, todayStr]);
 
   // 5. Upcoming Tasks (Due tomorrow and beyond, not completed)
   const upcomingTasks = useMemo(() => {
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
     
-    const list = myTasks.filter(t => {
+    const list = currentViewTasks.filter(t => {
       if (!t.dueDate) return false;
       const d = new Date(t.dueDate);
       return d > todayEnd && t.status !== 'Completed';
@@ -148,22 +164,22 @@ export default function DashboardClient({
     
     // Sort closest due date first
     return [...list].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
-  }, [myTasks]);
+  }, [currentViewTasks]);
 
   // 6. Metrics
   const metrics = useMemo(() => {
     const totalToday = todayTasks.length;
-    const openTasks = myTasks.filter(t => (t.status === 'To Do' || t.status === 'PENDING' || t.status === 'Open') && t.status !== 'Completed').length;
-    const inProgress = myTasks.filter(t => t.status === 'In Progress').length;
+    const openTasks = currentViewTasks.filter(t => (t.status === 'To Do' || t.status === 'PENDING' || t.status === 'Open') && t.status !== 'Completed').length;
+    const inProgress = currentViewTasks.filter(t => t.status === 'In Progress').length;
     
     // Completed today
-    const completedToday = myTasks.filter(t => {
+    const completedToday = currentViewTasks.filter(t => {
       if (t.status !== 'Completed') return false;
       return t.completedAt && isSameDay(t.completedAt, todayStr);
     }).length;
 
     return { totalToday, openTasks, inProgress, completedToday };
-  }, [myTasks, todayTasks, todayStr]);
+  }, [currentViewTasks, todayTasks, todayStr]);
 
   // 7. Team Overview calculation (only evaluated for QA Leads)
   const teamMembersData = useMemo(() => {
@@ -205,6 +221,35 @@ export default function DashboardClient({
       };
     });
   }, [isQaLead, users, allTasks, dailyStatuses, todayStr]);
+
+  // 8. Team status submissions list (for Today's Status card on Team Dashboard)
+  const teamStatusSubmissions = useMemo(() => {
+    if (!users || users.length === 0) return [];
+    
+    // Keep only QA Engineers (USER)
+    const qaUsers = users.filter(u => u.role === 'USER');
+    
+    return qaUsers.map(u => {
+      const uTodayStatuses = dailyStatuses.filter(s => s.date && isSameDay(s.date, todayStr) && (s.userId === u.id || s.user_id === u.id));
+      const hasSubmitted = uTodayStatuses.length > 0;
+      
+      let workDone = "";
+      let submittedAt = "";
+      if (hasSubmitted) {
+        workDone = uTodayStatuses[0].workDone || uTodayStatuses[0].work_done || "";
+        submittedAt = uTodayStatuses[0].createdAt || uTodayStatuses[0].created_at || "";
+      }
+      
+      return {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        hasSubmitted,
+        workDone,
+        submittedAt
+      };
+    });
+  }, [users, dailyStatuses, todayStr]);
 
   // Time-of-day Greeting
   const getGreeting = () => {
@@ -425,14 +470,17 @@ export default function DashboardClient({
 
   return (
     <div className="space-y-6 relative">
-      {(isPending || togglingStatus || isSubmitting) && (
-        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-50 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
-            <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
-            <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing dashboard data...</p>
-          </div>
-        </div>
-      )}
+      {mounted && typeof window !== "undefined" && (togglingStatus || isSubmitting)
+        ? createPortal(
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-[9999] flex items-center justify-center animate-in fade-in duration-300">
+              <div className="flex flex-col items-center gap-3 bg-white p-6 rounded-3xl border border-slate-100 shadow-2xl animate-in scale-in duration-200">
+                <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
+                <p className="text-xs text-slate-500 font-bold animate-pulse">Syncing dashboard data...</p>
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
       {/* Header Greeting */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -598,6 +646,34 @@ export default function DashboardClient({
       ) : (
         /* Standard Dashboard Cards (My Dashboard or Focused Member Dashboard) */
         <>
+          {/* Tasks Scope Toggle */}
+          {!viewingUserId && (
+            <div className="flex justify-between items-center bg-slate-100/80 border border-slate-200/50 p-1 rounded-2xl w-fit gap-1 select-none animate-in fade-in duration-300">
+              <button
+                type="button"
+                onClick={() => setTasksView("PERSONAL")}
+                className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                  tasksView === "PERSONAL"
+                    ? "bg-white text-blue-600 shadow-xs"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                My Personal Tasks
+              </button>
+              <button
+                type="button"
+                onClick={() => setTasksView("TEAM")}
+                className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                  tasksView === "TEAM"
+                    ? "bg-white text-blue-600 shadow-xs"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                Team Tasks (All Users)
+              </button>
+            </div>
+          )}
+
           {/* KPI Cards Row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-4">
@@ -638,7 +714,9 @@ export default function DashboardClient({
               <div>
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-black text-slate-800">Today&apos;s Tasks</h2>
+                    <h2 className="text-lg font-black text-slate-800">
+                      {tasksView === "TEAM" && !viewingUserId ? "Today's Team Tasks" : "Today's Tasks"}
+                    </h2>
                     {todayTasks.length > 0 && (
                       <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">
                         {todayTasks.length}
@@ -685,7 +763,7 @@ export default function DashboardClient({
 
                   {todayTasks.length === 0 && (
                     <div className="py-12 text-center text-slate-400 italic text-sm">
-                      No tasks assigned for today.
+                      {tasksView === "TEAM" && !viewingUserId ? "No team tasks scheduled for today." : "No tasks assigned for today."}
                     </div>
                   )}
                 </div>
@@ -701,286 +779,357 @@ export default function DashboardClient({
               </div>
             </div>
 
-            {/* Right Column: Today's Status */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm min-h-[380px] flex flex-col justify-between">
+            {/* Right Column: Upcoming Tasks */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[380px]">
               <div>
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-                  <h2 className="text-lg font-black text-slate-800">Today&apos;s Status</h2>
                   <div className="flex items-center gap-2">
-                    {todayGroupedStatus ? (
-                      <span className="flex items-center gap-1 text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 rounded-full">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" /> Submitted
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200 px-2.5 py-0.5 rounded-full">
-                        Pending
+                    <h2 className="text-lg font-black text-slate-800">
+                      {tasksView === "TEAM" && !viewingUserId ? "Upcoming Team Tasks" : "Upcoming Tasks"}
+                    </h2>
+                    {upcomingTasks.length > 0 && (
+                      <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                        {upcomingTasks.length}
                       </span>
                     )}
                   </div>
+                  <Link 
+                    href="/task-board"
+                    className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 hover:underline"
+                  >
+                    Go to Board <ChevronRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
 
-                {/* Dynamic Status Display / Form Container */}
-                {todayGroupedStatus && !showForm ? (
-                  /* Confirmation Screen if Submitted */
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap gap-1.5">
-                      {todayGroupedStatus.projects.map(p => (
-                        <span key={p.projectId} className="px-2 py-1 bg-slate-900 text-[10px] font-bold text-white rounded-lg uppercase tracking-wider">
-                          {p.name} • {p.hours}h
-                        </span>
-                      ))}
+                <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
+                  {upcomingTasks.map((task: any) => (
+                    <div 
+                      key={task.id}
+                      className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 rounded-2xl transition-all duration-200 group"
+                    >
+                      <div className="space-y-1 truncate pr-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-400">T-{task.taskNumber}</span>
+                          <h4 className="font-semibold text-slate-700 truncate leading-snug">{task.title}</h4>
+                        </div>
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase">
+                            {listsMap.get(task.taskListId) || "Task Board"}
+                          </span>
+                          <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                          <span className="text-[10px] font-bold text-slate-400">
+                            Due {formatDate(task.dueDate)}
+                          </span>
+                          <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                          {getPriorityBadge(task.priority)}
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => handleQuickView(task)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold rounded-xl shadow-xs hover:bg-slate-50 hover:text-blue-600 transition-colors"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> View
+                      </button>
                     </div>
+                  ))}
 
-                    <div className="space-y-3">
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wins / Highlights</p>
-                        <p className="text-sm text-slate-700 font-medium leading-relaxed bg-slate-50/50 p-3 rounded-2xl border border-slate-100 whitespace-pre-wrap">{todayGroupedStatus.workDone}</p>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Next Activities</p>
-                        <p className="text-sm text-slate-600 italic font-medium leading-relaxed bg-slate-50/50 p-3 rounded-2xl border border-slate-100 whitespace-pre-wrap">{todayGroupedStatus.plannedWork}</p>
-                      </div>
-
-                      {todayGroupedStatus.blockers && (
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest flex items-center gap-1">
-                            <AlertTriangle className="w-3.5 h-3.5" /> Blockers
-                          </p>
-                          <p className="text-xs text-red-700 font-bold leading-relaxed bg-red-50/50 p-3 rounded-2xl border border-red-100 whitespace-pre-wrap">{todayGroupedStatus.blockers}</p>
-                        </div>
-                      )}
+                  {upcomingTasks.length === 0 && (
+                    <div className="py-12 text-center text-slate-400 italic text-sm">
+                      {tasksView === "TEAM" && !viewingUserId ? "No upcoming team tasks scheduled." : "No upcoming tasks scheduled."}
                     </div>
-
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mt-2">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>Submitted today at {new Date(todayGroupedStatus.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                  </div>
-                ) : (
-                  /* Submission form or read-only placeholder */
-                  viewingUserId ? (
-                    <div className="py-12 text-center bg-slate-50 border border-slate-100 rounded-2xl">
-                      <p className="text-slate-500 text-sm font-semibold italic">
-                        No status submitted today by {selectedUser?.name || "this user"}.
-                      </p>
-                    </div>
-                  ) : (
-                    /* Inline Submission / Edit Form */
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      {formError && (
-                        <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-xs font-semibold flex items-center gap-2">
-                          <AlertTriangle className="w-4 h-4 shrink-0" />
-                          <span>{formError}</span>
-                        </div>
-                      )}
-
-                      {formSuccess && (
-                        <div className="p-3 bg-green-50 border border-green-200 text-green-600 rounded-2xl text-xs font-bold flex items-center gap-2 animate-pulse">
-                          <CheckCircle2 className="w-4 h-4 shrink-0" />
-                          <span>Status saved successfully!</span>
-                        </div>
-                      )}
-
-                      {/* Project Selector with checkboxes */}
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select Projects</label>
-                        <div className="max-h-[110px] overflow-y-auto border border-slate-200/80 rounded-2xl p-2.5 space-y-1.5 bg-slate-50/50 scrollbar-hide">
-                          {projects.map(proj => (
-                            <label 
-                              key={proj.id}
-                              className="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-100/50 rounded-lg cursor-pointer transition-colors select-none text-xs font-semibold text-slate-700"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={selectedProjects.includes(proj.id)}
-                                onChange={() => toggleProject(proj.id)}
-                                className="w-4 h-4 text-blue-600 border-slate-300 rounded-sm focus:ring-blue-500"
-                              />
-                              <span className="truncate">{proj.name}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Checked Project Hours Inputs */}
-                      {selectedProjects.length > 0 && (
-                        <div className="space-y-1.5 border-t border-slate-100 pt-3">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Logged Hours</label>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {selectedProjects.map(pid => {
-                              const proj = projects.find(p => p.id === pid);
-                              return (
-                                <div key={pid} className="flex items-center justify-between bg-slate-50 px-3 py-2 border border-slate-100 rounded-xl">
-                                  <span className="text-xs font-semibold text-slate-600 truncate pr-2">{proj?.name}</span>
-                                  <div className="flex items-center gap-1 shrink-0">
-                                    <input
-                                      type="number"
-                                      min="0.5"
-                                      max="24"
-                                      step="0.5"
-                                      value={projectHours[pid] || "8"}
-                                      onChange={(e) => setProjectHours((prev: Record<string, string>) => ({ ...prev, [pid]: e.target.value }))}
-                                      className="w-12 px-1.5 py-0.5 bg-white border border-slate-200 text-xs font-bold text-center rounded-md focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-                                    />
-                                    <span className="text-[10px] font-bold text-slate-400">h</span>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Work Done & Planned */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wins / Work Done</label>
-                          <textarea
-                            placeholder="What did you finish today?"
-                            value={workDone}
-                            onChange={(e) => setWorkDone(e.target.value)}
-                            rows={3}
-                            className="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all resize-none"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Planned Work</label>
-                          <textarea
-                            placeholder="What is planned next?"
-                            value={plannedWork}
-                            onChange={(e) => setPlannedWork(e.target.value)}
-                            rows={3}
-                            className="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all resize-none"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Blockers */}
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Blockers (Optional)</label>
-                        <input
-                          placeholder="Are you blocked by anything?"
-                          value={blockers}
-                          onChange={(e) => setBlockers(e.target.value)}
-                          className="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all"
-                        />
-                      </div>
-
-                      {/* Form Buttons */}
-                      <div className="flex gap-2.5 pt-1">
-                        <button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 disabled:bg-blue-400 cursor-pointer"
-                        >
-                          {isSubmitting ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Check className="w-3.5 h-3.5" />
-                          )}
-                          <span>{isEditing ? "Save Changes" : "Submit Status"}</span>
-                        </button>
-                        {isEditing && (
-                          <button
-                            type="button"
-                            onClick={() => { setShowForm(false); setIsEditing(false); }}
-                            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
-                          >
-                            Cancel
-                          </button>
-                        )}
-                      </div>
-                    </form>
-                  )
-                )}
+                  )}
+                </div>
               </div>
 
-              {/* Footer Actions */}
-              <div className="border-t border-slate-100 pt-4 mt-4 flex items-center justify-between">
+              <div className="border-t border-slate-100 pt-4 mt-4 text-center">
                 <Link 
-                  href="/daily-status" 
+                  href="/task-board" 
                   className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline inline-flex items-center gap-1"
                 >
-                  View Status History <ArrowRight className="w-3.5 h-3.5" />
+                  View All Tasks <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
-                {!viewingUserId && todayGroupedStatus && !showForm && (
-                  <button 
-                    onClick={handleEditClick}
-                    className="flex items-center gap-1 px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-xl transition-colors cursor-pointer"
-                  >
-                    <Edit2 className="w-3 h-3 text-blue-600" /> Edit Status
-                  </button>
-                )}
               </div>
             </div>
           </div>
 
-          {/* Row 2 (Full Width) - Upcoming Tasks */}
+          {/* Row 2 (Full Width) - Today's Status or Team Status Submissions */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-            <h2 className="text-lg font-black text-slate-800 border-b border-slate-100 pb-4 mb-4 flex items-center gap-2">
-              Upcoming Tasks
-              {upcomingTasks.length > 0 && (
-                <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-full">
-                  {upcomingTasks.length}
-                </span>
-              )}
-            </h2>
+            {tasksView === "TEAM" && !viewingUserId ? (
+              /* Team Status Submissions Grid for QA Lead / Team View */
+              <>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-black text-slate-800">Team Status Today</h2>
+                    <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                      {teamStatusSubmissions.filter(s => s.hasSubmitted).length}/{teamStatusSubmissions.length} Submitted
+                    </span>
+                  </div>
+                  <Link 
+                    href="/daily-status" 
+                    className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
+                  >
+                    View Status History <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[600px]">
-                <thead>
-                  <tr className="border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-400">
-                    <th className="pb-3 pr-4">Task</th>
-                    <th className="pb-3 px-4">Project</th>
-                    <th className="pb-3 px-4">Priority</th>
-                    <th className="pb-3 px-4">Status</th>
-                    <th className="pb-3 px-4">Due Date</th>
-                    <th className="pb-3 pl-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {upcomingTasks.map((task: any) => (
-                    <tr key={task.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="py-3.5 pr-4">
-                        <div className="flex items-center gap-2 font-semibold text-slate-700 max-w-xs truncate">
-                          <span className="text-xs text-slate-400 font-bold shrink-0">T-{task.taskNumber}</span>
-                          <span className="truncate">{task.title}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[400px] overflow-y-auto py-1 pr-1">
+                  {teamStatusSubmissions.map((member) => (
+                    <div key={member.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col justify-between gap-3 hover:border-slate-200 hover:shadow-xs transition-all">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5 truncate">
+                          <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                            {getInitials(member.name)}
+                          </div>
+                          <div className="truncate">
+                            <span className="text-xs font-bold text-slate-800 block truncate leading-tight">{member.name}</span>
+                            <span className="text-[10px] font-semibold text-slate-400 block truncate mt-0.5 leading-none">{member.email}</span>
+                          </div>
                         </div>
-                      </td>
-                      <td className="py-3.5 px-4 text-xs font-bold text-slate-500">
-                        {listsMap.get(task.taskListId) || "Task Board"}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        {getPriorityBadge(task.priority)}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        {getStatusBadge(task.status)}
-                      </td>
-                      <td className="py-3.5 px-4 text-xs font-bold text-slate-400">
-                        {formatDate(task.dueDate)}
-                      </td>
-                      <td className="py-3.5 pl-4 text-right">
-                        <button 
-                          onClick={() => handleQuickView(task)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-50 hover:text-blue-600 transition-all cursor-pointer shadow-xs"
-                        >
-                          <Eye className="w-3.5 h-3.5" /> View
-                        </button>
-                      </td>
-                    </tr>
+
+                        {member.hasSubmitted ? (
+                          <span className="flex items-center gap-1 text-[9px] font-bold bg-green-50 text-green-700 border border-green-100 px-2 py-0.5 rounded-md shrink-0">
+                            <Check className="w-2.5 h-2.5" /> {new Date(member.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-[9px] font-bold bg-red-50 text-red-650 border border-red-100 px-2 py-0.5 rounded-md shrink-0">
+                            <X className="w-2.5 h-2.5" /> Pending
+                          </span>
+                        )}
+                      </div>
+
+                      {member.hasSubmitted && member.workDone ? (
+                        <div className="text-xs text-slate-600 bg-white/80 border border-slate-100/55 p-3 rounded-xl italic font-medium leading-relaxed max-h-[80px] overflow-y-auto scrollbar-hide">
+                          "{member.workDone}"
+                        </div>
+                      ) : (
+                        <div className="text-[11px] text-slate-400 italic font-semibold py-4 text-center">
+                          Waiting for check-in...
+                        </div>
+                      )}
+                    </div>
                   ))}
 
-                  {upcomingTasks.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="py-8 text-center text-slate-400 italic text-sm">
-                        No upcoming tasks scheduled.
-                      </td>
-                    </tr>
+                  {teamStatusSubmissions.length === 0 && (
+                    <div className="col-span-full py-12 text-center text-slate-400 italic text-sm">
+                      No team members found.
+                    </div>
                   )}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              </>
+            ) : (
+              /* Standard Individual Status Display / Form Container */
+              <div className="flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                    <h2 className="text-lg font-black text-slate-800">Today&apos;s Status</h2>
+                    <div className="flex items-center gap-2">
+                      {todayGroupedStatus ? (
+                        <span className="flex items-center gap-1 text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 rounded-full">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500" /> Submitted
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200 px-2.5 py-0.5 rounded-full">
+                          Pending
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {todayGroupedStatus && !showForm ? (
+                    /* Confirmation Screen if Submitted (Grid layout for full-width) */
+                    <div className="space-y-4">
+                      <div className="flex flex-wrap gap-1.5">
+                        {todayGroupedStatus.projects.map(p => (
+                          <span key={p.projectId} className="px-2.5 py-1 bg-slate-900 text-[10px] font-bold text-white rounded-lg uppercase tracking-wider">
+                            {p.name} • {p.hours}h
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wins / Highlights</p>
+                          <p className="text-sm text-slate-700 font-medium leading-relaxed bg-slate-50/50 p-4 rounded-2xl border border-slate-100 whitespace-pre-wrap">{todayGroupedStatus.workDone}</p>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Next Activities</p>
+                          <p className="text-sm text-slate-650 italic font-medium leading-relaxed bg-slate-50/50 p-4 rounded-2xl border border-slate-100 whitespace-pre-wrap">{todayGroupedStatus.plannedWork}</p>
+                        </div>
+                      </div>
+
+                      {todayGroupedStatus.blockers && (
+                        <div className="space-y-1 pt-1">
+                          <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest flex items-center gap-1">
+                            <AlertTriangle className="w-3.5 h-3.5" /> Blockers
+                          </p>
+                          <p className="text-xs text-red-700 font-bold leading-relaxed bg-red-50/50 p-3.5 rounded-2xl border border-red-100 whitespace-pre-wrap">{todayGroupedStatus.blockers}</p>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mt-2">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>Submitted today at {new Date(todayGroupedStatus.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Submission form or read-only placeholder */
+                    viewingUserId ? (
+                      <div className="py-12 text-center bg-slate-50 border border-slate-100 rounded-2xl">
+                        <p className="text-slate-500 text-sm font-semibold italic">
+                          No status submitted today by {selectedUser?.name || "this user"}.
+                        </p>
+                      </div>
+                    ) : (
+                      /* Inline Submission / Edit Form */
+                      <form onSubmit={handleSubmit} className="space-y-4">
+                        {formError && (
+                          <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-xs font-semibold flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                            <span>{formError}</span>
+                          </div>
+                        )}
+
+                        {formSuccess && (
+                          <div className="p-3 bg-green-50 border border-green-200 text-green-600 rounded-2xl text-xs font-bold flex items-center gap-2 animate-pulse">
+                            <CheckCircle2 className="w-4 h-4 shrink-0" />
+                            <span>Status saved successfully!</span>
+                          </div>
+                        )}
+
+                        {/* Project Selector with checkboxes */}
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select Projects</label>
+                          <div className="max-h-[110px] overflow-y-auto border border-slate-200/80 rounded-2xl p-2.5 space-y-1.5 bg-slate-50/50 scrollbar-hide">
+                            {projects.map(proj => (
+                              <label 
+                                key={proj.id}
+                                className="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-100/50 rounded-lg cursor-pointer transition-colors select-none text-xs font-semibold text-slate-700"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedProjects.includes(proj.id)}
+                                  onChange={() => toggleProject(proj.id)}
+                                  className="w-4 h-4 text-blue-600 border-slate-300 rounded-sm focus:ring-blue-500"
+                                />
+                                <span className="truncate">{proj.name}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Checked Project Hours Inputs */}
+                        {selectedProjects.length > 0 && (
+                          <div className="space-y-1.5 border-t border-slate-100 pt-3">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Logged Hours</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {selectedProjects.map(pid => {
+                                const proj = projects.find(p => p.id === pid);
+                                return (
+                                  <div key={pid} className="flex items-center justify-between bg-slate-50 px-3 py-2 border border-slate-100 rounded-xl">
+                                    <span className="text-xs font-semibold text-slate-600 truncate pr-2">{proj?.name}</span>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      <input
+                                        type="number"
+                                        min="0.5"
+                                        max="24"
+                                        step="0.5"
+                                        value={projectHours[pid] || "8"}
+                                        onChange={(e) => setProjectHours((prev: Record<string, string>) => ({ ...prev, [pid]: e.target.value }))}
+                                        className="w-12 px-1.5 py-0.5 bg-white border border-slate-200 text-xs font-bold text-center rounded-md focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                                      />
+                                      <span className="text-[10px] font-bold text-slate-400">h</span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Work Done & Planned */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wins / Work Done</label>
+                            <textarea
+                              placeholder="What did you finish today?"
+                              value={workDone}
+                              onChange={(e) => setWorkDone(e.target.value)}
+                              rows={3}
+                              className="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all resize-none"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Planned Work</label>
+                            <textarea
+                              placeholder="What is planned next?"
+                              value={plannedWork}
+                              onChange={(e) => setPlannedWork(e.target.value)}
+                              rows={3}
+                              className="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all resize-none"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Blockers */}
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Blockers (Optional)</label>
+                          <input
+                            placeholder="Are you blocked by anything?"
+                            value={blockers}
+                            onChange={(e) => setBlockers(e.target.value)}
+                            className="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all"
+                          />
+                        </div>
+
+                        {/* Form Buttons */}
+                        <div className="flex gap-2.5 pt-1">
+                          <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 disabled:bg-blue-400 cursor-pointer"
+                          >
+                            {isSubmitting ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Check className="w-3.5 h-3.5" />
+                            )}
+                            <span>{isEditing ? "Save Changes" : "Submit Status"}</span>
+                          </button>
+                          {isEditing && (
+                            <button
+                              type="button"
+                              onClick={() => { setShowForm(false); setIsEditing(false); }}
+                              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </div>
+                      </form>
+                    )
+                  )}
+                </div>
+
+                {/* Footer Actions */}
+                <div className="border-t border-slate-100 pt-4 mt-4 flex items-center justify-between">
+                  <Link 
+                    href="/daily-status" 
+                    className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
+                  >
+                    View Status History <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                  {!viewingUserId && tasksView !== "TEAM" && todayGroupedStatus && !showForm && (
+                    <button 
+                      onClick={handleEditClick}
+                      className="flex items-center gap-1 px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                    >
+                      <Edit2 className="w-3 h-3 text-blue-600" /> Edit Status
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}

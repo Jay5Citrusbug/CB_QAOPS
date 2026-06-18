@@ -1521,3 +1521,133 @@ export async function updateSelfProfile(formData: FormData) {
     return { error: error?.message || 'Failed to update profile' };
   }
 }
+
+export async function toggleDocumentFavorite(projectId: string, docId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  const userEmail = session.user.email;
+  if (!userEmail) return { error: 'Missing user email' };
+
+  try {
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const snap = await projectRef.get();
+    if (!snap.exists) return { error: 'Project not found' };
+
+    const project = snap.data() || {};
+    const documents = project.documents || [];
+
+    const updatedDocuments = documents.map((doc: any) => {
+      if (doc.id === docId) {
+        const favoritedBy = doc.favoritedBy || [];
+        const isFavorited = favoritedBy.includes(userEmail);
+        const updatedFavoritedBy = isFavorited
+          ? favoritedBy.filter((email: string) => email !== userEmail)
+          : [...favoritedBy, userEmail];
+        return {
+          ...doc,
+          favoritedBy: updatedFavoritedBy,
+        };
+      }
+      return doc;
+    });
+
+    await projectRef.update({ documents: updatedDocuments });
+    
+    revalidatePath(`/my-projects/${projectId}`);
+    revalidatePath('/project-docs');
+    revalidatePath('/favorites');
+
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to toggle favorite' };
+  }
+}
+
+export async function toggleProjectFavorite(projectId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  const userEmail = session.user.email;
+  if (!userEmail) return { error: 'Missing user email' };
+
+  try {
+    const projectRef = adminDb.collection('projects').doc(projectId);
+    const snap = await projectRef.get();
+    if (!snap.exists) return { error: 'Project not found' };
+
+    const project = snap.data() || {};
+    const favoritedBy = project.favoritedBy || [];
+    const isFavorited = favoritedBy.includes(userEmail);
+    const updatedFavoritedBy = isFavorited
+      ? favoritedBy.filter((email: string) => email !== userEmail)
+      : [...favoritedBy, userEmail];
+
+    await projectRef.update({ favoritedBy: updatedFavoritedBy });
+
+    revalidatePath('/my-projects');
+    revalidatePath('/favorites');
+    revalidatePath('/project-docs');
+    revalidatePath('/test-cases');
+
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to toggle project favorite' };
+  }
+}
+
+export async function toggleTestCaseFavorite(projectId: string, testCaseId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  const userEmail = session.user.email;
+  if (!userEmail) return { error: 'Missing user email' };
+
+  try {
+    const tcRef = adminDb.collection('projects').doc(projectId).collection('test_cases').doc(testCaseId);
+    const snap = await tcRef.get();
+    if (!snap.exists) return { error: 'Test case not found' };
+
+    const tc = snap.data() || {};
+    const favoritedBy = tc.favoritedBy || [];
+    const isFavorited = favoritedBy.includes(userEmail);
+    const updatedFavoritedBy = isFavorited
+      ? favoritedBy.filter((email: string) => email !== userEmail)
+      : [...favoritedBy, userEmail];
+
+    await tcRef.update({ favoritedBy: updatedFavoritedBy });
+
+    revalidatePath(`/test-cases/${projectId}`);
+    revalidatePath('/favorites');
+
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to toggle test case favorite' };
+  }
+}
+
+export async function toggleQuickNoteFavorite(noteId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return { error: 'Unauthorized' };
+
+  const userId = (session.user as any).id;
+
+  try {
+    const noteRef = adminDb.collection('quick_notes').doc(noteId);
+    const snap = await noteRef.get();
+    if (!snap.exists) return { error: 'Note not found' };
+
+    const data = snap.data() || {};
+    if (data.user_id !== userId) return { error: 'Forbidden' };
+
+    const currentFavorited = data.is_favorited ?? false;
+    await noteRef.update({ is_favorited: !currentFavorited });
+
+    revalidatePath('/quick-notes');
+    revalidatePath('/favorites');
+
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || 'Failed to toggle quick note favorite' };
+  }
+}

@@ -37,6 +37,7 @@ import {
   Loader2,
   AlertCircle,
   X,
+  Star,
 } from "lucide-react";
 
 // Google Sheet Type Definitions
@@ -63,6 +64,7 @@ interface TestCase {
   jiraTicket: string;
   status: "active" | "inactive";
   lastSyncedAt?: string;
+  favoritedBy?: string[];
 }
 
 interface SyncSummary {
@@ -1132,7 +1134,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       return sheetConnection.headers;
     }
     if (testCases.length > 0) {
-      const exclude = ["_ref", "status", "lastSyncedAt", "lastSyncedValues", "createdAt", "updatedAt", "id"];
+      const exclude = ["_ref", "status", "lastSyncedAt", "lastSyncedValues", "createdAt", "updatedAt", "id", "favoritedBy"];
       return Object.keys(testCases[0]).filter(k => !exclude.includes(k));
     }
     return DEFAULT_COLUMNS;
@@ -1160,6 +1162,42 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         return tc;
       })
     );
+  };
+
+  const handleToggleFavorite = async (testCaseId: string) => {
+    try {
+      setIsSyncing(true);
+      const { toggleTestCaseFavorite } = await import("@/lib/actions");
+      const res = await toggleTestCaseFavorite(projectId, testCaseId);
+      if (res && "error" in res) {
+        setToast({ message: res.error || "Failed to update favorites", type: "error" });
+      } else {
+        const tc = testCases.find(t => t.testCaseId === testCaseId);
+        const isCurrentlyFav = tc?.favoritedBy?.includes(userEmail);
+        setToast({ 
+          message: isCurrentlyFav ? "Removed from favorites" : "Added to favorites", 
+          type: "success" 
+        });
+        setTestCases(prev =>
+          prev.map(t => {
+            if (t.testCaseId === testCaseId) {
+              const favs = t.favoritedBy || [];
+              return {
+                ...t,
+                favoritedBy: favs.includes(userEmail)
+                  ? favs.filter(email => email !== userEmail)
+                  : [...favs, userEmail]
+              };
+            }
+            return t;
+          })
+        );
+      }
+    } catch (err: any) {
+      setToast({ message: err.message || "An error occurred", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleGoogleCellSync = async (testCaseId: string, columnName: string, value: any) => {
@@ -2237,6 +2275,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                           className="w-4 h-4 rounded border-slate-300 text-[#ed5c37] focus:ring-[#ed5c37] cursor-pointer accent-[#ed5c37]"
                         />
                       </th>
+                      <th className="px-2 py-4 w-10 text-center bg-slate-50"></th>
                       {googleColumns.map((col: string) => (
                         <th key={col} className="px-4 py-4 whitespace-nowrap bg-slate-50">
                           {col}
@@ -2266,6 +2305,11 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                             }}
                             className="w-4 h-4 rounded border-slate-300 text-[#ed5c37] focus:ring-[#ed5c37] cursor-pointer accent-[#ed5c37]"
                           />
+                        </td>
+                        <td className="px-2 py-2 text-center" onClick={(e) => { e.stopPropagation(); handleToggleFavorite(tc.testCaseId); }}>
+                          <button className="p-1 hover:bg-slate-100 rounded-lg text-slate-350 hover:text-amber-500 transition-all cursor-pointer">
+                            <Star className={`w-3.5 h-3.5 ${tc.favoritedBy?.includes(userEmail) ? "fill-amber-400 text-amber-400" : "text-slate-300"}`} />
+                          </button>
                         </td>
                         {googleColumns.map((col: string) => {
                           const colKey = col.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();

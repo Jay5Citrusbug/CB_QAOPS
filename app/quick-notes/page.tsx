@@ -6,8 +6,9 @@ import {
   StickyNote, Plus, X, Trash2, Search, LayoutGrid, List,
   Paperclip, Download, FileText, Image, File, Bold, Italic,
   Underline, AlignLeft, List as ListIcon, ListOrdered, Palette,
-  CheckCircle2, AlertCircle, Loader2, Edit3, Eye, ChevronDown, Clock,
+  CheckCircle2, AlertCircle, Loader2, Edit3, Eye, ChevronDown, Clock, Star,
 } from "lucide-react";
+import { toggleQuickNoteFavorite } from "@/lib/actions";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface NoteAttachment {
@@ -24,6 +25,7 @@ interface QuickNote {
   title: string;
   description: string;
   attachments: NoteAttachment[];
+  isFavorited?: boolean;
   createdAt: string | null;
   updatedAt: string | null;
 }
@@ -529,8 +531,8 @@ function NoteModal({
 
 // ─── Note Card (Grid) ─────────────────────────────────────────────────────────
 function NoteCard({
-  note, onEdit, onDelete,
-}: { note: QuickNote; onEdit: () => void; onDelete: () => void }) {
+  note, onEdit, onDelete, onToggleFavorite,
+}: { note: QuickNote; onEdit: () => void; onDelete: () => void; onToggleFavorite: () => void }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
@@ -545,19 +547,32 @@ function NoteCard({
         {/* Title row */}
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-bold text-slate-900 text-sm leading-snug line-clamp-2 flex-1">{note.title}</h3>
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             <button
-              onClick={(e) => { e.stopPropagation(); onEdit(); }}
-              className="p-1.5 text-slate-400 hover:text-[#ed5c37] hover:bg-[#ed5c37]/10 rounded-lg transition-all"
+              onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+              className={`p-1.5 rounded-lg transition-all ${
+                note.isFavorited 
+                  ? "text-amber-500 hover:bg-amber-50/50 bg-amber-50/20" 
+                  : "text-slate-400 hover:text-amber-500 hover:bg-amber-50/50 opacity-0 group-hover:opacity-100"
+              }`}
+              title={note.isFavorited ? "Remove from Favorites" : "Add to Favorites"}
             >
-              <Edit3 className="w-3.5 h-3.5" />
+              <Star className={`w-3.5 h-3.5 ${note.isFavorited ? "fill-amber-400 text-amber-400" : ""}`} />
             </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
-              className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                className="p-1.5 text-slate-400 hover:text-[#ed5c37] hover:bg-[#ed5c37]/10 rounded-lg transition-all"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
+                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -619,8 +634,8 @@ function NoteCard({
 
 // ─── Note Row (List) ──────────────────────────────────────────────────────────
 function NoteRow({
-  note, onEdit, onDelete,
-}: { note: QuickNote; onEdit: () => void; onDelete: () => void }) {
+  note, onEdit, onDelete, onToggleFavorite,
+}: { note: QuickNote; onEdit: () => void; onDelete: () => void; onToggleFavorite: () => void }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
@@ -641,6 +656,17 @@ function NoteRow({
                 <Paperclip className="w-2.5 h-2.5" /> {note.attachments.length}
               </span>
             )}
+            <button
+              onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+              className={`p-1.5 rounded-lg transition-all ${
+                note.isFavorited 
+                  ? "text-amber-500 hover:bg-amber-50/50 bg-amber-50/20" 
+                  : "text-slate-400 hover:text-amber-500 hover:bg-amber-50/50 opacity-0 group-hover:opacity-100"
+              }`}
+              title={note.isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+            >
+              <Star className={`w-3.5 h-3.5 ${note.isFavorited ? "fill-amber-400 text-amber-400" : ""}`} />
+            </button>
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(); }}
               className="p-1.5 text-slate-400 hover:text-[#ed5c37] hover:bg-[#ed5c37]/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
@@ -747,6 +773,33 @@ export default function QuickNotesPage() {
       setToast({ message: "Note deleted.", type: "success" });
     } catch (err: any) {
       setToast({ message: err.message, type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleToggleFavorite = async (note: QuickNote) => {
+    try {
+      setIsSyncing(true);
+      const res = await toggleQuickNoteFavorite(note.id);
+      if (res && "error" in res) {
+        setToast({ message: res.error || "Failed to update favorites", type: "error" });
+      } else {
+        setToast({
+          message: note.isFavorited ? "Removed from favorites" : "Added to favorites",
+          type: "success"
+        });
+        setNotes(prev =>
+          prev.map(n => {
+            if (n.id === note.id) {
+              return { ...n, isFavorited: !n.isFavorited };
+            }
+            return n;
+          })
+        );
+      }
+    } catch (err: any) {
+      setToast({ message: err.message || "An error occurred", type: "error" });
     } finally {
       setIsSyncing(false);
     }
@@ -887,6 +940,7 @@ export default function QuickNotesPage() {
                 note={note}
                 onEdit={() => openEdit(note)}
                 onDelete={() => handleDelete(note)}
+                onToggleFavorite={() => handleToggleFavorite(note)}
               />
             </div>
           ))}
@@ -899,6 +953,7 @@ export default function QuickNotesPage() {
               note={note}
               onEdit={() => openEdit(note)}
               onDelete={() => handleDelete(note)}
+              onToggleFavorite={() => handleToggleFavorite(note)}
             />
           ))}
         </div>

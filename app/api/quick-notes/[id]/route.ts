@@ -37,6 +37,7 @@ export async function PUT(
 
     if (body.title !== undefined) updates.title = body.title.trim();
     if (body.description !== undefined) updates.description = body.description;
+    if (body.isFavorited !== undefined) updates.is_favorited = body.isFavorited;
 
     await docRef.update(updates);
     return NextResponse.json({ success: true });

@@ -21,7 +21,9 @@ import {
   Shield,
   AlertCircle,
   FileText,
-  Lock
+  Lock,
+  Star,
+  Loader2
 } from "lucide-react";
 
 interface Project {
@@ -46,6 +48,7 @@ interface Project {
   developerEmails: string[];
   developerNames: string[];
   documents: any[];
+  favoritedBy?: string[];
   timeline: Record<string, {
     status: 'Not Started' | 'In Progress' | 'Completed' | 'Blocked';
     owner: string;
@@ -74,6 +77,50 @@ export default function MyProjectsPage() {
   const [milestones, setMilestones] = useState<Array<{ id: string; label: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const handleToggleFavorite = async (projectId: string) => {
+    try {
+      setIsSyncing(true);
+      const { toggleProjectFavorite } = await import("@/lib/actions");
+      const res = await toggleProjectFavorite(projectId);
+      if (res && "error" in res) {
+        setToast({ message: res.error || "Failed to update favorites", type: "error" });
+      } else {
+        const isCurrentlyFav = projects.find(p => p.id === projectId)?.favoritedBy?.includes(userEmail);
+        setToast({ 
+          message: isCurrentlyFav ? "Removed from favorites" : "Added to favorites", 
+          type: "success" 
+        });
+        setProjects(prev =>
+          prev.map(p => {
+            if (p.id === projectId) {
+              const favs = p.favoritedBy || [];
+              return {
+                ...p,
+                favoritedBy: favs.includes(userEmail)
+                  ? favs.filter(email => email !== userEmail)
+                  : [...favs, userEmail]
+              };
+            }
+            return p;
+          })
+        );
+      }
+    } catch (err: any) {
+      setToast({ message: err.message || "An error occurred", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState("");
@@ -589,6 +636,7 @@ export default function MyProjectsPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  <th className="py-4 px-3 w-10 text-center"></th>
                   <th className="py-4 px-6">Project Name</th>
                   <th className="py-4 px-4">Primary QA</th>
                   <th className="py-4 px-4">Supporting QA</th>
@@ -619,6 +667,11 @@ export default function MyProjectsPage() {
                         onClick={() => router.push(`/my-projects/${p.id}`)}
                         className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
                       >
+                        <td className="py-4.5 px-3 text-center" onClick={(e) => { e.stopPropagation(); handleToggleFavorite(p.id); }}>
+                          <button className="p-1 hover:bg-slate-100 rounded-lg text-slate-350 hover:text-amber-500 transition-all cursor-pointer">
+                            <Star className={`w-3.5 h-3.5 ${p.favoritedBy?.includes(userEmail) ? "fill-amber-400 text-amber-400" : "text-slate-300"}`} />
+                          </button>
+                        </td>
                         <td className="py-4.5 px-6">
                           <div>
                             <span className="font-extrabold text-slate-800 group-hover:text-[#ed5c37] transition-colors">{p.name}</span>
@@ -666,6 +719,7 @@ export default function MyProjectsPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  <th className="py-4 px-3 w-10 text-center"></th>
                   <th className="py-4 px-6">Project Name</th>
                   <th className="py-4 px-4">Project Status</th>
                   <th className="py-4 px-4">Primary QA</th>
@@ -688,6 +742,11 @@ export default function MyProjectsPage() {
                         onClick={() => router.push(`/my-projects/${p.id}`)}
                         className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
                       >
+                        <td className="py-4.5 px-3 text-center" onClick={(e) => { e.stopPropagation(); handleToggleFavorite(p.id); }}>
+                          <button className="p-1 hover:bg-slate-100 rounded-lg text-slate-350 hover:text-amber-500 transition-all cursor-pointer">
+                            <Star className={`w-3.5 h-3.5 ${p.favoritedBy?.includes(userEmail) ? "fill-amber-400 text-amber-400" : "text-slate-300"}`} />
+                          </button>
+                        </td>
                         <td className="py-4.5 px-6 font-extrabold text-slate-800">
                           <div>
                             <span className="hover:text-[#ed5c37] transition-colors group-hover:text-[#ed5c37]">{p.name}</span>
@@ -827,6 +886,26 @@ export default function MyProjectsPage() {
 
         </div>
       </div>
+
+      {/* Toast Alert */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-[9999] p-4 rounded-2xl shadow-xl border flex items-center gap-2.5 animate-in slide-in-from-bottom-5 duration-300 bg-white ${
+          toast.type === "success" ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-rose-50 border-rose-200 text-rose-800"
+        }`}>
+          <div className={`w-2 h-2 rounded-full ${toast.type === "success" ? "bg-emerald-500" : "bg-rose-500"}`} />
+          <span className="text-xs font-bold">{toast.message}</span>
+        </div>
+      )}
+
+      {/* Syncing Overlay blocker */}
+      {isSyncing ? (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-[9999] flex items-center justify-center animate-in fade-in duration-300">
+          <div className="flex flex-col items-center gap-3 bg-white p-6 rounded-3xl border border-slate-100 shadow-2xl animate-in scale-in duration-200">
+            <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
+            <p className="text-xs text-slate-500 font-bold animate-pulse">Updating favorites...</p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

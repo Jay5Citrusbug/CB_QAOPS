@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, use, useRef } from "react";
+import { createPortal } from "react-dom";
 import { getInitials } from "@/lib/utils";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -34,7 +35,9 @@ import {
   Plus,
   Lock,
   CheckCircle2,
-  Loader2
+  Loader2,
+  ExternalLink,
+  Star
 } from "lucide-react";
 import { 
   updateProjectMilestone, 
@@ -44,7 +47,8 @@ import {
   addProjectMilestone,
   editProjectMilestone,
   deleteProjectMilestone,
-  reorderProjectMilestones
+  reorderProjectMilestones,
+  toggleDocumentFavorite
 } from "@/lib/actions";
 
 interface Document {
@@ -54,6 +58,8 @@ interface Document {
   url: string;
   uploadedBy: string;
   uploadedAt: string;
+  isLink?: boolean;
+  favoritedBy?: string[];
 }
 
 interface AuditLog {
@@ -142,6 +148,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"overview" | "timeline" | "documents" | "notes" | "history">("overview");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Document upload state
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -150,6 +161,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   const [uploadError, setUploadError] = useState("");
   const [replaceDocId, setReplaceDocId] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<Document | null>(null);
+  const [docSource, setDocSource] = useState<"file" | "link">("file");
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkName, setLinkName] = useState("");
 
   // Milestone Editing state
   const [editingMilestoneKey, setEditingMilestoneKey] = useState<string | null>(null);
@@ -202,7 +216,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
       if (res.error) throw new Error(res.error);
       setNewMilestoneLabel("");
       setToast({ message: "Milestone added successfully!", type: "success" });
-      await fetchProjectDetails();
+      setIsSyncing(false);
+      fetchProjectDetails();
     } catch (err: any) {
       setMilestoneError(err.message || "Failed to add milestone");
       setToast({ message: err.message || "Failed to add milestone", type: "error" });
@@ -222,7 +237,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
       if (res.error) throw new Error(res.error);
       setEditingMilestoneId(null);
       setToast({ message: "Milestone label updated successfully!", type: "success" });
-      await fetchProjectDetails();
+      setIsSyncing(false);
+      fetchProjectDetails();
     } catch (err: any) {
       setMilestoneError(err.message || "Failed to update milestone");
       setToast({ message: err.message || "Failed to update milestone", type: "error" });
@@ -241,7 +257,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
       const res = await deleteProjectMilestone(projectId, id);
       if (res.error) throw new Error(res.error);
       setToast({ message: "Milestone deleted successfully!", type: "success" });
-      await fetchProjectDetails();
+      setIsSyncing(false);
+      fetchProjectDetails();
     } catch (err: any) {
       setMilestoneError(err.message || "Failed to delete milestone");
       setToast({ message: err.message || "Failed to delete milestone", type: "error" });
@@ -343,51 +360,57 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!uploadFile) return;
-
+    
     setUploading(true);
     setUploadError("");
     setIsSyncing(true);
 
-    // Validations: File Type and Size (50MB)
-    const allowedExtensions = ["pdf", "docx", "xlsx", "png", "jpg", "jpeg", "txt", "zip"];
-    const ext = uploadFile.name.split(".").pop()?.toLowerCase() || "";
-    if (!allowedExtensions.includes(ext)) {
-      setUploadError("Unsupported file type. Supported types: PDF, DOCX, XLSX, PNG, JPG, TXT, ZIP");
-      setUploading(false);
-      setIsSyncing(false);
-      return;
-    }
-
-    if (uploadFile.size > 50 * 1024 * 1024) {
-      setUploadError("File size exceeds 50 MB limit");
-      setUploading(false);
-      setIsSyncing(false);
-      return;
-    }
-
     try {
       const formData = new FormData();
-      formData.append("file", uploadFile);
       formData.append("category", uploadCategory);
-
-      // Duplicate filename check -> Version replacement automation
-      let finalReplaceId = replaceDocId;
-      if (!finalReplaceId && project?.documents) {
-        const duplicate = project.documents.find(d => d.name.toLowerCase() === uploadFile.name.toLowerCase());
-        if (duplicate) {
-          if (confirm(`A file named "${uploadFile.name}" already exists. Do you want to replace it as a new version?`)) {
-            finalReplaceId = duplicate.id;
-          } else {
-            setUploading(false);
-            setIsSyncing(false);
-            return;
-          }
-        }
+      if (replaceDocId) {
+        formData.append("replaceDocId", replaceDocId);
       }
 
-      if (finalReplaceId) {
-        formData.append("replaceDocId", finalReplaceId);
+      if (docSource === "file") {
+        if (!uploadFile) {
+          throw new Error("Please select a file to upload.");
+        }
+        // Validations: File Type and Size (50MB)
+        const allowedExtensions = ["pdf", "docx", "xlsx", "png", "jpg", "jpeg", "txt", "zip"];
+        const ext = uploadFile.name.split(".").pop()?.toLowerCase() || "";
+        if (!allowedExtensions.includes(ext)) {
+          throw new Error("Unsupported file type. Supported types: PDF, DOCX, XLSX, PNG, JPG, TXT, ZIP");
+        }
+
+        if (uploadFile.size > 50 * 1024 * 1024) {
+          throw new Error("File size exceeds 50 MB limit");
+        }
+
+        formData.append("file", uploadFile);
+
+        // Duplicate filename check -> Version replacement automation
+        let finalReplaceId = replaceDocId;
+        if (!finalReplaceId && project?.documents) {
+          const duplicate = project.documents.find(d => d.name.toLowerCase() === uploadFile.name.toLowerCase());
+          if (duplicate) {
+            if (confirm(`A file named "${uploadFile.name}" already exists. Do you want to replace it as a new version?`)) {
+              finalReplaceId = duplicate.id;
+              formData.delete("replaceDocId");
+              formData.append("replaceDocId", finalReplaceId);
+            } else {
+              setUploading(false);
+              setIsSyncing(false);
+              return;
+            }
+          }
+        }
+      } else {
+        if (!linkUrl.trim()) {
+          throw new Error("Please enter a link URL.");
+        }
+        formData.append("linkUrl", linkUrl.trim());
+        formData.append("linkName", linkName.trim() || linkUrl.trim());
       }
 
       const res = await fetch(`/api/projects/${projectId}/documents`, {
@@ -397,17 +420,20 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Upload failed");
+        throw new Error(data.error || "Save failed");
       }
 
-      setToast({ message: "Document uploaded successfully!", type: "success" });
+      setToast({ message: docSource === "file" ? "Document uploaded successfully!" : "Document link added successfully!", type: "success" });
       await Promise.all([fetchProjectDetails(), fetchAuditLogs()]);
+      
       setUploadFile(null);
+      setLinkUrl("");
+      setLinkName("");
       setUploadCategory("Other Documents");
       setReplaceDocId(null);
     } catch (err: any) {
-      setUploadError(err.message || "Failed to upload file");
-      setToast({ message: err.message || "Failed to upload document", type: "error" });
+      setUploadError(err.message || "Failed to save document");
+      setToast({ message: err.message || "Failed to save document", type: "error" });
     } finally {
       setUploading(false);
       setIsSyncing(false);
@@ -439,6 +465,49 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
     }
   };
 
+  const handleToggleFavorite = async (docId: string) => {
+    try {
+      setIsSyncing(true);
+      const res = await toggleDocumentFavorite(projectId, docId);
+      if (res && 'error' in res) {
+        setToast({ message: res.error || "Failed to update favorites", type: "error" });
+      } else {
+        const doc = project?.documents?.find(d => d.id === docId);
+        const isCurrentlyFavorited = doc?.favoritedBy?.includes(userEmail);
+        setToast({ 
+          message: isCurrentlyFavorited ? "Removed from favorites" : "Added to favorites", 
+          type: "success" 
+        });
+        
+        // Optimistic state update
+        setProject(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            documents: prev.documents.map(d => {
+              if (d.id === docId) {
+                const favs = d.favoritedBy || [];
+                return {
+                  ...d,
+                  favoritedBy: favs.includes(userEmail)
+                    ? favs.filter(email => email !== userEmail)
+                    : [...favs, userEmail]
+                };
+              }
+              return d;
+            })
+          };
+        });
+        setIsSyncing(false);
+        fetchProjectDetails();
+      }
+    } catch (err: any) {
+      setToast({ message: err.message || "An error occurred", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   // Milestone Save Handler
   const handleSaveMilestone = async (key: string) => {
     if (!project) return;
@@ -448,16 +517,34 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
       const res = await updateProjectMilestone(project.id, key, {
         status: msStatus,
         owner: msOwner,
-        plannedDate: msPlanned || null,
-        completedDate: msCompleted || null,
-        notes: msNotes
+        plannedDate: msPlanned ? new Date(msPlanned).toISOString() : null,
+        completedDate: msCompleted ? new Date(msCompleted).toISOString() : null,
+        notes: msNotes,
       });
       if (res && 'error' in res) {
         setToast({ message: res.error || "Failed to update milestone", type: "error" });
       } else {
-        setToast({ message: "Milestone status updated successfully!", type: "success" });
-        await Promise.all([fetchProjectDetails(), fetchAuditLogs()]);
+        setToast({ message: "Milestone updated successfully!", type: "success" });
+        setProject(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            timeline: {
+              ...prev.timeline,
+              [key]: {
+                ...prev.timeline[key],
+                status: msStatus,
+                owner: msOwner,
+                plannedDate: msPlanned ? new Date(msPlanned).toISOString() : null,
+                completedDate: msCompleted ? new Date(msCompleted).toISOString() : null,
+                notes: msNotes,
+              }
+            }
+          };
+        });
         setEditingMilestoneKey(null);
+        setIsSyncing(false);
+        fetchProjectDetails();
       }
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
@@ -488,7 +575,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
         setToast({ message: res.error || "Failed to add note", type: "error" });
       } else {
         setToast({ message: "Note added successfully!", type: "success" });
-        await Promise.all([fetchProjectDetails(), fetchAuditLogs()]);
+        setIsSyncing(false);
+        Promise.all([fetchProjectDetails(), fetchAuditLogs()]);
         setNoteTitle('');
         setNoteDesc('');
         setNoteType('Note');
@@ -514,7 +602,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
         setToast({ message: res.error || "Failed to update status", type: "error" });
       } else {
         setToast({ message: `Note status marked as ${nextStatus}!`, type: "success" });
-        await fetchProjectDetails();
+        setIsSyncing(false);
+        fetchProjectDetails();
       }
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
@@ -533,7 +622,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
         setToast({ message: res.error || "Failed to delete note", type: "error" });
       } else {
         setToast({ message: "Note deleted successfully!", type: "success" });
-        await fetchProjectDetails();
+        setIsSyncing(false);
+        fetchProjectDetails();
       }
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
@@ -542,7 +632,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
     }
   };
 
-  const getDocIcon = (name: string) => {
+  const getDocIcon = (name: string, isLink?: boolean) => {
+    if (isLink) {
+      return <ExternalLink className="w-8 h-8 text-indigo-500" />;
+    }
     const ext = name.split(".").pop()?.toLowerCase();
     switch (ext) {
       case "pdf":
@@ -633,9 +726,84 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
 
   if (loading) {
     return (
-      <div className="p-8 flex flex-col items-center justify-center min-h-[65vh]">
-        <div className="w-12 h-12 border-4 border-[#ed5c37] border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-slate-500 font-semibold text-sm animate-pulse">Loading Workspace Details...</p>
+      <div className="p-8 max-w-7xl mx-auto space-y-8 animate-pulse">
+        {/* Back Link and Header Skeleton */}
+        <div className="flex flex-col gap-4 border-b border-slate-100 pb-6">
+          <div className="h-4 w-40 bg-slate-200 rounded-lg" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-64 bg-slate-200 rounded-xl" />
+              <div className="h-6 w-20 bg-slate-200 rounded-lg" />
+            </div>
+            <div className="h-8 w-24 bg-slate-200 rounded-full" />
+          </div>
+        </div>
+
+        {/* Tabs Menu Skeleton */}
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-px">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-10 w-36 bg-slate-100 rounded-t-xl" />
+          ))}
+        </div>
+
+        {/* Overview Tab Content Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Side (Description & Requirements) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Description */}
+            <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm space-y-3">
+              <div className="h-4 w-32 bg-slate-200 rounded-md" />
+              <div className="space-y-2">
+                <div className="h-3.5 w-full bg-slate-100 rounded-md" />
+                <div className="h-3.5 w-full bg-slate-100 rounded-md" />
+                <div className="h-3.5 w-3/4 bg-slate-100 rounded-md" />
+              </div>
+            </div>
+
+            {/* Requirements */}
+            <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm space-y-3">
+              <div className="h-4 w-36 bg-slate-200 rounded-md" />
+              <div className="space-y-2">
+                <div className="h-3.5 w-full bg-slate-100 rounded-md" />
+                <div className="h-3.5 w-5/6 bg-slate-100 rounded-md" />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side (Dates & Team Directory) */}
+          <div className="space-y-6">
+            {/* Key Dates */}
+            <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm space-y-4">
+              <div className="h-4 w-24 bg-slate-200 rounded-md" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="h-3 w-16 bg-slate-150 rounded-md" />
+                  <div className="h-4 w-24 bg-slate-200 rounded-md" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 w-16 bg-slate-150 rounded-md" />
+                  <div className="h-4 w-24 bg-slate-200 rounded-md" />
+                </div>
+              </div>
+            </div>
+
+            {/* Team Directory */}
+            <div className="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm space-y-4">
+              <div className="h-4 w-32 bg-slate-200 rounded-md" />
+              <div className="space-y-3.5">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-3.5 p-2.5">
+                    <div className="w-11 h-11 rounded-full bg-slate-200 shrink-0" />
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 w-32 bg-slate-200 rounded-md" />
+                      <div className="h-3 w-20 bg-slate-100 rounded-md" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -662,14 +830,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300 relative">
-      {isSyncing && (
-        <div className="fixed inset-0 bg-white/70 backdrop-blur-xs z-[100] flex items-center justify-center">
-          <div className="flex flex-col items-center gap-2 bg-white/80 p-6 rounded-3xl border border-slate-100 shadow-xl">
-            <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
-            <p className="text-sm text-slate-500 font-bold animate-pulse">Syncing workspace details...</p>
-          </div>
-        </div>
-      )}
+      {mounted && typeof window !== "undefined" && isSyncing
+        ? createPortal(
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-[9999] flex items-center justify-center animate-in fade-in duration-300">
+              <div className="flex flex-col items-center gap-3 bg-white p-6 rounded-3xl border border-slate-100 shadow-2xl animate-in scale-in duration-200">
+                <Loader2 className="w-10 h-10 text-[#ed5c37] animate-spin" />
+                <p className="text-xs text-slate-500 font-bold animate-pulse">Syncing workspace details...</p>
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
       {/* Top Header Navigation */}
       <div className="flex flex-col gap-4 border-b border-slate-100 pb-6">
         <Link href="/my-projects" className="inline-flex items-center gap-2 text-slate-500 hover:text-[#ed5c37] transition-colors text-sm font-bold">
@@ -1072,33 +1243,86 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
             {/* Upload Document Panel */}
             <div className="lg:col-span-1 p-6 bg-white rounded-3xl border border-slate-200 shadow-sm space-y-4 h-fit">
               <h3 className="font-bold text-slate-800 text-base border-b border-slate-100 pb-3">
-                {replaceDocId ? "Replace Version" : "Upload Project Document"}
+                {replaceDocId ? "Replace Version" : "Add Project Document"}
               </h3>
               
               {canManageDocs ? (
                 <form onSubmit={handleUpload} className="space-y-4">
-                  <div>
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">File</label>
-                    <input
-                      type="file"
-                      required={!replaceDocId}
-                      onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                      className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-600 hover:file:bg-[#ed5c37]/15 hover:file:text-[#ed5c37] file:cursor-pointer border border-slate-200 rounded-xl p-1 bg-slate-50 cursor-pointer outline-none"
-                    />
-                    <span className="text-[10px] text-slate-400 block mt-1">Supported: PDF, DOCX, XLSX, PNG, JPG, TXT, ZIP. Max 50MB.</span>
-                    {replaceDocId && (
-                      <span className="text-[10px] text-amber-600 font-bold block mt-1.5">
-                        ⚠️ Warning: You are about to replace this document version.
-                      </span>
-                    )}
+                  {/* Source Toggle */}
+                  <div className="flex bg-slate-100 p-1 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setDocSource("file")}
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                        docSource === "file"
+                          ? "bg-white text-slate-850 shadow-sm"
+                          : "text-slate-400 hover:text-slate-655"
+                      }`}
+                    >
+                      File Upload
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDocSource("link")}
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                        docSource === "link"
+                          ? "bg-white text-slate-850 shadow-sm"
+                          : "text-slate-400 hover:text-slate-655"
+                      }`}
+                    >
+                      External Link
+                    </button>
                   </div>
+
+                  {docSource === "file" ? (
+                    <div>
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">File</label>
+                      <input
+                        type="file"
+                        required={!replaceDocId}
+                        onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                        className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-600 hover:file:bg-[#ed5c37]/15 hover:file:text-[#ed5c37] file:cursor-pointer border border-slate-200 rounded-xl p-1 bg-slate-50 cursor-pointer outline-none"
+                      />
+                      <span className="text-[10px] text-slate-400 block mt-1">Supported: PDF, DOCX, XLSX, PNG, JPG, TXT, ZIP. Max 50MB.</span>
+                      {replaceDocId && (
+                        <span className="text-[10px] text-amber-600 font-bold block mt-1.5">
+                          ⚠️ Warning: You are about to replace this document version.
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Link URL</label>
+                        <input
+                          type="url"
+                          required
+                          value={linkUrl}
+                          onChange={(e) => setLinkUrl(e.target.value)}
+                          placeholder="https://example.com/document"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-xs outline-none focus:ring-2 focus:ring-[#ed5c37]/20 focus:border-[#ed5c37] transition-all font-semibold text-slate-700"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Link Name / Title</label>
+                        <input
+                          type="text"
+                          required
+                          value={linkName}
+                          onChange={(e) => setLinkName(e.target.value)}
+                          placeholder="e.g. Google Doc, Figma Board"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-xs outline-none focus:ring-2 focus:ring-[#ed5c37]/20 focus:border-[#ed5c37] transition-all font-semibold text-slate-700"
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Category</label>
                     <select
                       value={uploadCategory}
                       onChange={(e) => setUploadCategory(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs outline-none focus:ring-2 focus:ring-[#ed5c37]/20 focus:border-[#ed5c37] transition-all font-semibold text-slate-600"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs outline-none focus:ring-2 focus:ring-[#ed5c37]/20 focus:border-[#ed5c37] transition-all font-semibold text-slate-600 select-none cursor-pointer"
                     >
                       {DOCUMENT_CATEGORIES.map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
@@ -1115,15 +1339,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
                   <div className="flex items-center gap-2 pt-2">
                     <button
                       type="submit"
-                      disabled={uploading || (!uploadFile && !replaceDocId)}
-                      className="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-[#ed5c37] disabled:bg-slate-200 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5"
+                      disabled={uploading || (docSource === "file" ? (!uploadFile && !replaceDocId) : !linkUrl.trim())}
+                      className="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-[#ed5c37] disabled:bg-slate-200 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       {uploading ? (
                         <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
+                      ) : docSource === "file" ? (
                         <Upload className="w-3.5 h-3.5" />
+                      ) : (
+                        <Plus className="w-3.5 h-3.5" />
                       )}
-                      {replaceDocId ? "Replace version" : "Upload file"}
+                      {replaceDocId ? "Replace version" : docSource === "file" ? "Upload file" : "Add Link"}
                     </button>
 
                     {replaceDocId && (
@@ -1132,9 +1358,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
                         onClick={() => {
                           setReplaceDocId(null);
                           setUploadFile(null);
+                          setLinkUrl("");
+                          setLinkName("");
                           setUploadError("");
                         }}
-                        className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl shadow-sm transition-all"
+                        className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -1175,7 +1403,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
                               className="p-3.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-100 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors group"
                             >
                               <div className="flex items-start gap-4">
-                                <div className="mt-0.5">{getDocIcon(doc.name)}</div>
+                                <div className="mt-0.5">{getDocIcon(doc.name, doc.isLink)}</div>
                                 <div>
                                   <div className="font-bold text-slate-800 text-sm line-clamp-1 group-hover:text-[#ed5c37] transition-colors">{doc.name}</div>
                                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-slate-400 text-[10px] font-bold uppercase tracking-wider mt-1">
@@ -1187,23 +1415,47 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
                               </div>
 
                               <div className="flex items-center gap-1.5 self-end sm:self-center">
-                                {isPreviewable(doc.name) && (
+                                {/* Favorite Star Button */}
+                                <button
+                                  onClick={() => handleToggleFavorite(doc.id)}
+                                  className="p-2 text-slate-500 hover:text-amber-500 hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white cursor-pointer"
+                                  title={doc.favoritedBy?.includes(userEmail) ? "Remove from Favorites" : "Add to Favorites"}
+                                >
+                                  <Star 
+                                    className={`w-3.5 h-3.5 ${
+                                      doc.favoritedBy?.includes(userEmail) ? "fill-amber-400 text-amber-400" : "text-slate-400"
+                                    }`} 
+                                  />
+                                </button>
+                                {!doc.isLink && isPreviewable(doc.name) && (
                                   <button
                                     onClick={() => setPreviewDoc(doc)}
-                                    className="p-2 text-slate-500 hover:text-[#ed5c37] hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white"
+                                    className="p-2 text-slate-500 hover:text-[#ed5c37] hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white cursor-pointer"
                                     title="Preview"
                                   >
                                     <Eye className="w-3.5 h-3.5" />
                                   </button>
                                 )}
-                                <a
-                                  href={doc.url}
-                                  download={doc.name}
-                                  className="p-2 text-slate-500 hover:text-blue-600 hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white"
-                                  title="Download"
-                                >
-                                  <Download className="w-3.5 h-3.5" />
-                                </a>
+                                {doc.isLink ? (
+                                  <a
+                                    href={doc.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white"
+                                    title="Open Link"
+                                  >
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                  </a>
+                                ) : (
+                                  <a
+                                    href={doc.url}
+                                    download={doc.name}
+                                    className="p-2 text-slate-500 hover:text-blue-600 hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white"
+                                    title="Download"
+                                  >
+                                    <Download className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
                                 {canManageDocs && (
                                   <>
                                     <button
@@ -1211,15 +1463,22 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
                                         setReplaceDocId(doc.id);
                                         setUploadCategory(doc.category);
                                         setUploadError("");
+                                        if (doc.isLink) {
+                                          setDocSource("link");
+                                          setLinkUrl(doc.url);
+                                          setLinkName(doc.name);
+                                        } else {
+                                          setDocSource("file");
+                                        }
                                       }}
-                                      className="p-2 text-slate-500 hover:text-amber-600 hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white"
+                                      className="p-2 text-slate-500 hover:text-amber-600 hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white cursor-pointer"
                                       title="Replace version"
                                     >
                                       <RefreshCw className="w-3.5 h-3.5" />
                                     </button>
                                     <button
                                       onClick={() => handleDeleteDoc(doc.id)}
-                                      className="p-2 text-slate-500 hover:text-red-600 hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white"
+                                      className="p-2 text-slate-500 hover:text-red-600 hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white cursor-pointer"
                                       title="Delete version"
                                     >
                                       <Trash2 className="w-3.5 h-3.5" />
@@ -1417,79 +1676,86 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
               <Activity className="w-5 h-5 text-[#ed5c37]" /> Project Recent Activity Logs
             </h3>
             
-            <div className="relative border-l-2 border-slate-100 ml-4 pl-6 space-y-6 max-h-[500px] overflow-y-auto py-2">
-              {auditLogs.length === 0 ? (
-                <div className="p-8 text-center text-slate-400 text-sm ml-[-24px]">
-                  No activities recorded for this project workspace yet.
-                </div>
-              ) : (
-                auditLogs.map((log) => (
-                  <div key={log.id} className="relative">
-                    {/* Circle marker */}
-                    <span className="absolute -left-[31px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 border-4 border-white ring-1 ring-slate-100"></span>
-                    
-                    <div className="bg-slate-50 hover:bg-slate-100/50 p-4 rounded-2xl border border-slate-100 transition-colors">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                        <span className="font-bold text-slate-800 text-sm">{log.action}</span>
-                        <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> {formatDate(log.timestamp)}
-                        </span>
-                      </div>
-                      
-                      <div className="text-slate-500 text-xs mt-1">
-                        Triggered by <span className="font-semibold text-slate-700">{log.user}</span>
-                      </div>
-
-                      {log.details && Object.keys(log.details).length > 0 && (
-                        <div className="mt-3 text-xs bg-white/70 p-3 rounded-xl border border-slate-100 text-slate-600 font-medium">
-                          {log.action === "Status Changed" && (
-                            <div>Status updated: <span className="font-bold text-slate-800">{log.details.oldStatus}</span> &rarr; <span className="font-bold text-emerald-600">{log.details.newStatus}</span></div>
-                          )}
-                          {log.action === "Project Status Changed" && (
-                            <div>Project Status updated: <span className="font-bold text-slate-800">{log.details.oldStatus}</span> &rarr; <span className="font-bold text-[#ed5c37]">{log.details.newStatus}</span></div>
-                          )}
-                          {log.action === "Primary QA Changed" && (
-                            <div>Primary QA assigned: <span className="font-bold text-slate-800">{log.details.newPrimaryQa || "Unassigned"}</span></div>
-                          )}
-                          {log.action === "Supporting QA Changed" && (
-                            <div>Supporting QA assigned: <span className="font-bold text-slate-800">{log.details.newSupportingQa || "Unassigned"}</span></div>
-                          )}
-                          {log.action === "Developer Added" && (
-                            <div>Developer added to team: <span className="font-bold text-slate-800">{log.details.developer}</span></div>
-                          )}
-                          {log.action === "Developer Removed" && (
-                            <div>Developer removed from team: <span className="font-bold text-red-600">{log.details.developer}</span></div>
-                          )}
-                          {log.action === "Document Uploaded" && (
-                            <div>Uploaded document: <span className="font-bold text-[#ed5c37]">{log.details.fileName}</span> under category <span className="font-bold text-slate-800">{log.details.category}</span></div>
-                          )}
-                          {log.action === "Document Replaced" && (
-                            <div>Replaced document: <span className="font-bold text-slate-800">{log.details.fileName}</span> ({log.details.category})</div>
-                          )}
-                          {log.action === "Document Deleted" && (
-                            <div>Deleted document: <span className="font-bold text-red-600">{log.details.fileName}</span></div>
-                          )}
-                          {log.action === "Timeline Updated" && (
-                            <div>Milestone <span className="font-bold text-slate-800">{log.details.milestone}</span> status updated: <span className="font-bold text-slate-800">{log.details.oldStatus}</span> &rarr; <span className="font-bold text-blue-600">{log.details.newStatus}</span></div>
-                          )}
-                          {log.action === "Risk Added" && (
-                            <div>⚠️ Risk added: <span className="font-bold text-amber-600">{log.details.title}</span></div>
-                          )}
-                          {log.action === "Blocker Added" && (
-                            <div>🛑 Blocker added: <span className="font-bold text-red-600">{log.details.title}</span></div>
-                          )}
-                          {log.action === "Dependency Added" && (
-                            <div>🔗 Dependency added: <span className="font-bold text-indigo-600">{log.details.title}</span></div>
-                          )}
-                          {!["Status Changed", "Project Status Changed", "Primary QA Changed", "Supporting QA Changed", "Developer Added", "Developer Removed", "Document Uploaded", "Document Replaced", "Document Deleted", "Timeline Updated", "Risk Added", "Blocker Added", "Dependency Added"].includes(log.action) && (
-                            <div className="text-slate-500 italic">Project details modified.</div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
+            <div className="relative max-h-[500px] overflow-y-auto py-2">
+              {/* Timeline line */}
+              {auditLogs.length > 0 && (
+                <div className="absolute left-[19px] top-0 bottom-0 w-0.5 bg-slate-100"></div>
               )}
+              
+              <div className="pl-10 space-y-6">
+                {auditLogs.length === 0 ? (
+                  <div className="p-8 text-center text-slate-400 text-sm -ml-10">
+                    No activities recorded for this project workspace yet.
+                  </div>
+                ) : (
+                  auditLogs.map((log) => (
+                    <div key={log.id} className="relative">
+                      {/* Circle marker */}
+                      <span className="absolute -left-[29px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 border-4 border-white ring-1 ring-slate-100"></span>
+                      
+                      <div className="bg-slate-50 hover:bg-slate-100/50 p-4 rounded-2xl border border-slate-100 transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                          <span className="font-bold text-slate-800 text-sm">{log.action}</span>
+                          <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> {formatDate(log.timestamp)}
+                          </span>
+                        </div>
+                        
+                        <div className="text-slate-500 text-xs mt-1">
+                          Triggered by <span className="font-semibold text-slate-700">{log.user}</span>
+                        </div>
+
+                        {log.details && Object.keys(log.details).length > 0 && (
+                          <div className="mt-3 text-xs bg-white/70 p-3 rounded-xl border border-slate-100 text-slate-600 font-medium">
+                            {log.action === "Status Changed" && (
+                              <div>Status updated: <span className="font-bold text-slate-800">{log.details.oldStatus}</span> &rarr; <span className="font-bold text-emerald-600">{log.details.newStatus}</span></div>
+                            )}
+                            {log.action === "Project Status Changed" && (
+                              <div>Project Status updated: <span className="font-bold text-slate-800">{log.details.oldStatus}</span> &rarr; <span className="font-bold text-[#ed5c37]">{log.details.newStatus}</span></div>
+                            )}
+                            {log.action === "Primary QA Changed" && (
+                              <div>Primary QA assigned: <span className="font-bold text-slate-800">{log.details.newPrimaryQa || "Unassigned"}</span></div>
+                            )}
+                            {log.action === "Supporting QA Changed" && (
+                              <div>Supporting QA assigned: <span className="font-bold text-slate-800">{log.details.newSupportingQa || "Unassigned"}</span></div>
+                            )}
+                            {log.action === "Developer Added" && (
+                              <div>Developer added to team: <span className="font-bold text-slate-800">{log.details.developer}</span></div>
+                            )}
+                            {log.action === "Developer Removed" && (
+                              <div>Developer removed from team: <span className="font-bold text-red-600">{log.details.developer}</span></div>
+                            )}
+                            {log.action === "Document Uploaded" && (
+                              <div>Uploaded document: <span className="font-bold text-[#ed5c37]">{log.details.fileName}</span> under category <span className="font-bold text-slate-800">{log.details.category}</span></div>
+                            )}
+                            {log.action === "Document Replaced" && (
+                              <div>Replaced document: <span className="font-bold text-slate-800">{log.details.fileName}</span> ({log.details.category})</div>
+                            )}
+                            {log.action === "Document Deleted" && (
+                              <div>Deleted document: <span className="font-bold text-red-600">{log.details.fileName}</span></div>
+                            )}
+                            {log.action === "Timeline Updated" && (
+                              <div>Milestone <span className="font-bold text-slate-800">{log.details.milestone}</span> status updated: <span className="font-bold text-slate-800">{log.details.oldStatus}</span> &rarr; <span className="font-bold text-blue-600">{log.details.newStatus}</span></div>
+                            )}
+                            {log.action === "Risk Added" && (
+                              <div>⚠️ Risk added: <span className="font-bold text-amber-600">{log.details.title}</span></div>
+                            )}
+                            {log.action === "Blocker Added" && (
+                              <div>🛑 Blocker added: <span className="font-bold text-red-600">{log.details.title}</span></div>
+                            )}
+                            {log.action === "Dependency Added" && (
+                              <div>🔗 Dependency added: <span className="font-bold text-indigo-600">{log.details.title}</span></div>
+                            )}
+                            {!["Status Changed", "Project Status Changed", "Primary QA Changed", "Supporting QA Changed", "Developer Added", "Developer Removed", "Document Uploaded", "Document Replaced", "Document Deleted", "Timeline Updated", "Risk Added", "Blocker Added", "Dependency Added"].includes(log.action) && (
+                              <div className="text-slate-500 italic">Project details modified.</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         )}

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import AppLayout from "@/components/layout/AppLayout";
 import AuthProvider from "@/components/providers/AuthProvider";
+import { ConfirmProvider } from "@/components/providers/ConfirmProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen antialiased`} suppressHydrationWarning>
         <AuthProvider>
-          <AppLayout>{children}</AppLayout>
+          <ConfirmProvider>
+            <AppLayout>{children}</AppLayout>
+          </ConfirmProvider>
         </AuthProvider>
       </body>
     </html>

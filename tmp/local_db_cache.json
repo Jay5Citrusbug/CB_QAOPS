@@ -69,10 +69,21 @@
       "teamLeadName": "",
       "developerEmails": [],
       "developerNames": [],
-      "documents": [],
+      "notesAndFlags": [],
+      "tl_name": "Tirth Mistry",
+      "assignee_name": "Tirth Mistry",
+      "dev_name": "",
+      "updated_at": {
+        "seconds": 1781698871,
+        "nanoseconds": 568000000
+      },
+      "created_at": {
+        "seconds": 1781698871,
+        "nanoseconds": 568000000
+      },
       "timeline": {
         "smokeTesting": {
-          "status": "Not Started",
+          "status": "In Progress",
           "owner": "",
           "plannedDate": null,
           "completedDate": null,
@@ -128,18 +139,20 @@
           "notes": ""
         }
       },
-      "notesAndFlags": [],
-      "tl_name": "Tirth Mistry",
-      "assignee_name": "Tirth Mistry",
-      "dev_name": "",
-      "updated_at": {
-        "seconds": 1781698871,
-        "nanoseconds": 568000000
-      },
-      "created_at": {
-        "seconds": 1781698871,
-        "nanoseconds": 568000000
-      }
+      "documents": [
+        {
+          "id": "doc_1781784918233",
+          "name": "Bug report PTE Roman",
+          "category": "Other Documents",
+          "url": "https://docs.google.com/spreadsheets/d/1JN9ihr-Fdv---PTVj617ODF2LOCTX2jCO9ezvQZjrvE/edit?gid=0#gid=0",
+          "uploadedBy": "Jay Citrusbug",
+          "uploadedAt": "2026-06-18T12:15:18.233Z",
+          "isLink": true,
+          "favoritedBy": [
+            "jay5.citrusbug@gmail.com"
+          ]
+        }
+      ]
     }
   },
   "tasks": {
@@ -566,6 +579,72 @@
       "user": "jay5.citrusbug@gmail.com",
       "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
       "timestamp": "2026-06-06T17:04:15.128Z"
+    },
+    "1obDh5HfHeNAonDRel5m": {
+      "user": "Jay Citrusbug",
+      "action": "Supporting QA Changed",
+      "project_id": "0KQVSKzD9xakHPjTWjKU",
+      "details": {
+        "newSupportingQa": "Prachi.citrusbug@gmail.com"
+      },
+      "timestamp": {
+        "seconds": 1781698875,
+        "nanoseconds": 152000000
+      }
+    },
+    "EHmKuOh6srAzSjBBOE1Q": {
+      "user": "Jay Citrusbug",
+      "action": "Project Created",
+      "project_id": "0KQVSKzD9xakHPjTWjKU",
+      "details": {
+        "name": "Ziplyst",
+        "code": "PROJ-6649"
+      },
+      "timestamp": {
+        "seconds": 1781698872,
+        "nanoseconds": 907000000
+      }
+    },
+    "F4zd4geSuFgJBS8GMRE2": {
+      "user": "Jay Citrusbug",
+      "action": "Primary QA Changed",
+      "project_id": "0KQVSKzD9xakHPjTWjKU",
+      "details": {
+        "newPrimaryQa": "tirth.citrusbug@gmail.com"
+      },
+      "timestamp": {
+        "seconds": 1781698873,
+        "nanoseconds": 393000000
+      }
+    },
+    "z7q154JSpc3PtBl28AXt": {
+      "user": "Jay Citrusbug",
+      "action": "Timeline Updated",
+      "project_id": "0KQVSKzD9xakHPjTWjKU",
+      "details": {
+        "milestone": "smokeTesting",
+        "oldStatus": "Not Started",
+        "newStatus": "In Progress"
+      },
+      "timestamp": {
+        "seconds": 1781782319,
+        "nanoseconds": 457000000
+      }
+    },
+    "I90AFhNcklBqFiIE39j4": {
+      "user": "Jay Citrusbug",
+      "action": "Document Link Added",
+      "project_id": "0KQVSKzD9xakHPjTWjKU",
+      "timestamp": {
+        "seconds": 1781784919,
+        "nanoseconds": 9000000
+      },
+      "details": {
+        "docId": "doc_1781784918233",
+        "fileName": "Bug report PTE Roman",
+        "category": "Other Documents",
+        "isLink": true
+      }
     }
   },
   "test_cases": {
@@ -2284,6 +2363,18 @@
       "message": "Project \"B2B\" details have been updated",
       "read": false,
       "createdAt": "2026-06-14T08:52:19.626Z"
+    },
+    "HTFc5F3jZDi4gBCkP7iR": {
+      "userId": "6q6eBCbJmGOvZQrh0jwoURH0zsB2",
+      "message": "Milestone \"Smoke Testing\" status in project \"Ziplyst\" updated to In Progress",
+      "read": false,
+      "createdAt": "2026-06-18T11:32:13.317Z"
+    },
+    "fBt9jCKXomozISwpTLvs": {
+      "userId": "vj4TVRHBEDNfsnPghDKXPVwoFFn1",
+      "message": "Milestone \"Smoke Testing\" status in project \"Ziplyst\" updated to In Progress",
+      "read": false,
+      "createdAt": "2026-06-18T11:32:13.861Z"
     }
   },
   "milestones": {
@@ -2562,6 +2653,32 @@
         "nanoseconds": 113000000
       },
       "description": "<ol><li>Profile icon have should first name and last name latter not first two word</li><li>Last enter user data dsiplay on onboard pop-up</li><li>Action icon only visible on case hover row</li></ol><div><br></div><div><br></div>"
+    }
+  },
+  "qa_folders": {
+    "uDnpsEiIyM56xCMM9Z0z": {
+      "name": "SOP Docs",
+      "created_by": "Jay Citrusbug",
+      "created_at": {
+        "seconds": 1781787777,
+        "nanoseconds": 543000000
+      }
+    },
+    "ZUdQZ9ix7VWjQruAB6Fi": {
+      "name": "Training",
+      "created_by": "Jay Citrusbug",
+      "created_at": {
+        "seconds": 1781787796,
+        "nanoseconds": 623000000
+      }
+    },
+    "iAqffohPL25LL3uOL28l": {
+      "name": "Automation",
+      "created_by": "Jay Citrusbug",
+      "created_at": {
+        "seconds": 1781787805,
+        "nanoseconds": 255000000
+      }
     }
   }
 }

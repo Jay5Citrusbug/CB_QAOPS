@@ -201,12 +201,27 @@ function getCacheCollection(colName: string) {
 function isQuotaError(err: any) {
   if (!err) return false;
   const msg = (err.message || '').toLowerCase();
-  return (
-    err.code === 8 ||
-    msg.includes('quota exceeded') ||
-    msg.includes('resource_exhausted') ||
-    msg.includes('quota')
-  );
+  const code = err.code;
+  
+  const isQuota = code === 8 || 
+                  msg.includes('quota exceeded') || 
+                  msg.includes('resource_exhausted') || 
+                  msg.includes('quota');
+                  
+  const isConnection = code === 14 || // UNAVAILABLE
+                       code === 4 ||  // DEADLINE_EXCEEDED
+                       msg.includes('could not reach') ||
+                       msg.includes('unavailable') ||
+                       msg.includes('offline') ||
+                       msg.includes('timeout') ||
+                       msg.includes('connection') ||
+                       msg.includes('failed to connect') ||
+                       msg.includes('getaddrinfo') ||
+                       msg.includes('network') ||
+                       msg.includes('failed to get document') ||
+                       msg.includes('status code');
+                       
+  return isQuota || isConnection;
 }
 
 function instantiateTimestamps(obj: any, keyName?: string): any {

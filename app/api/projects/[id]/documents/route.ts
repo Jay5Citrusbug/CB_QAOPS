@@ -21,34 +21,16 @@ export async function POST(
 
     const formData = await request.formData();
     const file = formData.get('file') as Blob | null;
+    const linkUrl = formData.get('linkUrl') as string | null;
+    const linkName = formData.get('linkName') as string | null;
     const category = (formData.get('category') as string) || 'Other';
     const replaceDocId = formData.get('replaceDocId') as string | null;
-
-    if (!file || !(file instanceof Blob)) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-    }
-
-    const name = (file as any).name || 'document';
-    const buffer = Buffer.from(await file.arrayBuffer());
-
-    // Create target folder in public uploads
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'projects', projectId);
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Save file
-    const filePath = path.join(uploadDir, name);
-    fs.writeFileSync(filePath, buffer);
-
-    const relativeUrl = `/uploads/projects/${projectId}/${encodeURIComponent(name)}`;
 
     // Fetch user profile for logging
     const userId = (session.user as any).id;
     const userDoc = await adminDb.collection('users').doc(userId).get();
     const userName = userDoc.data()?.name || session.user.name || 'Unknown User';
 
-    // Update project document list
     const projectRef = adminDb.collection('projects').doc(projectId);
     const projSnap = await projectRef.get();
     if (!projSnap.exists) {
@@ -58,32 +40,86 @@ export async function POST(
     let docs = projData.documents || [];
 
     const newDocId = replaceDocId || `doc_${Date.now()}`;
-    const newDocObj = {
-      id: newDocId,
-      name,
-      category,
-      url: relativeUrl,
-      uploadedBy: userName,
-      uploadedAt: new Date().toISOString(),
-    };
+    let newDocObj: any;
 
-    if (replaceDocId) {
-      // Find old document to delete its file from disk if path exists
-      const oldDoc = docs.find((d: any) => d.id === replaceDocId);
-      if (oldDoc) {
-        try {
-          const oldName = oldDoc.name;
-          const oldFilePath = path.join(uploadDir, oldName);
-          if (fs.existsSync(oldFilePath)) {
-            fs.unlinkSync(oldFilePath);
+    if (linkUrl) {
+      const name = linkName || linkUrl;
+      const url = linkUrl;
+
+      newDocObj = {
+        id: newDocId,
+        name,
+        category,
+        url,
+        uploadedBy: userName,
+        uploadedAt: new Date().toISOString(),
+        isLink: true,
+      };
+
+      if (replaceDocId) {
+        // Find old document to delete its file from disk if it was a file
+        const oldDoc = docs.find((d: any) => d.id === replaceDocId);
+        if (oldDoc && !oldDoc.isLink) {
+          try {
+            const oldFilePath = path.join(process.cwd(), 'public', 'uploads', 'projects', projectId, oldDoc.name);
+            if (fs.existsSync(oldFilePath)) {
+              fs.unlinkSync(oldFilePath);
+            }
+          } catch (err) {
+            console.error('Failed to delete old file from disk:', err);
           }
-        } catch (err) {
-          console.error('Failed to delete old file from disk:', err);
         }
+        docs = docs.map((d: any) => (d.id === replaceDocId ? newDocObj : d));
+      } else {
+        docs.push(newDocObj);
       }
-      docs = docs.map((d: any) => (d.id === replaceDocId ? newDocObj : d));
     } else {
-      docs.push(newDocObj);
+      if (!file || !(file instanceof Blob)) {
+        return NextResponse.json({ error: 'No file or link URL provided' }, { status: 400 });
+      }
+
+      const name = (file as any).name || 'document';
+      const buffer = Buffer.from(await file.arrayBuffer());
+
+      // Create target folder in public uploads
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'projects', projectId);
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      // Save file
+      const filePath = path.join(uploadDir, name);
+      fs.writeFileSync(filePath, buffer);
+
+      const relativeUrl = `/uploads/projects/${projectId}/${encodeURIComponent(name)}`;
+
+      newDocObj = {
+        id: newDocId,
+        name,
+        category,
+        url: relativeUrl,
+        uploadedBy: userName,
+        uploadedAt: new Date().toISOString(),
+      };
+
+      if (replaceDocId) {
+        // Find old document to delete its file from disk if path exists
+        const oldDoc = docs.find((d: any) => d.id === replaceDocId);
+        if (oldDoc && !oldDoc.isLink) {
+          try {
+            const oldName = oldDoc.name;
+            const oldFilePath = path.join(uploadDir, oldName);
+            if (fs.existsSync(oldFilePath)) {
+              fs.unlinkSync(oldFilePath);
+            }
+          } catch (err) {
+            console.error('Failed to delete old file from disk:', err);
+          }
+        }
+        docs = docs.map((d: any) => (d.id === replaceDocId ? newDocObj : d));
+      } else {
+        docs.push(newDocObj);
+      }
     }
 
     await projectRef.update({ documents: docs });
@@ -91,13 +127,14 @@ export async function POST(
     // Log audit log
     await adminDb.collection('audit_logs').add({
       user: userName,
-      action: replaceDocId ? 'Document Replaced' : 'Document Uploaded',
+      action: replaceDocId ? (linkUrl ? 'Document Link Replaced' : 'Document Replaced') : (linkUrl ? 'Document Link Added' : 'Document Uploaded'),
       project_id: projectId,
       timestamp: new Date(),
       details: {
         docId: newDocId,
-        fileName: name,
+        fileName: newDocObj.name,
         category,
+        isLink: !!linkUrl,
       },
     });
 
@@ -140,14 +177,16 @@ export async function DELETE(
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
-    // Delete from disk
-    try {
-      const filePath = path.join(process.cwd(), 'public', 'uploads', 'projects', projectId, targetDoc.name);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+    // Delete from disk if it's not a link
+    if (!targetDoc.isLink) {
+      try {
+        const filePath = path.join(process.cwd(), 'public', 'uploads', 'projects', projectId, targetDoc.name);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      } catch (err) {
+        console.error('Failed to delete file from disk:', err);
       }
-    } catch (err) {
-      console.error('Failed to delete file from disk:', err);
     }
 
     // Remove from array
@@ -162,12 +201,13 @@ export async function DELETE(
     // Log audit log
     await adminDb.collection('audit_logs').add({
       user: userName,
-      action: 'Document Deleted',
+      action: targetDoc.isLink ? 'Document Link Deleted' : 'Document Deleted',
       project_id: projectId,
       timestamp: new Date(),
       details: {
         docId,
         fileName: targetDoc.name,
+        isLink: !!targetDoc.isLink,
       },
     });
 

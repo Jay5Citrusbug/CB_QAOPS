@@ -28,6 +28,7 @@ export async function GET() {
         title: d.title,
         description: d.description ?? '',
         attachments: d.attachments ?? [],
+        isFavorited: d.is_favorited ?? false,
         createdAt: d.created_at ? d.created_at.toDate().toISOString() : null,
         updatedAt: d.updated_at ? d.updated_at.toDate().toISOString() : null,
       };
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
       title: title.trim(),
       description: description ?? '',
       attachments: [],
+      is_favorited: false,
       created_at: now,
       updated_at: now,
     });
