@@ -160,6 +160,52 @@
       "user_id": "user_003",
       "title": "New Offline Task",
       "status": "PENDING"
+    },
+    "LMOgdosTmj7tDijGTlKY": {
+      "task_list_id": "uo1is06VnbpYGFUyX2FD",
+      "task_number": 1001,
+      "title": "Verify Offline Fix",
+      "notes": "",
+      "status": "To Do",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1781851203,
+        "nanoseconds": 305000000
+      },
+      "priority": "High",
+      "updated_at": {
+        "seconds": 1781851257,
+        "nanoseconds": 739000000
+      },
+      "description": "sfsdcc"
+    },
+    "uEpTVEJzDSTrptTy5H0H": {
+      "task_list_id": "OujDlvdDLos8hZ7lpXpP",
+      "task_number": 1002,
+      "title": "New task",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1781852132,
+        "nanoseconds": 398000000
+      },
+      "updated_at": {
+        "seconds": 1781852150,
+        "nanoseconds": 321000000
+      },
+      "description": "1. new test case\n"
     }
   },
   "task_steps": {},
@@ -2437,6 +2483,20 @@
         "seconds": 1781441684,
         "nanoseconds": 980000000
       }
+    },
+    "OujDlvdDLos8hZ7lpXpP": {
+      "name": "Updarted addd",
+      "description": "",
+      "shared_with": [],
+      "created_by": "jay5.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1781852127,
+        "nanoseconds": 650000000
+      },
+      "created_at": {
+        "seconds": 1781852127,
+        "nanoseconds": 650000000
+      }
     }
   },
   "task_activities": {
@@ -2636,6 +2696,28 @@
       "created_at": {
         "seconds": 1781440100,
         "nanoseconds": 568000000
+      }
+    },
+    "7k8i6tqqUTsTZr7rAmY7": {
+      "task_id": "uEpTVEJzDSTrptTy5H0H",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "New task",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781852132,
+        "nanoseconds": 644000000
+      }
+    },
+    "yVQWVIam9LW78De9VnH1": {
+      "task_id": "uEpTVEJzDSTrptTy5H0H",
+      "action": "Task Updated",
+      "old_value": "No Description",
+      "new_value": "1. new test case\n",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781852150,
+        "nanoseconds": 321000000
       }
     }
   },

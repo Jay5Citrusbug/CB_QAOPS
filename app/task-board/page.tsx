@@ -437,6 +437,20 @@ export default function TaskBoardPage() {
 
           // Swap temp task with real task in tasks state
           setTasks(prev => prev.map(t => t.id === tempId ? normalizedRealTask : t));
+          
+          // If the user opened the task details drawer before the POST finished, update the selected task states to prevent 404 on subsequent updates
+          setSelectedTaskId(prevId => prevId === tempId ? normalizedRealTask.id : prevId);
+          setTaskDetails(prevDetails => {
+            if (prevDetails && prevDetails.id === tempId) {
+              return {
+                ...normalizedRealTask,
+                attachments: prevDetails.attachments || [],
+                activities: prevDetails.activities || []
+              };
+            }
+            return prevDetails;
+          });
+
           setToast({ message: "Task created successfully!", type: "success" });
           fetchLists(true); // Sync sidebar counts silently
         } else {
@@ -738,6 +752,48 @@ export default function TaskBoardPage() {
       textarea.focus();
       textarea.setSelectionRange(newCursorStart, newCursorEnd);
     }, 0);
+  };
+
+  const handleDescriptionKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === " ") {
+      const textarea = e.currentTarget;
+      const start = textarea.selectionStart;
+      const text = textarea.value;
+      const before = text.substring(0, start);
+      const after = text.substring(start);
+      
+      const lines = before.split("\n");
+      const currentLine = lines[lines.length - 1] || "";
+      const trimmed = currentLine.trim();
+
+      if (trimmed === "1") {
+        e.preventDefault();
+        const indent = currentLine.substring(0, currentLine.length - 1);
+        const prefix = before.substring(0, before.length - currentLine.length);
+        const newBefore = prefix + indent + "1. ";
+        const newText = newBefore + after;
+        setDrawerDesc(newText);
+        
+        const newCursorPos = newBefore.length;
+        setTimeout(() => {
+          textarea.focus();
+          textarea.setSelectionRange(newCursorPos, newCursorPos);
+        }, 0);
+      } else if (trimmed === "-") {
+        e.preventDefault();
+        const indent = currentLine.substring(0, currentLine.length - 1);
+        const prefix = before.substring(0, before.length - currentLine.length);
+        const newBefore = prefix + indent + "- ";
+        const newText = newBefore + after;
+        setDrawerDesc(newText);
+        
+        const newCursorPos = newBefore.length;
+        setTimeout(() => {
+          textarea.focus();
+          textarea.setSelectionRange(newCursorPos, newCursorPos);
+        }, 0);
+      }
+    }
   };
 
   // Render HTML-like structure from raw description text supporting markdown basics
@@ -1421,6 +1477,7 @@ export default function TaskBoardPage() {
                     id="taskDescriptionEditor"
                     value={drawerDesc}
                     onChange={(e) => setDrawerDesc(e.target.value)}
+                    onKeyDown={handleDescriptionKeyDown}
                     onBlur={() => {
                       if (drawerDesc !== taskDetails.description) {
                         handleUpdateTaskDetail({ description: drawerDesc });

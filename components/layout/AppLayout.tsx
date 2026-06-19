@@ -35,7 +35,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className={`fixed inset-0 bg-slate-900/50 z-40 lg:hidden transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
       
       {/* Sidebar Container - always fixed */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 transform lg:translate-x-0 transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 lg:translate-x-0 transition-all duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
 
