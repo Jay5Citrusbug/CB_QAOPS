@@ -1,0 +1,120 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - link "CB QOps Logo CB QOps" [ref=e6] [cursor=pointer]:
+        - /url: /dashboard
+        - img "CB QOps Logo" [ref=e7]
+        - generic [ref=e8]: CB QOps
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e11]
+          - generic [ref=e16]: Dashboard
+        - link "Daily Status" [ref=e17] [cursor=pointer]:
+          - /url: /daily-status
+          - img [ref=e18]
+          - generic [ref=e20]: Daily Status
+        - link "My Projects" [ref=e21] [cursor=pointer]:
+          - /url: /my-projects
+          - img [ref=e22]
+          - generic [ref=e24]: My Projects
+        - link "Project Docs" [ref=e25] [cursor=pointer]:
+          - /url: /project-docs
+          - img [ref=e26]
+          - generic [ref=e29]: Project Docs
+        - link "QA Docs" [ref=e30] [cursor=pointer]:
+          - /url: /qa-docs
+          - img [ref=e31]
+          - generic [ref=e33]: QA Docs
+        - link "Favorites" [ref=e34] [cursor=pointer]:
+          - /url: /favorites
+          - img [ref=e35]
+          - generic [ref=e37]: Favorites
+        - link "My Drive" [ref=e38] [cursor=pointer]:
+          - /url: /my-drive
+          - img [ref=e39]
+          - generic [ref=e41]: My Drive
+        - link "Test Cases" [ref=e42] [cursor=pointer]:
+          - /url: /test-cases
+          - img [ref=e43]
+          - generic [ref=e45]: Test Cases
+        - link "Task Board" [ref=e46] [cursor=pointer]:
+          - /url: /task-board
+          - img [ref=e47]
+          - generic [ref=e50]: Task Board
+        - link "Quick Notes" [ref=e51] [cursor=pointer]:
+          - /url: /quick-notes
+          - img [ref=e52]
+          - generic [ref=e55]: Quick Notes
+        - link "Project Hub" [ref=e56] [cursor=pointer]:
+          - /url: /admin/projects
+          - img [ref=e57]
+          - generic [ref=e60]: Project Hub
+        - link "Team Hub" [ref=e61] [cursor=pointer]:
+          - /url: /admin/users
+          - img [ref=e62]
+          - generic [ref=e67]: Team Hub
+        - link "Settings" [ref=e68] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e69]
+          - generic [ref=e72]: Settings
+      - button "Logout" [ref=e74]:
+        - img [ref=e75]
+        - generic [ref=e78]: Logout
+    - generic [ref=e81]:
+      - generic [ref=e107]:
+        - generic [ref=e108]:
+          - generic [ref=e165]: My Task Boards
+          - button "Create New List" [ref=e166] [cursor=pointer]:
+            - img [ref=e167]
+        - generic [ref=e168] [cursor=pointer]:
+          - generic [ref=e169]:
+            - img [ref=e170]
+            - generic [ref=e173]: 0%
+          - generic [ref=e174]:
+            - paragraph [ref=e176]: Optevo
+            - generic [ref=e178]: 1 Pending
+        - generic [ref=e128]: QA Velocity Task Board v2.0
+      - generic [ref=e179]:
+        - generic [ref=e180]:
+          - generic [ref=e181]:
+            - generic [ref=e182]:
+              - heading "Optevo" [level=1] [ref=e183]
+              - button "Delete this Task List" [ref=e184]:
+                - img [ref=e185]
+            - paragraph [ref=e188]: New notes
+          - generic [ref=e189]:
+            - img [ref=e190]
+            - textbox "Search tasks..." [ref=e193]
+        - generic [ref=e194]:
+          - button "All Tasks" [ref=e195] [cursor=pointer]
+          - button "Pending" [ref=e196] [cursor=pointer]
+          - button "Completed" [ref=e197] [cursor=pointer]
+          - button "Overdue" [ref=e198] [cursor=pointer]
+          - button "Due Today" [ref=e199] [cursor=pointer]
+          - button "Assigned to Me" [ref=e200] [cursor=pointer]
+        - generic [ref=e214] [cursor=pointer]:
+          - button [ref=e215]:
+            - img [ref=e216]
+          - generic [ref=e218]:
+            - generic [ref=e219]:
+              - generic [ref=e220]: T-1001
+              - paragraph [ref=e221]: Verify Offline Fix
+            - generic [ref=e222]:
+              - generic [ref=e223]:
+                - img [ref=e224]
+                - text: No Due Date
+              - generic [ref=e226]: •
+              - generic [ref=e227]: Medium
+          - generic "Unassigned" [ref=e228]:
+            - img [ref=e229]
+        - generic [ref=e208]:
+          - button "Create task with details" [ref=e209] [cursor=pointer]:
+            - img [ref=e210]
+          - textbox "Add a task (Press Enter to publish)..." [active] [ref=e211]
+      - generic [ref=e232]:
+        - img [ref=e233]
+        - generic [ref=e236]: Task created successfully!
+        - button [ref=e237]:
+          - img [ref=e238]
+  - alert [ref=e164]

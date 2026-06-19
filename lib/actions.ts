@@ -412,11 +412,15 @@ export async function createUser(formData: FormData) {
       }
     }
 
+    const bcrypt = await import('bcryptjs');
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     await adminDb.collection('users').doc(uid).set({
       name,
       email,
       role,
       project_id: projectId,
+      password: hashedPassword,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -451,12 +455,19 @@ export async function updateUser(userId: string, formData: FormData) {
       }
     }
 
-    await adminDb.collection('users').doc(userId).update({
+    const userUpdates: any = {
       name,
       email,
       role,
       project_id: projectId,
-    });
+    };
+
+    if (password) {
+      const bcrypt = await import('bcryptjs');
+      userUpdates.password = await bcrypt.hash(password, 10);
+    }
+
+    await adminDb.collection('users').doc(userId).update(userUpdates);
 
     return { success: true };
   } catch (error: any) {
@@ -1599,9 +1610,16 @@ export async function updateSelfProfile(formData: FormData) {
       }
     }
 
-    await adminDb.collection('users').doc(userId).update({
+    const userUpdates: any = {
       name: fullName,
-    });
+    };
+
+    if (password) {
+      const bcrypt = await import('bcryptjs');
+      userUpdates.password = await bcrypt.hash(password, 10);
+    }
+
+    await adminDb.collection('users').doc(userId).update(userUpdates);
 
     return { success: true };
   } catch (error: any) {

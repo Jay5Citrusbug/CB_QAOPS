@@ -1,0 +1,191 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e8]:
+      - link "CB QOps Logo CB QOps" [ref=e10] [cursor=pointer]:
+        - /url: /dashboard
+        - img "CB QOps Logo" [ref=e11]
+        - generic [ref=e12]: CB QOps
+      - navigation [ref=e13]:
+        - link "Dashboard" [ref=e14] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e15]
+          - generic [ref=e20]: Dashboard
+        - link "Daily Status" [ref=e21] [cursor=pointer]:
+          - /url: /daily-status
+          - img [ref=e22]
+          - generic [ref=e24]: Daily Status
+        - link "My Projects" [ref=e25] [cursor=pointer]:
+          - /url: /my-projects
+          - img [ref=e26]
+          - generic [ref=e28]: My Projects
+        - link "Project Docs" [ref=e29] [cursor=pointer]:
+          - /url: /project-docs
+          - img [ref=e30]
+          - generic [ref=e33]: Project Docs
+        - link "QA Docs" [ref=e34] [cursor=pointer]:
+          - /url: /qa-docs
+          - img [ref=e35]
+          - generic [ref=e37]: QA Docs
+        - link "Favorites" [ref=e38] [cursor=pointer]:
+          - /url: /favorites
+          - img [ref=e39]
+          - generic [ref=e41]: Favorites
+        - link "My Drive" [ref=e42] [cursor=pointer]:
+          - /url: /my-drive
+          - img [ref=e43]
+          - generic [ref=e45]: My Drive
+        - link "Test Cases" [ref=e46] [cursor=pointer]:
+          - /url: /test-cases
+          - img [ref=e47]
+          - generic [ref=e49]: Test Cases
+        - link "Task Board" [ref=e50] [cursor=pointer]:
+          - /url: /task-board
+          - img [ref=e51]
+          - generic [ref=e54]: Task Board
+        - link "Quick Notes" [ref=e55] [cursor=pointer]:
+          - /url: /quick-notes
+          - img [ref=e56]
+          - generic [ref=e59]: Quick Notes
+        - link "Project Hub" [ref=e60] [cursor=pointer]:
+          - /url: /admin/projects
+          - img [ref=e61]
+          - generic [ref=e64]: Project Hub
+        - link "Team Hub" [ref=e65] [cursor=pointer]:
+          - /url: /admin/users
+          - img [ref=e66]
+          - generic [ref=e71]: Team Hub
+        - link "Settings" [ref=e72] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e73]
+          - generic [ref=e76]: Settings
+      - button "Logout" [ref=e78]:
+        - img [ref=e79]
+        - generic [ref=e82]: Logout
+    - generic [ref=e85]:
+      - generic [ref=e86]:
+        - generic [ref=e87]:
+          - generic [ref=e88]: My Task Boards
+          - button "Create New List" [ref=e89] [cursor=pointer]:
+            - img [ref=e90]
+        - generic [ref=e92] [cursor=pointer]:
+          - generic [ref=e93]:
+            - img [ref=e94]
+            - generic [ref=e97]: 0%
+          - generic [ref=e98]:
+            - paragraph [ref=e100]: Optevo
+            - generic [ref=e102]: 1 Pending
+        - generic [ref=e103]: QA Velocity Task Board v2.0
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - heading "Optevo" [level=1] [ref=e108]
+              - button "Delete this Task List" [ref=e109]:
+                - img [ref=e110]
+            - paragraph [ref=e113]: New notes
+          - generic [ref=e114]:
+            - img [ref=e115]
+            - textbox "Search tasks..." [ref=e118]
+        - generic [ref=e119]:
+          - button "All Tasks" [ref=e120] [cursor=pointer]
+          - button "Pending" [ref=e121] [cursor=pointer]
+          - button "Completed" [ref=e122] [cursor=pointer]
+          - button "Overdue" [ref=e123] [cursor=pointer]
+          - button "Due Today" [ref=e124] [cursor=pointer]
+          - button "Assigned to Me" [ref=e125] [cursor=pointer]
+        - generic [ref=e129] [cursor=pointer]:
+          - button [ref=e130]:
+            - img [ref=e131]
+          - generic [ref=e133]:
+            - generic [ref=e134]:
+              - generic [ref=e135]: T-1001
+              - paragraph [ref=e136]: Verify Offline Fix
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - img [ref=e139]
+                - text: No Due Date
+              - generic [ref=e141]: •
+              - generic [ref=e142]: High
+          - generic "Unassigned" [ref=e143]:
+            - img [ref=e144]
+        - generic [ref=e148]:
+          - button "Create task with details" [ref=e149] [cursor=pointer]:
+            - img [ref=e150]
+          - textbox "Add a task (Press Enter to publish)..." [ref=e151]
+      - generic [ref=e154]:
+        - generic [ref=e155]:
+          - button [ref=e156]:
+            - img [ref=e157]
+          - generic [ref=e159]:
+            - generic [ref=e160]: T-1001
+            - textbox [ref=e161]: Verify Offline Fix
+          - button [ref=e162] [cursor=pointer]:
+            - img [ref=e163]
+        - generic [ref=e166]:
+          - generic [ref=e167]:
+            - generic [ref=e168]:
+              - generic [ref=e169]: Status
+              - generic [ref=e170]: To Do
+            - generic [ref=e172]:
+              - generic [ref=e173]: Due Date
+              - textbox [ref=e174] [cursor=pointer]
+            - generic [ref=e175]:
+              - generic [ref=e176]: Assignee
+              - combobox [ref=e177] [cursor=pointer]:
+                - option "Unassigned" [selected]
+                - option "Tirth Mistry (tirth.citrusbug)"
+                - option "Prachi Mewada (Prachi.citrusbug)"
+                - option "Suvarna Sinha (suvarna.citrusbug)"
+                - option "Bhargav Joshi (bhargav.citrusbug)"
+                - option "Jay Citrusbug (jay5.citrusbug)"
+            - generic [ref=e178]:
+              - generic [ref=e179]: Priority
+              - combobox [ref=e180] [cursor=pointer]:
+                - option "Low"
+                - option "Medium"
+                - option "High" [selected]
+                - option "Critical"
+          - generic [ref=e181]:
+            - text: Task Description
+            - generic [ref=e182]:
+              - generic [ref=e183]:
+                - button "B" [ref=e184]
+                - button "I" [ref=e185]
+                - button "•" [ref=e186]
+                - button "1." [ref=e187]
+                - button "L" [ref=e188]
+              - textbox "Support bold **text**, italics *text*, lists, or links." [ref=e189]: sfsdcc
+          - generic [ref=e190]:
+            - generic [ref=e191]: Steps / Subtasks
+            - generic [ref=e193]:
+              - img [ref=e194]
+              - textbox "Add subtask step..." [ref=e195]
+          - generic [ref=e196]:
+            - text: Internal Notes
+            - textbox "Draft notes here (Auto-saves on blur)..." [ref=e197]
+          - generic [ref=e198]:
+            - generic [ref=e199]:
+              - generic [ref=e200]: Files & Attachments
+              - button "Upload File" [ref=e201] [cursor=pointer]:
+                - img [ref=e202]
+                - text: Upload File
+            - paragraph [ref=e205]: No attachments uploaded.
+          - generic [ref=e206]:
+            - generic [ref=e207]: Activity Timeline
+            - generic [ref=e208]:
+              - generic [ref=e209]:
+                - paragraph [ref=e212]: Task Created by jay5.citrusbug
+                - paragraph [ref=e213]: Verify Offline Fix
+                - paragraph [ref=e214]: 19/06/2026, 12:10:03
+              - generic [ref=e215]:
+                - paragraph [ref=e218]: Task Updated by jay5.citrusbug
+                - paragraph [ref=e219]: Medium → High
+                - paragraph [ref=e220]: 19/06/2026, 12:10:47
+              - generic [ref=e221]:
+                - paragraph [ref=e224]: Task Updated by jay5.citrusbug
+                - paragraph [ref=e225]: No Description → sfsdcc
+                - paragraph [ref=e226]: 19/06/2026, 12:10:57
+        - generic [ref=e227]:
+          - button "Delete Task" [ref=e228] [cursor=pointer]
+          - button "Mark Completed" [ref=e229] [cursor=pointer]
+  - alert [ref=e6]

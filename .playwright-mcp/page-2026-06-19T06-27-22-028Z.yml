@@ -1,0 +1,18 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - img "CB QOps Logo" [ref=e8]
+      - heading "Welcome Back" [level=1] [ref=e9]
+      - paragraph [ref=e10]: Sign in to your CB QOps portal
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: Email Address
+        - textbox "name@example.com" [ref=e14]: jay5.citrusbug@gmail.com
+      - generic [ref=e15]:
+        - generic [ref=e16]: Password
+        - generic [ref=e17]:
+          - textbox "••••••••" [ref=e18]: Jayqa@1234
+          - button [ref=e19]:
+            - img [ref=e20]
+      - button "Sign In" [ref=e23]
+  - alert [ref=e24]
