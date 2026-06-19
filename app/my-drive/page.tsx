@@ -71,7 +71,7 @@ export default function MyDrivePage() {
 
   const fetchDriveItems = async () => {
     try {
-      const res = await fetch("/api/my-drive");
+      const res = await fetch(`/api/my-drive?t=${Date.now()}`, { cache: 'no-store' });
       if (!res.ok) throw new Error("Failed to fetch drive items");
       const data = await res.json();
       setItems(data);

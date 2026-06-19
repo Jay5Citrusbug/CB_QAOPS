@@ -99,6 +99,23 @@ export async function POST(request: NextRequest) {
       }
 
       const name = (file as any).name || 'file';
+      const ext = name.split('.').pop()?.toLowerCase() || '';
+
+      // Allowed formats validation
+      const allowedExtensions = ["png", "jpg", "jpeg", "gif", "webp", "pdf", "txt", "doc", "docx", "xls", "xlsx", "zip"];
+      if (!allowedExtensions.includes(ext)) {
+        return NextResponse.json({ error: 'Unsupported file format. Allowed formats: PNG, JPG, JPEG, GIF, WEBP, PDF, TXT, DOC, DOCX, XLS, XLSX, ZIP' }, { status: 400 });
+      }
+
+      // Size validations
+      const MAX_SIZE = 25 * 1024 * 1024; // 25MB
+      if (file.size > MAX_SIZE) {
+        return NextResponse.json({ error: 'File size exceeds 25MB limit' }, { status: 400 });
+      }
+      if (file.size === 0) {
+        return NextResponse.json({ error: 'Empty files are not allowed' }, { status: 400 });
+      }
+
       const buffer = Buffer.from(await file.arrayBuffer());
 
       // Create target directory: public/uploads/my-drive
@@ -107,16 +124,16 @@ export async function POST(request: NextRequest) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
-      // Unique file name to prevent collision
-      const uniqueFileName = `${Date.now()}_${name}`;
+      // Sanitize file name to prevent directory traversal or shell injection
+      const sanitizedBase = path.basename(name).replace(/[^a-zA-Z0-9.-]/g, '_');
+      const uniqueFileName = `${Date.now()}_${sanitizedBase}`;
       const filePath = path.join(uploadDir, uniqueFileName);
       fs.writeFileSync(filePath, buffer);
 
       const relativeUrl = `/uploads/my-drive/${encodeURIComponent(uniqueFileName)}`;
-      const ext = name.split('.').pop()?.toLowerCase() || '';
 
       newDriveObj = {
-        name,
+        name: sanitizedBase,
         url: relativeUrl,
         type: 'file',
         category,

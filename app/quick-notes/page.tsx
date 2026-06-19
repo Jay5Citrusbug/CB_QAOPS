@@ -264,22 +264,35 @@ function NoteModal({
     if (!title.trim()) { setError("Title is required."); return; }
     setSaving(true);
     setError("");
+
+    const sanitizeHTML = (html: string) => {
+      if (!html) return "";
+      return html
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+        .replace(/on\w+\s*=\s*"(?:[^"]|\\")*"/gi, "")
+        .replace(/on\w+\s*=\s*'(?:[^']|\\')*'/gi, "")
+        .replace(/on\w+\s*=\s*[^\s>]+/gi, "")
+        .replace(/javascript:/gi, "");
+    };
+
+    const sanitizedDescription = sanitizeHTML(description);
+
     try {
       if (isEdit) {
         const res = await fetch(`/api/quick-notes/${note!.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: title.trim(), description }),
+          body: JSON.stringify({ title: title.trim(), description: sanitizedDescription }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to update note.");
-        onSaved({ ...note!, title: title.trim(), description, attachments });
+        onSaved({ ...note!, title: title.trim(), description: sanitizedDescription, attachments });
       } else {
         // Create note first
         const res = await fetch("/api/quick-notes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: title.trim(), description }),
+          body: JSON.stringify({ title: title.trim(), description: sanitizedDescription }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to create note.");
@@ -330,6 +343,31 @@ function NoteModal({
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
+    if (file.size === 0) {
+      setError("Empty files are not allowed.");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+
+    const allowedExtensions = ["png", "jpg", "jpeg", "gif", "webp", "pdf", "txt", "doc", "docx", "xls", "xlsx", "zip"];
+    const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+    if (!allowedExtensions.includes(fileExt)) {
+      setError("Unsupported file format. Allowed formats: PNG, JPG, JPEG, GIF, WEBP, PDF, TXT, DOC, DOCX, XLS, XLSX, ZIP");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+
+    const sanitizeHTML = (html: string) => {
+      if (!html) return "";
+      return html
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+        .replace(/on\w+\s*=\s*"(?:[^"]|\\")*"/gi, "")
+        .replace(/on\w+\s*=\s*'(?:[^']|\\')*'/gi, "")
+        .replace(/on\w+\s*=\s*[^\s>]+/gi, "")
+        .replace(/javascript:/gi, "");
+    };
+
+    const sanitizedDescription = sanitizeHTML(description);
 
     if (isEdit) {
       setUploading(true);
@@ -740,7 +778,7 @@ export default function QuickNotesPage() {
   const fetchNotes = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/quick-notes");
+      const res = await fetch(`/api/quick-notes?t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load notes.");
       setNotes(data);

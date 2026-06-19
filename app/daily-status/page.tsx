@@ -126,8 +126,8 @@ export default function DailyStatusPage() {
     setIsSyncing(true);
     try {
       const [statusRes, projectRes] = await Promise.all([
-        fetch("/api/daily-status"),
-        fetch("/api/projects")
+        fetch(`/api/daily-status?t=${Date.now()}`, { cache: 'no-store' }),
+        fetch(`/api/projects?t=${Date.now()}`, { cache: 'no-store' })
       ]);
       
       const statusData = await statusRes.json();

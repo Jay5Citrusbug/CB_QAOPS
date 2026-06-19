@@ -24,7 +24,39 @@ export async function addDailyStatus(formData: FormData) {
     return { error: 'Missing required fields' };
   }
 
+  // Validate hours range
+  for (let i = 0; i < projectIds.length; i++) {
+    const hrVal = parseFloat(hours[i] || '0');
+    if (isNaN(hrVal) || hrVal < 0.5 || hrVal > 24) {
+      return { error: 'Hours spent must be a number between 0.5 and 24' };
+    }
+  }
+
   try {
+    // Check for duplicate status on same project and date for this user
+    const targetDate = new Date(date);
+    const startOfDay = new Date(targetDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(targetDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const snapshot = await adminDb.collection('daily_statuses')
+      .where('user_id', '==', userId)
+      .get();
+
+    for (const projectId of projectIds) {
+      const isDuplicate = snapshot.docs.some(doc => {
+        const d = doc.data();
+        if (d.project_id !== projectId) return false;
+        const dDate = d.date?.toDate ? d.date.toDate() : new Date(String(d.date));
+        return dDate >= startOfDay && dDate <= endOfDay;
+      });
+
+      if (isDuplicate) {
+        return { error: 'You have already submitted a status report for this project on this date. Please edit the existing report instead.' };
+      }
+    }
+
     const batch = adminDb.batch();
     for (let i = 0; i < projectIds.length; i++) {
       const docRef = adminDb.collection('daily_statuses').doc();
@@ -91,6 +123,14 @@ export async function updateGroupedDailyStatus(dateStr: string, formData: FormDa
   const workDone = formData.get('workDone') as string;
   const plannedWork = formData.get('plannedWork') as string;
   const blockers = (formData.get('blockers') as string) || null;
+
+  // Validate hours range
+  for (let i = 0; i < projectIds.length; i++) {
+    const hrVal = parseFloat(hours[i] || '0');
+    if (isNaN(hrVal) || hrVal < 0.5 || hrVal > 24) {
+      return { error: 'Hours spent must be a number between 0.5 and 24' };
+    }
+  }
 
   try {
     const start = new Date(dateStr);

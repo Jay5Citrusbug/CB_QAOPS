@@ -71,6 +71,33 @@ interface UserProfile {
   role: string;
 }
 
+const normalizeTask = (t: any): Task => {
+  let normalizedStatus = "To Do";
+  if (t.status) {
+    const s = t.status.toLowerCase();
+    if (s === "completed") {
+      normalizedStatus = "Completed";
+    }
+  }
+  return {
+    id: t.id,
+    taskListId: t.taskListId || t.task_list_id,
+    taskNumber: t.taskNumber || t.task_number || 1000,
+    title: t.title,
+    description: t.description || "",
+    notes: t.notes || "",
+    status: normalizedStatus,
+    priority: t.priority || "Medium",
+    dueDate: t.dueDate || t.due_date ? (t.dueDate ? String(t.dueDate) : (t.due_date.toDate ? t.due_date.toDate().toISOString() : String(t.due_date))) : null,
+    assignedTo: t.assignedTo || t.assigned_to || null,
+    createdBy: t.createdBy || t.created_by,
+    createdAt: t.createdAt || t.created_at ? (t.createdAt ? String(t.createdAt) : (t.created_at.toDate ? t.created_at.toDate().toISOString() : String(t.created_at))) : new Date().toISOString(),
+    completedAt: t.completedAt || t.completed_at ? (t.completedAt ? String(t.completedAt) : (t.completed_at.toDate ? t.completed_at.toDate().toISOString() : String(t.completed_at))) : null,
+    completedBy: t.completedBy || t.completed_by || null,
+    steps: t.steps || []
+  };
+};
+
 export default function TaskBoardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -134,7 +161,6 @@ export default function TaskBoardPage() {
   // Drawer Inline Edit States
   const [drawerNotes, setDrawerNotes] = useState("");
   const [drawerDesc, setDrawerDesc] = useState("");
-  const [editDescMode, setEditDescMode] = useState(false);
   
   // Completed Section Collapse
   const [completedCollapsed, setCompletedCollapsed] = useState(false);
@@ -157,7 +183,7 @@ export default function TaskBoardPage() {
   const fetchLists = async (silent = false) => {
     if (!silent) setLoadingLists(true);
     try {
-      const res = await fetch("/api/task-lists");
+      const res = await fetch(`/api/task-lists?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setLists(data);
@@ -174,7 +200,7 @@ export default function TaskBoardPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch("/api/admin/users");
+      const res = await fetch(`/api/admin/users?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setUsers(data);
@@ -195,10 +221,10 @@ export default function TaskBoardPage() {
   const fetchTasks = async (listId: string, silent = false) => {
     if (!silent) setLoadingTasks(true);
     try {
-      const res = await fetch(`/api/tasks?taskListId=${listId}`);
+      const res = await fetch(`/api/tasks?taskListId=${listId}&t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        setTasks(data);
+        setTasks(data.map(normalizeTask));
       }
     } catch (err) {
       console.error("Failed to load tasks", err);
@@ -219,12 +245,17 @@ export default function TaskBoardPage() {
   const fetchTaskDetails = async (taskId: string) => {
     setLoadingDrawer(true);
     try {
-      const res = await fetch(`/api/tasks/${taskId}`);
+      const res = await fetch(`/api/tasks/${taskId}?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        setTaskDetails(data);
-        setDrawerNotes(data.notes || "");
-        setDrawerDesc(data.description || "");
+        const norm = normalizeTask(data);
+        setTaskDetails({
+          ...norm,
+          attachments: data.attachments || [],
+          activities: data.activities || []
+        });
+        setDrawerNotes(norm.notes || "");
+        setDrawerDesc(norm.description || "");
       }
     } catch (err) {
       console.error("Failed to load task details", err);
@@ -402,22 +433,7 @@ export default function TaskBoardPage() {
         });
         if (res.ok) {
           const realTask = await res.json();
-          const normalizedRealTask: Task = {
-            id: realTask.id,
-            taskListId: realTask.task_list_id || realTask.taskListId,
-            taskNumber: realTask.task_number || realTask.taskNumber || tempTaskNumber,
-            title: realTask.title,
-            description: realTask.description || "",
-            status: realTask.status || "To Do",
-            priority: realTask.priority || "Medium",
-            dueDate: realTask.due_date ? (realTask.due_date.toDate ? realTask.due_date.toDate().toISOString() : String(realTask.due_date)) : null,
-            assignedTo: realTask.assigned_to || null,
-            createdBy: realTask.created_by,
-            createdAt: realTask.created_at || new Date().toISOString(),
-            completedAt: realTask.completed_at || null,
-            completedBy: realTask.completed_by || null,
-            steps: realTask.steps || []
-          };
+          const normalizedRealTask = normalizeTask(realTask);
 
           // Swap temp task with real task in tasks state
           setTasks(prev => prev.map(t => t.id === tempId ? normalizedRealTask : t));
@@ -662,22 +678,65 @@ export default function TaskBoardPage() {
     const before = text.substring(0, start);
     const after = text.substring(end, text.length);
     
-    let inserted = syntax;
-    if (syntax === "**" || syntax === "*") {
-      const selected = text.substring(start, end) || "text";
-      inserted = `${syntax}${selected}${syntax}`;
-    } else if (syntax === "- ") {
-      inserted = `\n- `;
-    } else if (syntax === "1. ") {
-      inserted = `\n1. `;
-    } else if (syntax === "[]") {
-      inserted = `[link](url)`;
+    let inserted = "";
+    let newCursorStart = start;
+    let newCursorEnd = end;
+
+    if (start === end) {
+      // No text selected
+      if (syntax === "**") {
+        inserted = "****";
+        newCursorStart = start + 2;
+        newCursorEnd = start + 2;
+      } else if (syntax === "*") {
+        inserted = "**";
+        newCursorStart = start + 1;
+        newCursorEnd = start + 1;
+      } else if (syntax === "- ") {
+        const needsNewline = start > 0 && text.charAt(start - 1) !== "\n";
+        inserted = needsNewline ? "\n- " : "- ";
+        newCursorStart = start + inserted.length;
+        newCursorEnd = start + inserted.length;
+      } else if (syntax === "1. ") {
+        const needsNewline = start > 0 && text.charAt(start - 1) !== "\n";
+        inserted = needsNewline ? "\n1. " : "1. ";
+        newCursorStart = start + inserted.length;
+        newCursorEnd = start + inserted.length;
+      } else if (syntax === "[]") {
+        inserted = "[]()";
+        newCursorStart = start + 1;
+        newCursorEnd = start + 1;
+      }
+    } else {
+      // Text is selected
+      const selected = text.substring(start, end);
+      if (syntax === "**" || syntax === "*") {
+        inserted = `${syntax}${selected}${syntax}`;
+        newCursorStart = start;
+        newCursorEnd = start + inserted.length;
+      } else if (syntax === "- ") {
+        const needsNewline = start > 0 && text.charAt(start - 1) !== "\n";
+        inserted = (needsNewline ? "\n- " : "- ") + selected;
+        newCursorStart = start;
+        newCursorEnd = start + inserted.length;
+      } else if (syntax === "1. ") {
+        const needsNewline = start > 0 && text.charAt(start - 1) !== "\n";
+        inserted = (needsNewline ? "\n1. " : "1. ") + selected;
+        newCursorStart = start;
+        newCursorEnd = start + inserted.length;
+      } else if (syntax === "[]") {
+        inserted = `[${selected}](url)`;
+        newCursorStart = start + 1;
+        newCursorEnd = start + 1 + selected.length;
+      }
     }
     
-    setDrawerDesc(before + inserted + after);
+    const newText = before + inserted + after;
+    setDrawerDesc(newText);
+    
     setTimeout(() => {
       textarea.focus();
-      textarea.setSelectionRange(start + inserted.length, start + inserted.length);
+      textarea.setSelectionRange(newCursorStart, newCursorEnd);
     }, 0);
   };
 
@@ -1345,65 +1404,33 @@ export default function TaskBoardPage() {
                 </div>
               </div>
 
-              {/* Rich Notes / Description Editor */}
+              {/* Direct Description Editor (Auto-saves on blur) */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Description</label>
-                  {!editDescMode ? (
-                    <button 
-                      onClick={() => setEditDescMode(true)}
-                      className="text-[10px] font-black text-[#F46A3A] hover:underline"
-                    >
-                      Edit Description
-                    </button>
-                  ) : (
-                    <div className="flex gap-2 text-[10px] font-black">
-                      <button 
-                        onClick={() => {
-                          handleUpdateTaskDetail({ description: drawerDesc });
-                          setEditDescMode(false);
-                        }}
-                        className="text-green-600 hover:underline"
-                      >
-                        Save
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setDrawerDesc(taskDetails.description || "");
-                          setEditDescMode(false);
-                        }}
-                        className="text-slate-400 hover:underline"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Description</label>
+                
+                <div className="border border-slate-200 rounded-2xl overflow-hidden focus-within:border-[#F46A3A]/40 focus-within:ring-4 focus-within:ring-[#F46A3A]/5 transition-all">
+                  {/* Toolbar */}
+                  <div className="bg-slate-50 border-b border-slate-200 px-3 py-1.5 flex gap-1 items-center">
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); handleAddMarkdown("**"); }} className="p-1 hover:bg-slate-200 rounded text-xs font-bold w-6 h-6">B</button>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); handleAddMarkdown("*"); }} className="p-1 hover:bg-slate-200 rounded text-xs italic w-6 h-6">I</button>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); handleAddMarkdown("- "); }} className="p-1 hover:bg-slate-200 rounded text-xs w-6 h-6">•</button>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); handleAddMarkdown("1. "); }} className="p-1 hover:bg-slate-200 rounded text-[10px] w-6 h-6">1.</button>
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); handleAddMarkdown("[]"); }} className="p-1 hover:bg-slate-200 rounded text-[10px] w-6 h-6">L</button>
+                  </div>
+                  <textarea 
+                    id="taskDescriptionEditor"
+                    value={drawerDesc}
+                    onChange={(e) => setDrawerDesc(e.target.value)}
+                    onBlur={() => {
+                      if (drawerDesc !== taskDetails.description) {
+                        handleUpdateTaskDetail({ description: drawerDesc });
+                      }
+                    }}
+                    placeholder="Support bold **text**, italics *text*, lists, or links."
+                    rows={5}
+                    className="w-full p-4 bg-slate-50 outline-none text-slate-700 text-sm font-semibold resize-y border-none"
+                  />
                 </div>
-
-                {editDescMode ? (
-                  <div className="border border-slate-200 rounded-2xl overflow-hidden focus-within:border-[#F46A3A]/40 focus-within:ring-4 focus-within:ring-[#F46A3A]/5 transition-all">
-                    {/* Toolbar */}
-                    <div className="bg-slate-50 border-b border-slate-200 px-3 py-1.5 flex gap-1 items-center">
-                      <button type="button" onClick={() => handleAddMarkdown("**")} className="p-1 hover:bg-slate-200 rounded text-xs font-bold w-6 h-6">B</button>
-                      <button type="button" onClick={() => handleAddMarkdown("*")} className="p-1 hover:bg-slate-200 rounded text-xs italic w-6 h-6">I</button>
-                      <button type="button" onClick={() => handleAddMarkdown("- ")} className="p-1 hover:bg-slate-200 rounded text-xs w-6 h-6">•</button>
-                      <button type="button" onClick={() => handleAddMarkdown("1. ")} className="p-1 hover:bg-slate-200 rounded text-[10px] w-6 h-6">1.</button>
-                      <button type="button" onClick={() => handleAddMarkdown("[]")} className="p-1 hover:bg-slate-200 rounded text-[10px] w-6 h-6">L</button>
-                    </div>
-                    <textarea 
-                      id="taskDescriptionEditor"
-                      value={drawerDesc}
-                      onChange={(e) => setDrawerDesc(e.target.value)}
-                      placeholder="Support bold **text**, italics *text*, lists, or links."
-                      rows={5}
-                      className="w-full p-4 bg-slate-50 outline-none text-slate-700 text-sm font-semibold resize-y border-none"
-                    />
-                  </div>
-                ) : (
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 min-h-[100px]">
-                    {renderRichDescription(taskDetails.description)}
-                  </div>
-                )}
               </div>
 
               {/* Steps Subtasks section */}
@@ -1580,7 +1607,7 @@ export default function TaskBoardPage() {
 
       {/* 4. MODAL: Create New Task List */}
       {showListModal && (
-        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md z-[80] flex items-center justify-center p-6 animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md z-[80] flex items-center justify-center p-6 overflow-y-auto animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-400">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-lg font-black text-slate-900">Create Task List</h2>
@@ -1695,7 +1722,7 @@ export default function TaskBoardPage() {
 
       {/* 5. MODAL: Detailed Create Task */}
       {showTaskModal && (
-        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md z-[80] flex items-center justify-center p-6 animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md z-[80] flex items-center justify-center p-6 overflow-y-auto animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-400">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-lg font-black text-slate-900">Add New Task</h2>
