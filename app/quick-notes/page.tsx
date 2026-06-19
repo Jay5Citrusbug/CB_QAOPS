@@ -576,7 +576,7 @@ function NoteCard({
   return (
     <div
       onClick={onEdit}
-      className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#ed5c37]/20 transition-all duration-200 flex flex-col overflow-hidden cursor-pointer"
+      className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#ed5c37]/20 transition-all duration-200 flex flex-col overflow-hidden cursor-pointer h-full min-h-[180px]"
     >
       {/* Color accent top bar */}
       <div className="h-1 bg-gradient-to-r from-[#ed5c37] to-orange-400 w-full" />
@@ -971,9 +971,9 @@ export default function QuickNotesPage() {
           )}
         </div>
       ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-stretch">
           {filteredNotes.map((note) => (
-            <div key={note.id} className="relative">
+            <div key={note.id} className="relative flex flex-col h-full">
               <NoteCard
                 note={note}
                 onEdit={() => openEdit(note)}
