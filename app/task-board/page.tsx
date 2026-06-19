@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef, useMemo, useTransition } from "react";
 import { getInitials } from "@/lib/utils";
-import { 
-  CheckSquare, Plus, X, Search, ChevronRight, ChevronDown, Check, 
-  Trash2, User, Calendar, Clock, AlertCircle, FileText, Download, 
+import {
+  CheckSquare, Plus, X, Search, ChevronRight, ChevronDown, Check,
+  Trash2, User, Calendar, Clock, AlertCircle, FileText, Download,
   Paperclip, Star, RefreshCw, LogIn, Sparkles, Filter, Edit3, ShieldAlert,
   CheckCircle2, Loader2
 } from "lucide-react";
@@ -71,12 +71,35 @@ interface UserProfile {
   role: string;
 }
 
+const normalizeDate = (val: any): string | null => {
+  if (!val) return null;
+  if (typeof val === 'string') {
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? null : d.toISOString();
+  }
+  if (typeof val.toDate === 'function') {
+    return val.toDate().toISOString();
+  }
+  if (typeof val.seconds === 'number') {
+    return new Date(val.seconds * 1000).toISOString();
+  }
+  if (val._seconds !== undefined) {
+    return new Date(val._seconds * 1000).toISOString();
+  }
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? null : d.toISOString();
+};
+
 const normalizeTask = (t: any): Task => {
-  let normalizedStatus = "To Do";
+  let normalizedStatus = t.status || "To Do";
   if (t.status) {
     const s = t.status.toLowerCase();
     if (s === "completed") {
       normalizedStatus = "Completed";
+    } else if (s === "to do" || s === "pending") {
+      normalizedStatus = "To Do";
+    } else {
+      normalizedStatus = t.status;
     }
   }
   return {
@@ -88,11 +111,11 @@ const normalizeTask = (t: any): Task => {
     notes: t.notes || "",
     status: normalizedStatus,
     priority: t.priority || "Medium",
-    dueDate: t.dueDate || t.due_date ? (t.dueDate ? String(t.dueDate) : (t.due_date.toDate ? t.due_date.toDate().toISOString() : String(t.due_date))) : null,
+    dueDate: normalizeDate(t.dueDate || t.due_date),
     assignedTo: t.assignedTo || t.assigned_to || null,
     createdBy: t.createdBy || t.created_by,
-    createdAt: t.createdAt || t.created_at ? (t.createdAt ? String(t.createdAt) : (t.created_at.toDate ? t.created_at.toDate().toISOString() : String(t.created_at))) : new Date().toISOString(),
-    completedAt: t.completedAt || t.completed_at ? (t.completedAt ? String(t.completedAt) : (t.completed_at.toDate ? t.completed_at.toDate().toISOString() : String(t.completed_at))) : null,
+    createdAt: normalizeDate(t.createdAt || t.created_at) || new Date().toISOString(),
+    completedAt: normalizeDate(t.completedAt || t.completed_at),
     completedBy: t.completedBy || t.completed_by || null,
     steps: t.steps || []
   };
@@ -130,7 +153,7 @@ export default function TaskBoardPage() {
       return () => clearTimeout(timer);
     }
   }, [toast]);
-  
+
   // New Form states
   const [newListName, setNewListName] = useState("");
   const [newListDesc, setNewListDesc] = useState("");
@@ -154,14 +177,14 @@ export default function TaskBoardPage() {
   const [newTaskPriority, setNewTaskPriority] = useState("Medium");
   const [newTaskDueDate, setNewTaskDueDate] = useState("");
   const [newTaskAssignee, setNewTaskAssignee] = useState("");
-  
+
   // Inline add state
   const [fastTaskTitle, setFastTaskTitle] = useState("");
 
   // Drawer Inline Edit States
   const [drawerNotes, setDrawerNotes] = useState("");
   const [drawerDesc, setDrawerDesc] = useState("");
-  
+
   // Completed Section Collapse
   const [completedCollapsed, setCompletedCollapsed] = useState(false);
 
@@ -254,8 +277,12 @@ export default function TaskBoardPage() {
           attachments: data.attachments || [],
           activities: data.activities || []
         });
-        setDrawerNotes(norm.notes || "");
-        setDrawerDesc(norm.description || "");
+        if (document.activeElement?.id !== "taskNotesEditor") {
+          setDrawerNotes(norm.notes || "");
+        }
+        if (document.activeElement?.id !== "taskDescriptionEditor") {
+          setDrawerDesc(norm.description || "");
+        }
       }
     } catch (err) {
       console.error("Failed to load task details", err);
@@ -437,7 +464,7 @@ export default function TaskBoardPage() {
 
           // Swap temp task with real task in tasks state
           setTasks(prev => prev.map(t => t.id === tempId ? normalizedRealTask : t));
-          
+
           // If the user opened the task details drawer before the POST finished, update the selected task states to prevent 404 on subsequent updates
           setSelectedTaskId(prevId => prevId === tempId ? normalizedRealTask.id : prevId);
           setTaskDetails(prevDetails => {
@@ -504,9 +531,9 @@ export default function TaskBoardPage() {
     try {
       const res = await fetch(endpoint, { method: "POST" });
       if (res.ok) {
-        setToast({ 
-          message: isCompleted ? "Task reopened!" : "Task completed!", 
-          type: "success" 
+        setToast({
+          message: isCompleted ? "Task reopened!" : "Task completed!",
+          type: "success"
         });
         await Promise.all([
           fetchTasks(task.taskListId, true),
@@ -691,7 +718,7 @@ export default function TaskBoardPage() {
     const text = textarea.value;
     const before = text.substring(0, start);
     const after = text.substring(end, text.length);
-    
+
     let inserted = "";
     let newCursorStart = start;
     let newCursorEnd = end;
@@ -699,27 +726,27 @@ export default function TaskBoardPage() {
     if (start === end) {
       // No text selected
       if (syntax === "**") {
-        inserted = "****";
+        inserted = "**bold text**";
         newCursorStart = start + 2;
-        newCursorEnd = start + 2;
+        newCursorEnd = start + 11;
       } else if (syntax === "*") {
-        inserted = "**";
+        inserted = "*italic text*";
         newCursorStart = start + 1;
-        newCursorEnd = start + 1;
+        newCursorEnd = start + 12;
       } else if (syntax === "- ") {
         const needsNewline = start > 0 && text.charAt(start - 1) !== "\n";
-        inserted = needsNewline ? "\n- " : "- ";
-        newCursorStart = start + inserted.length;
+        inserted = needsNewline ? "\n- list item" : "- list item";
+        newCursorStart = start + (needsNewline ? 3 : 2);
         newCursorEnd = start + inserted.length;
       } else if (syntax === "1. ") {
         const needsNewline = start > 0 && text.charAt(start - 1) !== "\n";
-        inserted = needsNewline ? "\n1. " : "1. ";
-        newCursorStart = start + inserted.length;
+        inserted = needsNewline ? "\n1. list item" : "1. list item";
+        newCursorStart = start + (needsNewline ? 4 : 3);
         newCursorEnd = start + inserted.length;
       } else if (syntax === "[]") {
-        inserted = "[]()";
+        inserted = "[link text](url)";
         newCursorStart = start + 1;
-        newCursorEnd = start + 1;
+        newCursorEnd = start + 10;
       }
     } else {
       // Text is selected
@@ -744,10 +771,10 @@ export default function TaskBoardPage() {
         newCursorEnd = start + 1 + selected.length;
       }
     }
-    
+
     const newText = before + inserted + after;
     setDrawerDesc(newText);
-    
+
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(newCursorStart, newCursorEnd);
@@ -761,7 +788,7 @@ export default function TaskBoardPage() {
       const text = textarea.value;
       const before = text.substring(0, start);
       const after = text.substring(start);
-      
+
       const lines = before.split("\n");
       const currentLine = lines[lines.length - 1] || "";
       const trimmed = currentLine.trim();
@@ -773,7 +800,7 @@ export default function TaskBoardPage() {
         const newBefore = prefix + indent + "1. ";
         const newText = newBefore + after;
         setDrawerDesc(newText);
-        
+
         const newCursorPos = newBefore.length;
         setTimeout(() => {
           textarea.focus();
@@ -786,7 +813,7 @@ export default function TaskBoardPage() {
         const newBefore = prefix + indent + "- ";
         const newText = newBefore + after;
         setDrawerDesc(newText);
-        
+
         const newCursorPos = newBefore.length;
         setTimeout(() => {
           textarea.focus();
@@ -799,7 +826,7 @@ export default function TaskBoardPage() {
   // Render HTML-like structure from raw description text supporting markdown basics
   const renderRichDescription = (text: string) => {
     if (!text) return <p className="text-slate-400 italic text-sm">No description provided.</p>;
-    
+
     return text.split('\n').map((line, idx) => {
       // Parse links: [label](url) -> <a href="url">label</a>
       const linkRegex = /\[(.*?)\]\((.*?)\)/g;
@@ -812,11 +839,11 @@ export default function TaskBoardPage() {
             parts.push(line.substring(lastIndex, linkMatch.index));
           }
           parts.push(
-            <a 
-              key={linkMatch.index} 
-              href={linkMatch[2].startsWith("http") ? linkMatch[2] : `https://${linkMatch[2]}`} 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              key={linkMatch.index}
+              href={linkMatch[2].startsWith("http") ? linkMatch[2] : `https://${linkMatch[2]}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-[#F46A3A] font-bold hover:underline"
             >
               {linkMatch[1]}
@@ -829,7 +856,7 @@ export default function TaskBoardPage() {
         }
         return <div key={idx} className="min-h-[1.5rem]">{parts}</div>;
       }
-      
+
       // Parse bullet points
       if (line.trim().startsWith("- ")) {
         return (
@@ -838,7 +865,7 @@ export default function TaskBoardPage() {
           </li>
         );
       }
-      
+
       // Parse numbered list
       if (/^\s*\d+\.\s*/.test(line)) {
         return (
@@ -898,7 +925,7 @@ export default function TaskBoardPage() {
   const filteredTasks = useMemo(() => {
     return tasks.filter(t => {
       // 1. Search Query filter (matches Name, ID, or Description)
-      const matchesSearch = 
+      const matchesSearch =
         t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         `T-${t.taskNumber}`.toLowerCase().includes(searchQuery.toLowerCase());
@@ -911,19 +938,19 @@ export default function TaskBoardPage() {
 
       switch (activeTab) {
         case "PENDING":
-          return t.status === "To Do";
+          return t.status !== "Completed" && t.status !== "COMPLETED";
         case "COMPLETED":
-          return t.status === "Completed";
+          return t.status === "Completed" || t.status === "COMPLETED";
         case "OVERDUE":
-          if (t.status !== "To Do" || !t.dueDate) return false;
+          if (t.status === "Completed" || t.status === "COMPLETED" || !t.dueDate) return false;
           return new Date(t.dueDate) < todayDate;
         case "TODAY":
-          if (t.status !== "To Do" || !t.dueDate) return false;
+          if (t.status === "Completed" || t.status === "COMPLETED" || !t.dueDate) return false;
           const due = new Date(t.dueDate);
-          due.setHours(0,0,0,0);
+          due.setHours(0, 0, 0, 0);
           return due.getTime() === todayDate.getTime();
         case "ME":
-          return t.status === "To Do" && t.assignedTo === userEmail;
+          return (t.status !== "Completed" && t.status !== "COMPLETED") && t.assignedTo === userEmail;
         case "ALL":
         default:
           return true;
@@ -932,8 +959,8 @@ export default function TaskBoardPage() {
   }, [tasks, searchQuery, activeTab, userEmail]);
 
   // Divide filtered tasks into Active and Completed
-  const activeTasksList = filteredTasks.filter(t => t.status !== "Completed");
-  const completedTasksList = filteredTasks.filter(t => t.status === "Completed");
+  const activeTasksList = filteredTasks.filter(t => t.status !== "Completed" && t.status !== "COMPLETED");
+  const completedTasksList = filteredTasks.filter(t => t.status === "Completed" || t.status === "COMPLETED");
 
   const selectedList = lists.find(l => l.id === selectedListId);
 
@@ -1035,12 +1062,12 @@ export default function TaskBoardPage() {
       {(isPending || isSyncing) && (
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#F46A3A] animate-pulse z-[100]" />
       )}
-      
+
       {/* 1. Left Sidebar: Task Lists Panel */}
       <div className="w-80 bg-[#F8FAFC] border-r border-slate-200 flex flex-col shrink-0 overflow-y-auto">
         <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">My Task Boards</span>
-          <button 
+          <button
             onClick={() => setShowListModal(true)}
             className="p-1.5 bg-white hover:bg-[#F46A3A] text-slate-400 hover:text-white border border-slate-200 rounded-lg transition-all cursor-pointer shadow-sm"
             title="Create New List"
@@ -1054,7 +1081,7 @@ export default function TaskBoardPage() {
           {lists.map((list) => {
             const completionPercent = list.totalTasks > 0 ? Math.round((list.completedTasks / list.totalTasks) * 100) : 0;
             const isSelected = list.id === selectedListId;
-            
+
             // Progress SVG constants
             const radius = 18;
             const stroke = 3;
@@ -1062,26 +1089,25 @@ export default function TaskBoardPage() {
             const offset = circumference - (completionPercent / 100) * circumference;
 
             return (
-              <div 
+              <div
                 key={list.id}
                 onClick={() => setSelectedListId(list.id)}
-                className={`w-full group flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all ${
-                  isSelected 
-                    ? "bg-white border border-slate-200 shadow-sm" 
-                    : "hover:bg-white hover:border-slate-200 hover:shadow-sm border border-transparent"
-                }`}
+                className={`w-full group flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all ${isSelected
+                  ? "bg-white border border-slate-200 shadow-sm"
+                  : "hover:bg-white hover:border-slate-200 hover:shadow-sm border border-transparent"
+                  }`}
               >
                 {/* SVG Progress Ring */}
                 <div className="relative shrink-0 w-10 h-10 flex items-center justify-center">
                   <svg className="w-10 h-10 -rotate-90">
-                    <circle 
-                      cx="20" cy="20" r={radius} 
-                      className="text-slate-200 stroke-current" 
-                      strokeWidth={stroke} fill="transparent" 
+                    <circle
+                      cx="20" cy="20" r={radius}
+                      className="text-slate-200 stroke-current"
+                      strokeWidth={stroke} fill="transparent"
                     />
-                    <circle 
-                      cx="20" cy="20" r={radius} 
-                      className="text-[#F46A3A] stroke-current transition-all duration-500" 
+                    <circle
+                      cx="20" cy="20" r={radius}
+                      className="text-[#F46A3A] stroke-current transition-all duration-500"
                       strokeWidth={stroke} fill="transparent"
                       strokeDasharray={circumference}
                       strokeDashoffset={offset}
@@ -1136,7 +1162,7 @@ export default function TaskBoardPage() {
                 <div className="flex items-center gap-2">
                   <h1 className="text-lg font-black text-[#1D283A] truncate">{selectedList.name}</h1>
                   {selectedList.created_by === userEmail && (
-                    <button 
+                    <button
                       onClick={() => handleDeleteList(selectedList.id)}
                       className="p-1 text-slate-300 hover:text-red-500 rounded transition-all shrink-0"
                       title="Delete this Task List"
@@ -1151,7 +1177,7 @@ export default function TaskBoardPage() {
               {/* Real-time search */}
               <div className="relative shrink-0 w-56">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input 
+                <input
                   type="text"
                   placeholder="Search tasks..."
                   value={searchQuery}
@@ -1174,11 +1200,10 @@ export default function TaskBoardPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                    activeTab === tab.id 
-                      ? "bg-[#F46A3A] text-white shadow-sm" 
-                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
-                  }`}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${activeTab === tab.id
+                    ? "bg-[#F46A3A] text-white shadow-sm"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -1202,12 +1227,11 @@ export default function TaskBoardPage() {
                   {activeTasksList.length > 0 && (
                     <div className="space-y-1">
                       {activeTasksList.map((task) => (
-                        <div 
+                        <div
                           key={task.id}
                           onClick={() => setSelectedTaskId(task.id)}
-                          className={`flex items-center gap-4 px-4 py-3.5 bg-white border border-slate-100 rounded-xl cursor-pointer transition-all ${
-                            selectedTaskId === task.id ? "bg-[#F46A3A]/5 border-[#F46A3A]/20" : "hover:bg-slate-50/50"
-                          }`}
+                          className={`flex items-center gap-4 px-4 py-3.5 bg-white border border-slate-100 rounded-xl cursor-pointer transition-all ${selectedTaskId === task.id ? "bg-[#F46A3A]/5 border-[#F46A3A]/20" : "hover:bg-slate-50/50"
+                            }`}
                         >
                           {/* Checkbox */}
                           <button
@@ -1223,37 +1247,35 @@ export default function TaskBoardPage() {
                               <span className="text-[10px] font-black text-[#F46A3A] uppercase tracking-wider">T-{task.taskNumber}</span>
                               <p className="text-sm font-bold text-slate-800 truncate">{task.title}</p>
                             </div>
-                            
+
                             <div className="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-wrap">
                               {task.dueDate ? (
-                                <span className={`flex items-center gap-1 ${
-                                  new Date(task.dueDate) < new Date() ? "text-red-500 font-bold" : ""
-                                }`}>
+                                <span className={`flex items-center gap-1 ${new Date(task.dueDate) < new Date() ? "text-red-500 font-bold" : ""
+                                  }`}>
                                   <Calendar className="w-3 h-3" /> Due {new Date(task.dueDate).toLocaleDateString()}
                                 </span>
                               ) : (
                                 <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> No Due Date</span>
                               )}
                               <span>&bull;</span>
-                              <span className={`px-2 py-0.5 rounded text-[8px] font-black ${
-                                task.priority === 'Critical' ? 'bg-red-100 text-red-700' :
+                              <span className={`px-2 py-0.5 rounded text-[8px] font-black ${task.priority === 'Critical' ? 'bg-red-100 text-red-700' :
                                 task.priority === 'High' ? 'bg-amber-100 text-amber-700' :
-                                task.priority === 'Medium' ? 'bg-blue-100 text-blue-700' :
-                                'bg-slate-100 text-slate-700'
-                              }`}>{task.priority}</span>
+                                  task.priority === 'Medium' ? 'bg-blue-100 text-blue-700' :
+                                    'bg-slate-100 text-slate-700'
+                                }`}>{task.priority}</span>
                             </div>
                           </div>
 
                           {/* Assignee initials avatar */}
                           {task.assignedTo ? (
-                            <div 
+                            <div
                               className="w-7 h-7 rounded-full bg-[#1D283A] text-white flex items-center justify-center text-[10px] font-black uppercase shrink-0 border border-slate-700 shadow-sm"
                               title={`Assigned to ${task.assignedTo}`}
                             >
                               {getInitials(task.assignedTo.includes('@') ? task.assignedTo.split('@')[0].replace(/[\._-]/g, ' ') : task.assignedTo)}
                             </div>
                           ) : (
-                            <div 
+                            <div
                               className="w-7 h-7 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center shrink-0 border border-slate-200 border-dashed"
                               title="Unassigned"
                             >
@@ -1268,7 +1290,7 @@ export default function TaskBoardPage() {
                   {/* Completed tasks list */}
                   {completedTasksList.length > 0 && (
                     <div className="space-y-2 pt-2 border-t border-slate-100">
-                      <button 
+                      <button
                         onClick={() => setCompletedCollapsed(!completedCollapsed)}
                         className="flex items-center gap-1.5 text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors ml-1"
                       >
@@ -1279,12 +1301,11 @@ export default function TaskBoardPage() {
                       {!completedCollapsed && (
                         <div className="space-y-1 animate-in fade-in duration-300">
                           {completedTasksList.map((task) => (
-                            <div 
+                            <div
                               key={task.id}
                               onClick={() => setSelectedTaskId(task.id)}
-                              className={`flex items-center gap-4 px-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl cursor-pointer opacity-65 hover:opacity-90 transition-all ${
-                                selectedTaskId === task.id ? "bg-[#F46A3A]/5 border-[#F46A3A]/20" : ""
-                              }`}
+                              className={`flex items-center gap-4 px-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl cursor-pointer opacity-65 hover:opacity-90 transition-all ${selectedTaskId === task.id ? "bg-[#F46A3A]/5 border-[#F46A3A]/20" : ""
+                                }`}
                             >
                               {/* Completed Checkbox */}
                               <button
@@ -1323,7 +1344,7 @@ export default function TaskBoardPage() {
             {/* Fast Inline add task */}
             <div className="px-8 pb-8 pt-4 border-t border-slate-50 bg-white">
               <div className="flex items-center gap-4 p-4 bg-slate-50/70 border border-slate-100 rounded-2xl focus-within:bg-white focus-within:border-[#F46A3A]/30 focus-within:ring-4 focus-within:ring-[#F46A3A]/5 transition-all">
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowTaskModal(true)}
                   className="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center hover:border-[#F46A3A] hover:bg-[#F46A3A]/5 text-slate-400 hover:text-[#F46A3A] cursor-pointer"
@@ -1331,7 +1352,7 @@ export default function TaskBoardPage() {
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
-                <input 
+                <input
                   type="text"
                   placeholder="Add a task (Press Enter to publish)..."
                   value={fastTaskTitle}
@@ -1352,17 +1373,16 @@ export default function TaskBoardPage() {
 
       {/* Backdrop overlay for closing drawer when clicking outside */}
       {selectedTaskId && (
-        <div 
+        <div
           className="absolute inset-0 bg-slate-900/15 z-[40] animate-in fade-in duration-300 cursor-pointer"
           onClick={() => setSelectedTaskId(null)}
         />
       )}
 
       {/* 3. Task Details Drawer Slide Over (450px) */}
-      <div 
-        className={`absolute right-0 top-0 h-full w-[450px] bg-white border-l border-slate-200 shadow-2xl z-[50] transition-transform duration-300 ease-out flex flex-col overflow-hidden ${
-          selectedTaskId ? "translate-x-0" : "translate-x-full"
-        }`}
+      <div
+        className={`absolute right-0 top-0 h-full w-[450px] bg-white border-l border-slate-200 shadow-2xl z-[50] transition-transform duration-300 ease-out flex flex-col overflow-hidden ${selectedTaskId ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         {loadingDrawer ? (
           <div className="flex flex-col items-center justify-center h-full gap-4">
@@ -1377,16 +1397,15 @@ export default function TaskBoardPage() {
               <button
                 type="button"
                 onClick={() => handleToggleCompletion(taskDetails)}
-                className={`mt-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                  taskDetails.status === 'Completed' ? 'bg-[#F46A3A] border-[#F46A3A] text-white' : 'border-slate-300 hover:border-[#F46A3A]'
-                }`}
+                className={`mt-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${taskDetails.status === 'Completed' ? 'bg-[#F46A3A] border-[#F46A3A] text-white' : 'border-slate-300 hover:border-[#F46A3A]'
+                  }`}
               >
                 <Check className="w-3.5 h-3.5 stroke-[4]" />
               </button>
 
               <div className="flex-1 min-w-0">
                 <span className="text-[10px] font-black text-[#F46A3A] uppercase tracking-widest">T-{taskDetails.taskNumber}</span>
-                <textarea 
+                <textarea
                   defaultValue={taskDetails.title}
                   onBlur={(e) => {
                     if (e.target.value.trim() && e.target.value.trim() !== taskDetails.title) {
@@ -1394,13 +1413,12 @@ export default function TaskBoardPage() {
                     }
                   }}
                   rows={2}
-                  className={`w-full bg-transparent border-none outline-none text-base font-black text-slate-800 resize-none leading-snug p-0 mt-0.5 ${
-                    taskDetails.status === 'Completed' ? 'text-slate-400 line-through' : ''
-                  }`}
+                  className={`w-full bg-transparent border-none outline-none text-base font-black text-slate-800 resize-none leading-snug p-0 mt-0.5 ${taskDetails.status === 'Completed' ? 'text-slate-400 line-through' : ''
+                    }`}
                 />
               </div>
 
-              <button 
+              <button
                 onClick={() => setSelectedTaskId(null)}
                 className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all cursor-pointer"
               >
@@ -1410,7 +1428,7 @@ export default function TaskBoardPage() {
 
             {/* Drawer Body Scroll */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              
+
               {/* Task Attributes Panel */}
               <div className="bg-slate-50/50 rounded-2xl border border-slate-200 p-4 space-y-3">
                 <div className="grid grid-cols-3 gap-2 items-center text-xs">
@@ -1423,7 +1441,7 @@ export default function TaskBoardPage() {
 
                 <div className="grid grid-cols-3 gap-2 items-center text-xs">
                   <span className="font-bold text-slate-400 uppercase tracking-wider">Due Date</span>
-                  <input 
+                  <input
                     type="date"
                     defaultValue={taskDetails.dueDate ? taskDetails.dueDate.split('T')[0] : ""}
                     onChange={(e) => handleUpdateTaskDetail({ dueDate: e.target.value || null })}
@@ -1463,7 +1481,7 @@ export default function TaskBoardPage() {
               {/* Direct Description Editor (Auto-saves on blur) */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Description</label>
-                
+
                 <div className="border border-slate-200 rounded-2xl overflow-hidden focus-within:border-[#F46A3A]/40 focus-within:ring-4 focus-within:ring-[#F46A3A]/5 transition-all">
                   {/* Toolbar */}
                   <div className="bg-slate-50 border-b border-slate-200 px-3 py-1.5 flex gap-1 items-center">
@@ -1473,7 +1491,7 @@ export default function TaskBoardPage() {
                     <button type="button" onMouseDown={(e) => { e.preventDefault(); handleAddMarkdown("1. "); }} className="p-1 hover:bg-slate-200 rounded text-[10px] w-6 h-6">1.</button>
                     <button type="button" onMouseDown={(e) => { e.preventDefault(); handleAddMarkdown("[]"); }} className="p-1 hover:bg-slate-200 rounded text-[10px] w-6 h-6">L</button>
                   </div>
-                  <textarea 
+                  <textarea
                     id="taskDescriptionEditor"
                     value={drawerDesc}
                     onChange={(e) => setDrawerDesc(e.target.value)}
@@ -1504,9 +1522,8 @@ export default function TaskBoardPage() {
                             newSteps[idx] = { ...step, isCompleted: !step.isCompleted };
                             handleUpdateTaskDetail({ steps: newSteps });
                           }}
-                          className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
-                            step.isCompleted ? "bg-[#F46A3A] border-[#F46A3A] text-white" : "border-slate-300"
-                          }`}
+                          className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${step.isCompleted ? "bg-[#F46A3A] border-[#F46A3A] text-white" : "border-slate-300"
+                            }`}
                         >
                           {step.isCompleted && <Check className="w-2.5 h-2.5" />}
                         </button>
@@ -1528,9 +1545,9 @@ export default function TaskBoardPage() {
                   ))}
                   <div className="flex items-center gap-3 p-2 focus-within:bg-slate-50 rounded-xl transition-all">
                     <Plus className="w-4 h-4 text-[#F46A3A]" />
-                    <input 
-                      type="text" 
-                      placeholder="Add subtask step..." 
+                    <input
+                      type="text"
+                      placeholder="Add subtask step..."
                       className="flex-1 bg-transparent border-none outline-none text-sm text-slate-800 placeholder:text-[#F46A3A]/70 font-semibold"
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && (e.target as HTMLInputElement).value.trim()) {
@@ -1551,7 +1568,8 @@ export default function TaskBoardPage() {
               {/* Notes Editor (Auto-saves on blur) */}
               <div className="space-y-2 pt-4 border-t border-slate-100">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Internal Notes</label>
-                <textarea 
+                <textarea
+                  id="taskNotesEditor"
                   placeholder="Draft notes here (Auto-saves on blur)..."
                   value={drawerNotes}
                   onChange={(e) => setDrawerNotes(e.target.value)}
@@ -1564,14 +1582,14 @@ export default function TaskBoardPage() {
               <div className="space-y-3 pt-4 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Files & Attachments</span>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="flex items-center gap-1 text-[10px] font-black text-[#F46A3A] hover:underline cursor-pointer"
                   >
                     <Paperclip className="w-3.5 h-3.5" /> Upload File
                   </button>
-                  <input 
+                  <input
                     type="file"
                     ref={fileInputRef}
                     onChange={handleFileUpload}
@@ -1590,14 +1608,14 @@ export default function TaskBoardPage() {
                         </div>
                       </div>
                       <div className="flex gap-1">
-                        <a 
+                        <a
                           href={`/api/attachments/${att.id}/download`}
                           className="p-1.5 text-slate-400 hover:text-[#F46A3A] hover:bg-slate-100 rounded-lg transition-all"
                           title="Download attachment"
                         >
                           <Download className="w-3.5 h-3.5" />
                         </a>
-                        <button 
+                        <button
                           onClick={() => handleDeleteAttachment(att.id)}
                           className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all cursor-pointer"
                           title="Delete attachment"
@@ -1645,13 +1663,13 @@ export default function TaskBoardPage() {
 
             {/* Drawer footer actions */}
             <div className="p-6 border-t border-slate-100 flex gap-4 bg-slate-50/50">
-              <button 
+              <button
                 onClick={() => handleDeleteTask(taskDetails.id)}
                 className="flex-1 py-2.5 px-4 bg-red-50 hover:bg-red-100 border border-red-100 text-red-600 hover:text-red-700 font-bold text-xs rounded-xl transition-all cursor-pointer text-center"
               >
                 Delete Task
               </button>
-              <button 
+              <button
                 onClick={() => handleToggleCompletion(taskDetails)}
                 className="flex-1 py-2.5 px-4 bg-[#F46A3A] hover:bg-[#F46A3A]/90 text-white font-bold text-xs rounded-xl shadow transition-all cursor-pointer text-center"
               >
@@ -1665,7 +1683,7 @@ export default function TaskBoardPage() {
       {/* 4. MODAL: Create New Task List */}
       {showListModal && (
         <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md z-[80] flex items-center justify-center p-6 overflow-y-auto animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-400">
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl relative animate-in zoom-in-95 duration-400">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-lg font-black text-slate-900">Create Task List</h2>
               <button onClick={() => setShowListModal(false)} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"><X className="w-5 h-5" /></button>
@@ -1674,9 +1692,9 @@ export default function TaskBoardPage() {
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 block ml-1">List Name *</label>
-                  <input 
-                    type="text" 
-                    required 
+                  <input
+                    type="text"
+                    required
                     placeholder="e.g. Daily Regression Activities"
                     value={newListName}
                     onChange={(e) => setNewListName(e.target.value)}
@@ -1685,7 +1703,7 @@ export default function TaskBoardPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 block ml-1">Description</label>
-                  <textarea 
+                  <textarea
                     placeholder="Describe the purpose of this task board list"
                     value={newListDesc}
                     onChange={(e) => setNewListDesc(e.target.value)}
@@ -1697,7 +1715,7 @@ export default function TaskBoardPage() {
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 block ml-1">Share With Members</label>
                   <p className="text-[10px] text-slate-400 ml-1 -mt-0.5">Only selected members (+ QA Leads) can see this board. DEVs are excluded.</p>
-                  
+
                   {/* Selected member tags */}
                   {newListSharedWith.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 px-1">
@@ -1734,7 +1752,7 @@ export default function TaskBoardPage() {
                     {showListUserDropdown && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-[90] max-h-44 overflow-y-auto">
                         {users
-                          .filter(u => 
+                          .filter(u =>
                             u.role !== 'DEV' &&
                             u.email !== userEmail &&
                             !newListSharedWith.includes(u.email) &&
@@ -1780,7 +1798,7 @@ export default function TaskBoardPage() {
       {/* 5. MODAL: Detailed Create Task */}
       {showTaskModal && (
         <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md z-[80] flex items-center justify-center p-6 overflow-y-auto animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-400">
+          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl relative animate-in zoom-in-95 duration-400">
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-lg font-black text-slate-900">Add New Task</h2>
               <button onClick={() => setShowTaskModal(false)} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"><X className="w-5 h-5" /></button>
@@ -1789,9 +1807,9 @@ export default function TaskBoardPage() {
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 block ml-1">Task Name *</label>
-                  <input 
-                    type="text" 
-                    required 
+                  <input
+                    type="text"
+                    required
                     maxLength={255}
                     placeholder="e.g. Verify Login Validation Messages"
                     value={newTaskTitle}
@@ -1802,7 +1820,7 @@ export default function TaskBoardPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 block ml-1">Description</label>
-                  <textarea 
+                  <textarea
                     placeholder="Provide details about steps or outcomes"
                     value={newTaskDesc}
                     onChange={(e) => setNewTaskDesc(e.target.value)}
@@ -1814,7 +1832,7 @@ export default function TaskBoardPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 block ml-1">Priority</label>
-                    <select 
+                    <select
                       value={newTaskPriority}
                       onChange={(e) => setNewTaskPriority(e.target.value)}
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-700 rounded-xl focus:bg-white focus:ring-4 focus:ring-[#F46A3A]/5 focus:border-[#F46A3A]/20 outline-none transition-all shadow-sm cursor-pointer"
@@ -1828,7 +1846,7 @@ export default function TaskBoardPage() {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-500 block ml-1">Due Date</label>
-                    <input 
+                    <input
                       type="date"
                       value={newTaskDueDate}
                       min={new Date().toISOString().split("T")[0]}
@@ -1840,7 +1858,7 @@ export default function TaskBoardPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-500 block ml-1">Assignee</label>
-                  <select 
+                  <select
                     value={newTaskAssignee}
                     onChange={(e) => setNewTaskAssignee(e.target.value)}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-700 rounded-xl focus:bg-white focus:ring-4 focus:ring-[#F46A3A]/5 focus:border-[#F46A3A]/20 outline-none transition-all shadow-sm cursor-pointer"
@@ -1862,11 +1880,10 @@ export default function TaskBoardPage() {
         </div>
       )}
       {toast && (
-        <div className={`fixed bottom-5 right-5 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-xl animate-in slide-in-from-bottom-5 duration-300 ${
-          toast.type === "success" 
-            ? "bg-emerald-50 border-emerald-100 text-emerald-800" 
-            : "bg-red-50 border-red-100 text-red-800"
-        }`}>
+        <div className={`fixed bottom-5 right-5 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-xl animate-in slide-in-from-bottom-5 duration-300 ${toast.type === "success"
+          ? "bg-emerald-50 border-emerald-100 text-emerald-800"
+          : "bg-red-50 border-red-100 text-red-800"
+          }`}>
           {toast.type === "success" ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />}
           <span className="text-sm font-bold">{toast.message}</span>
           <button onClick={() => setToast(null)} className="ml-2 p-0.5 hover:bg-black/5 rounded text-slate-400 hover:text-slate-600 transition-colors">
