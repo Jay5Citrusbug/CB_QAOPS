@@ -7,6 +7,10 @@ let lastQuotaCheckTime = 0;
 const QUOTA_RETRY_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 function enterOfflineMode() {
+  if (process.env.VERCEL && !isMockMode) {
+    console.warn(`⚠️ [Firestore Fallback] Connection/quota issue detected, but skipping offline fallback mode because we are on Vercel (serverless).`);
+    return;
+  }
   if (!isOfflineMode) {
     isOfflineMode = true;
     lastQuotaCheckTime = Date.now();
@@ -26,6 +30,9 @@ function getAdminApp() {
   if (!projectId || !clientEmail || !privateKey) {
     console.warn("⚠️ Firebase Admin SDK environment variables are not configured. Using dummy/mock credentials and forcing offline mode.");
     isMockMode = true;
+    
+    // Only enter offline fallback mode on serverless if environment variables are totally missing,
+    // so that the mock data in bundled JSON still loads.
     enterOfflineMode();
 
     return admin.initializeApp({
