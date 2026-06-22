@@ -9,6 +9,7 @@ import {
   CheckCircle2, AlertCircle, Loader2, Edit3, Eye, ChevronDown, Clock, Star,
 } from "lucide-react";
 import { toggleQuickNoteFavorite } from "@/lib/actions";
+import DocumentPreviewModal from "@/components/DocumentPreviewModal";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface NoteAttachment {
@@ -259,6 +260,7 @@ function NoteModal({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [previewDoc, setPreviewDoc] = useState<NoteAttachment | null>(null);
 
   const handleSave = async () => {
     if (!title.trim()) { setError("Title is required."); return; }
@@ -334,25 +336,16 @@ function NoteModal({
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []).slice(0, 5);
+    if (files.length === 0) return;
 
     const MAX_SIZE = 25 * 1024 * 1024; // 25MB
-    if (file.size > MAX_SIZE) {
-      setError("File size exceeds 25MB limit.");
-      if (fileRef.current) fileRef.current.value = "";
-      return;
-    }
-    if (file.size === 0) {
-      setError("Empty files are not allowed.");
-      if (fileRef.current) fileRef.current.value = "";
-      return;
-    }
-
-    const allowedExtensions = ["png", "jpg", "jpeg", "gif", "webp", "pdf", "txt", "doc", "docx", "xls", "xlsx", "zip"];
-    const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
-    if (!allowedExtensions.includes(fileExt)) {
-      setError("Unsupported file format. Allowed formats: PNG, JPG, JPEG, GIF, WEBP, PDF, TXT, DOC, DOCX, XLS, XLSX, ZIP");
+    const validFiles = files.filter(f => {
+      if (f.size > MAX_SIZE) { setError(`${f.name} exceeds 25MB limit.`); return false; }
+      if (f.size === 0) { setError(`${f.name} is empty.`); return false; }
+      return true;
+    });
+    if (validFiles.length === 0) {
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
@@ -372,14 +365,19 @@ function NoteModal({
     if (isEdit) {
       setUploading(true);
       try {
-        const fd = new FormData();
-        fd.append("file", file);
-        const res = await fetch(`/api/quick-notes/${note!.id}/attachments`, {
-          method: "POST", body: fd,
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Upload failed.");
-        setAttachments((prev) => [...prev, data.attachment]);
+        const uploadErrors: string[] = [];
+        for (const file of validFiles) {
+          const fd = new FormData();
+          fd.append("file", file);
+          const res = await fetch(`/api/quick-notes/${note!.id}/attachments`, { method: "POST", body: fd });
+          const data = await res.json();
+          if (!res.ok) {
+            uploadErrors.push(`${file.name}: ${data.error || "Upload failed."}`);
+          } else {
+            setAttachments((prev) => [...prev, data.attachment]);
+          }
+        }
+        if (uploadErrors.length > 0) setError(uploadErrors.join(" | "));
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -387,7 +385,7 @@ function NoteModal({
         if (fileRef.current) fileRef.current.value = "";
       }
     } else {
-      setPendingFiles((prev) => [...prev, file]);
+      setPendingFiles((prev) => [...prev, ...validFiles]);
       if (fileRef.current) fileRef.current.value = "";
     }
   };
@@ -472,6 +470,7 @@ function NoteModal({
 
             <input
               type="file"
+              multiple
               ref={fileRef}
               onChange={handleFileUpload}
               className="hidden"
@@ -485,7 +484,7 @@ function NoteModal({
               {uploading ? (
                 <><Loader2 className="w-4 h-4 animate-spin text-[#ed5c37]" /> Uploading...</>
               ) : (
-                <><Paperclip className="w-4 h-4" /> Attach File (max 25MB)</>
+                <><Paperclip className="w-4 h-4" /> Attach Files (up to 5, max 25MB each)</>
               )}
             </button>
 
@@ -501,6 +500,14 @@ function NoteModal({
                       <p className="text-xs font-bold text-slate-700 truncate">{att.fileName}</p>
                       <p className="text-[10px] text-slate-400 font-medium">{formatFileSize(att.fileSize)}</p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDoc(att)}
+                      className="p-1.5 text-slate-400 hover:text-[#ed5c37] hover:bg-orange-50 rounded-lg transition-all cursor-pointer"
+                      title="Preview"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
                     <a
                       href={att.filePath}
                       download={att.fileName}
@@ -563,6 +570,15 @@ function NoteModal({
           </button>
         </div>
       </div>
+      {previewDoc && (
+        <DocumentPreviewModal
+          isOpen={!!previewDoc}
+          onClose={() => setPreviewDoc(null)}
+          docName={previewDoc.fileName}
+          docUrl={previewDoc.filePath}
+          category={previewDoc.fileExt ? `${previewDoc.fileExt.toUpperCase()} Attachment` : "Note Attachment"}
+        />
+      )}
     </div>
   );
 }

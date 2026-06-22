@@ -28,8 +28,10 @@ import {
   Globe,
   MoreVertical,
   ShieldCheck,
-  FileUp
+  FileUp,
+  Eye
 } from "lucide-react";
+import DocumentPreviewModal from "@/components/DocumentPreviewModal";
 
 interface FolderType {
   id: string;
@@ -59,6 +61,7 @@ export default function QADocsPage() {
   const [folders, setFolders] = useState<FolderType[]>([]);
   const [activeFolder, setActiveFolder] = useState<FolderType | null>(null);
   const [documents, setDocuments] = useState<DocumentType[]>([]);
+  const [previewDoc, setPreviewDoc] = useState<DocumentType | null>(null);
   
   const [loading, setLoading] = useState(true);
   const [docsLoading, setDocsLoading] = useState(false);
@@ -77,7 +80,7 @@ export default function QADocsPage() {
   const [uploadSource, setUploadSource] = useState<"file" | "link">("file");
   const [linkUrl, setLinkUrl] = useState("");
   const [linkName, setLinkName] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   // Folder menu state
   const [activeMenuFolderId, setActiveMenuFolderId] = useState<string | null>(null);
@@ -205,8 +208,6 @@ export default function QADocsPage() {
 
     try {
       setIsSyncing(true);
-      const formData = new FormData();
-      formData.append("folderId", activeFolder.id);
 
       if (uploadSource === "link") {
         if (!linkUrl.trim()) {
@@ -214,31 +215,45 @@ export default function QADocsPage() {
           setIsSyncing(false);
           return;
         }
+        const formData = new FormData();
+        formData.append("folderId", activeFolder.id);
         formData.append("linkUrl", linkUrl.trim());
         formData.append("linkName", linkName.trim() || linkUrl.trim());
+        const res = await fetch("/api/qa-docs", { method: "POST", body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to upload item");
+        setToast({ message: "Link bookmarked successfully", type: "success" });
       } else {
-        if (!selectedFile) {
-          setToast({ message: "Please select a file to upload", type: "error" });
+        if (selectedFiles.length === 0) {
+          setToast({ message: "Please select at least one file to upload", type: "error" });
           setIsSyncing(false);
           return;
         }
-        formData.append("file", selectedFile);
+        let successCount = 0;
+        const errors: string[] = [];
+        for (const file of selectedFiles) {
+          const formData = new FormData();
+          formData.append("folderId", activeFolder.id);
+          formData.append("file", file);
+          const res = await fetch("/api/qa-docs", { method: "POST", body: formData });
+          const data = await res.json();
+          if (!res.ok) {
+            errors.push(`${file.name}: ${data.error || "Failed to upload"}`);
+          } else {
+            successCount++;
+          }
+        }
+        if (errors.length > 0) {
+          setToast({ message: errors[0], type: "error" });
+        } else {
+          setToast({ message: `${successCount} file(s) uploaded successfully`, type: "success" });
+        }
       }
-
-      const res = await fetch("/api/qa-docs", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to upload item");
-
-      setToast({ message: uploadSource === "link" ? "Link bookmarked successfully" : "File uploaded successfully", type: "success" });
       
       // Reset form & state
       setLinkUrl("");
       setLinkName("");
-      setSelectedFile(null);
+      setSelectedFiles([]);
       setShowUploadModal(false);
 
       // Re-fetch folder documents
@@ -355,9 +370,7 @@ export default function QADocsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="p-5 bg-white rounded-3xl border border-slate-200 min-h-[100px]" />
-          ))}
+          <div className="p-5 bg-white rounded-3xl border border-slate-200 min-h-[100px]" />
         </div>
 
         {/* Folders Grid */}
@@ -430,22 +443,6 @@ export default function QADocsPage() {
             <div className="p-5 bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Repositories / Folders</span>
               <span className="text-3xl font-extrabold text-slate-800 mt-3">{folders.length}</span>
-            </div>
-            <div className="p-5 bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Access Privileges</span>
-              <span className="text-sm font-extrabold text-[#ed5c37] mt-3 flex items-center gap-1.5">
-                {isAdmin ? (
-                  <>
-                    <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                    <span className="text-emerald-700 font-black uppercase text-[11px] tracking-wider">QA Administrator (CRUD)</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-4 h-4 text-slate-400" />
-                    <span className="text-slate-500 font-bold uppercase text-[11px] tracking-wider">General User (Read-Only)</span>
-                  </>
-                )}
-              </span>
             </div>
           </div>
 
@@ -674,6 +671,15 @@ export default function QADocsPage() {
                     )}
 
                     {/* Download or Open Link */}
+                    {doc.type === 'file' && (
+                      <button
+                        onClick={() => setPreviewDoc(doc)}
+                        className="p-2.5 text-slate-500 hover:text-[#ed5c37] hover:bg-slate-100 rounded-xl shadow-xs border border-slate-150 transition-all bg-white flex items-center justify-center cursor-pointer"
+                        title="Preview"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    )}
                     {doc.type === 'link' ? (
                       <a
                         href={doc.url}
@@ -828,19 +834,20 @@ export default function QADocsPage() {
                   <div className="border-2 border-dashed border-slate-200 hover:border-[#ed5c37]/40 rounded-2xl p-6 text-center cursor-pointer transition-colors relative bg-slate-50/50 group">
                     <input
                       type="file"
+                      multiple
                       required={uploadSource === "file"}
                       onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) setSelectedFile(file);
+                        const files = Array.from(e.target.files || []).slice(0, 5);
+                        if (files.length > 0) setSelectedFiles(files);
                       }}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
                     <FileUp className="w-8 h-8 text-slate-400 group-hover:text-[#ed5c37] mx-auto transition-colors" />
                     <span className="text-xs font-bold text-slate-600 block mt-2.5 truncate max-w-xs mx-auto">
-                      {selectedFile ? selectedFile.name : "Click or Drag to Upload File"}
+                      {selectedFiles.length === 0 ? "Click or Drag to Upload File(s)" : selectedFiles.length === 1 ? selectedFiles[0].name : `${selectedFiles.length} files selected`}
                     </span>
                     <span className="text-[10px] text-slate-400 block mt-1">
-                      {selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : "PDF, Excel, Word, Text, Image"}
+                      {selectedFiles.length > 0 ? `${selectedFiles.map(f => (f.size / (1024 * 1024)).toFixed(1)).join(" MB, ")} MB` : "Any format • Up to 5 files at once"}
                     </span>
                   </div>
                 </div>
@@ -897,6 +904,15 @@ export default function QADocsPage() {
             </form>
           </div>
         </div>
+      )}
+      {previewDoc && (
+        <DocumentPreviewModal
+          isOpen={!!previewDoc}
+          onClose={() => setPreviewDoc(null)}
+          docName={previewDoc.name}
+          docUrl={previewDoc.url}
+          category={previewDoc.fileExt ? `${previewDoc.fileExt.toUpperCase()} File` : "QA Document"}
+        />
       )}
     </div>
   );

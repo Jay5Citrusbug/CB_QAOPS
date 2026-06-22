@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import fs from 'fs';
 import path from 'path';
+import { uploadFile, deleteFile } from '@/lib/upload-helper';
 
 // GET: Retrieve all docs inside a folder
 export async function GET(request: NextRequest) {
@@ -100,25 +101,13 @@ export async function POST(request: NextRequest) {
 
       const name = (file as any).name || 'file';
       const buffer = Buffer.from(await file.arrayBuffer());
-
-      // Create target directory: public/uploads/qa-docs
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'qa-docs');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-
-      // Unique file name to prevent collision
-      const uniqueFileName = `${Date.now()}_${name}`;
-      const filePath = path.join(uploadDir, uniqueFileName);
-      fs.writeFileSync(filePath, buffer);
-
-      const relativeUrl = `/uploads/qa-docs/${encodeURIComponent(uniqueFileName)}`;
+      const { url: fileUrl } = await uploadFile(buffer, name, file.type, 'qa-docs');
       const ext = name.split('.').pop()?.toLowerCase() || '';
 
       newDocObj = {
         folder_id: folderId,
         name,
-        url: relativeUrl,
+        url: fileUrl,
         type: 'file',
         file_size: file.size,
         file_ext: ext,
@@ -162,19 +151,9 @@ export async function DELETE(request: NextRequest) {
 
     const itemData = docSnap.data() as any;
 
-    // If it's a file, remove it from disk
+    // If it's a file, remove it from storage
     if (itemData.type === 'file' && itemData.url) {
-      try {
-        const decodedPath = decodeURIComponent(itemData.url);
-        const relativeDiskPath = decodedPath.replace(/^\//, ''); // strip leading slash
-        const fullDiskPath = path.join(process.cwd(), 'public', relativeDiskPath);
-        
-        if (fs.existsSync(fullDiskPath)) {
-          fs.unlinkSync(fullDiskPath);
-        }
-      } catch (err) {
-        console.error('[QA Docs DELETE] Failed to delete physical file:', err);
-      }
+      await deleteFile(itemData.url);
     }
 
     await docRef.delete();

@@ -20,10 +20,12 @@ import {
   File, 
   Upload, 
   FolderOpen,
-  FolderDot
+  FolderDot,
+  Eye
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useConfirm } from "@/components/providers/ConfirmProvider";
+import DocumentPreviewModal from "@/components/DocumentPreviewModal";
 
 interface DriveItem {
   id: string;
@@ -52,7 +54,7 @@ export default function MyDrivePage() {
   const [uploadSource, setUploadSource] = useState<"file" | "link">("file");
 
   // Form States
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [linkUrl, setLinkUrl] = useState("");
   const [linkName, setLinkName] = useState("");
   
@@ -62,6 +64,7 @@ export default function MyDrivePage() {
   const [uploadError, setUploadError] = useState("");
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<DriveItem | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,37 +105,49 @@ export default function MyDrivePage() {
     setIsSyncing(true);
 
     try {
-      const formData = new FormData();
-      formData.append("category", activeSpace);
-
       if (uploadSource === "file") {
-        if (!uploadFile) throw new Error("Please select a file to upload.");
+        if (uploadFiles.length === 0) throw new Error("Please select at least one file to upload.");
         const MAX_SIZE = 50 * 1024 * 1024; // 50MB
-        if (uploadFile.size > MAX_SIZE) throw new Error("File size exceeds 50MB limit.");
-        formData.append("file", uploadFile);
+        let successCount = 0;
+        const errors: string[] = [];
+        for (const file of uploadFiles) {
+          if (file.size > MAX_SIZE) {
+            errors.push(`${file.name}: exceeds 50MB limit.`);
+            continue;
+          }
+          const formData = new FormData();
+          formData.append("category", activeSpace);
+          formData.append("file", file);
+          const res = await fetch("/api/my-drive", { method: "POST", body: formData });
+          if (!res.ok) {
+            const data = await res.json();
+            errors.push(`${file.name}: ${data.error || "Upload failed"}`);
+          } else {
+            successCount++;
+          }
+        }
+        if (errors.length > 0) {
+          setUploadError(errors.join(" | "));
+          setToast({ message: errors[0], type: "error" });
+        } else {
+          setToast({ message: `${successCount} file(s) uploaded successfully!`, type: "success" });
+        }
       } else {
         if (!linkUrl.trim()) throw new Error("Please enter a link URL.");
+        const formData = new FormData();
+        formData.append("category", activeSpace);
         formData.append("linkUrl", linkUrl.trim());
         formData.append("linkName", linkName.trim() || linkUrl.trim());
+        const res = await fetch("/api/my-drive", { method: "POST", body: formData });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Upload failed");
+        }
+        setToast({ message: "External link added successfully!", type: "success" });
       }
-
-      const res = await fetch("/api/my-drive", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Upload failed");
-      }
-
-      setToast({
-        message: uploadSource === "file" ? "File uploaded successfully!" : "External link added successfully!",
-        type: "success"
-      });
 
       // Reset Form
-      setUploadFile(null);
+      setUploadFiles([]);
       setLinkUrl("");
       setLinkName("");
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -392,15 +407,26 @@ export default function MyDrivePage() {
 
             {uploadSource === "file" ? (
               <div>
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">File</label>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Files <span className="text-slate-300 font-normal">(up to 5)</span></label>
                 <input
                   type="file"
+                  multiple
                   required
                   ref={fileInputRef}
-                  onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                  onChange={(e) => {
+                    const selected = Array.from(e.target.files || []).slice(0, 5);
+                    setUploadFiles(selected);
+                  }}
                   className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-600 hover:file:bg-[#ed5c37]/15 hover:file:text-[#ed5c37] file:cursor-pointer border border-slate-200 rounded-xl p-1 bg-slate-50 cursor-pointer outline-none"
                 />
-                <span className="text-[10px] text-slate-400 block mt-1">Supported: PDF, DOCX, XLSX, PNG, JPG, ZIP, etc. Max 50MB.</span>
+                {uploadFiles.length > 1 && (
+                  <div className="mt-1.5 space-y-0.5">
+                    {uploadFiles.map((f, i) => (
+                      <p key={i} className="text-[10px] text-slate-500 truncate">• {f.name} ({(f.size / (1024 * 1024)).toFixed(1)} MB)</p>
+                    ))}
+                  </div>
+                )}
+                <span className="text-[10px] text-slate-400 block mt-1">Any format supported. Max 50MB per file.</span>
               </div>
             ) : (
               <div className="space-y-3">
@@ -437,7 +463,7 @@ export default function MyDrivePage() {
 
             <button
               type="submit"
-              disabled={uploading || (uploadSource === "file" ? !uploadFile : !linkUrl.trim())}
+              disabled={uploading || (uploadSource === "file" ? uploadFiles.length === 0 : !linkUrl.trim())}
               className="w-full px-4 py-2.5 bg-slate-900 hover:bg-[#ed5c37] disabled:bg-slate-200 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               {uploading ? (
@@ -505,28 +531,37 @@ export default function MyDrivePage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                      {/* Open Link or Download */}
-                      {item.type === "link" ? (
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2.5 text-slate-500 hover:text-indigo-650 hover:bg-white rounded-xl shadow-xs border border-slate-150 bg-white flex items-center justify-center transition-all"
-                          title="Open Link"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      ) : (
-                        <a
-                          href={item.url}
-                          download={item.name}
-                          className="p-2.5 text-slate-550 hover:text-blue-600 hover:bg-white rounded-xl shadow-xs border border-slate-150 bg-white flex items-center justify-center transition-all"
-                          title="Download"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                        </a>
-                      )}
+                  <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                    {/* Open Link or Download */}
+                    {item.type === "file" && (
+                      <button
+                        onClick={() => setPreviewDoc(item)}
+                        className="p-2.5 text-slate-500 hover:text-[#ed5c37] hover:bg-white rounded-xl shadow-xs border border-slate-150 bg-white flex items-center justify-center transition-all cursor-pointer"
+                        title="Preview"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    {item.type === "link" ? (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2.5 text-slate-500 hover:text-indigo-650 hover:bg-white rounded-xl shadow-xs border border-slate-150 bg-white flex items-center justify-center transition-all"
+                        title="Open Link"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    ) : (
+                      <a
+                        href={item.url}
+                        download={item.name}
+                        className="p-2.5 text-slate-550 hover:text-blue-600 hover:bg-white rounded-xl shadow-xs border border-slate-150 bg-white flex items-center justify-center transition-all"
+                        title="Download"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                      </a>
+                    )}
 
                       {/* Delete Action (uploader only) */}
                       {canDelete && (
@@ -547,6 +582,15 @@ export default function MyDrivePage() {
         </div>
 
       </div>
+      {previewDoc && (
+        <DocumentPreviewModal
+          isOpen={!!previewDoc}
+          onClose={() => setPreviewDoc(null)}
+          docName={previewDoc.name}
+          docUrl={previewDoc.url}
+          category={previewDoc.category}
+        />
+      )}
     </div>
   );
 }

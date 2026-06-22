@@ -663,30 +663,34 @@ export default function TaskBoardPage() {
 
   // Add Attachment File
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !selectedTaskId) return;
+    const files = Array.from(e.target.files || []).slice(0, 5);
+    if (files.length === 0 || !selectedTaskId) return;
     setIsSyncing(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await fetch(`/api/tasks/${selectedTaskId}/attachments`, {
-        method: "POST",
-        body: formData
-      });
-      if (res.ok) {
-        setToast({ message: "File uploaded successfully!", type: "success" });
-        await fetchTaskDetails(selectedTaskId);
-      } else {
-        const data = await res.json();
-        setToast({ message: data.error || "File upload failed.", type: "error" });
+    let successCount = 0;
+    const errors: string[] = [];
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        const res = await fetch(`/api/tasks/${selectedTaskId}/attachments`, { method: "POST", body: formData });
+        if (res.ok) {
+          successCount++;
+        } else {
+          const data = await res.json();
+          errors.push(`${file.name}: ${data.error || "Upload failed."}`);
+        }
+      } catch (err: any) {
+        errors.push(`${file.name}: ${err.message || "Upload failed."}`);
       }
-    } catch (err: any) {
-      console.error("Failed to upload file", err);
-      setToast({ message: err.message || "File upload failed.", type: "error" });
-    } finally {
-      setIsSyncing(false);
     }
+    if (errors.length > 0) {
+      setToast({ message: errors[0], type: "error" });
+    } else {
+      setToast({ message: `${successCount} file(s) uploaded successfully!`, type: "success" });
+    }
+    await fetchTaskDetails(selectedTaskId);
+    setIsSyncing(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   // Delete Attachment
@@ -1591,6 +1595,7 @@ export default function TaskBoardPage() {
                   </button>
                   <input
                     type="file"
+                    multiple
                     ref={fileInputRef}
                     onChange={handleFileUpload}
                     className="hidden"

@@ -18,7 +18,8 @@
       "created_at": {
         "seconds": 1781608259,
         "nanoseconds": 607000000
-      }
+      },
+      "password": "$2b$10$W5B6ma5vQ8OlMg5N10zyJefuR9HtqQjTFIMcp2qj6GgtKyq3aBZM6"
     },
     "Eyv6tTirnmgY4P6fZIv7ZCyZpMd2": {
       "name": "Bhargav Joshi",
@@ -48,6 +49,17 @@
       "created_at": {
         "seconds": 1781608216,
         "nanoseconds": 400000000
+      }
+    },
+    "fbkenNOx7leMjwtfDA6dc85oU3X2": {
+      "name": "TestUser",
+      "email": "tirth.cb-1ops@yopmail.com",
+      "role": "USER",
+      "project_id": null,
+      "password": "$2b$10$YM4oAm2T5dahgbUi5tRHnedjAJSab3h0OlvT2VggWgbd7h8XpNKnG",
+      "created_at": {
+        "seconds": 1782104547,
+        "nanoseconds": 154000000
       }
     }
   },
@@ -81,9 +93,106 @@
         "seconds": 1781698871,
         "nanoseconds": 568000000
       },
+      "documents": [
+        {
+          "id": "doc_1781784918233",
+          "name": "Bug report PTE Roman",
+          "category": "Other Documents",
+          "url": "https://docs.google.com/spreadsheets/d/1JN9ihr-Fdv---PTVj617ODF2LOCTX2jCO9ezvQZjrvE/edit?gid=0#gid=0",
+          "uploadedBy": "Jay Citrusbug",
+          "uploadedAt": "2026-06-18T12:15:18.233Z",
+          "isLink": true,
+          "favoritedBy": []
+        }
+      ],
       "timeline": {
         "smokeTesting": {
           "status": "In Progress",
+          "owner": "tirth ",
+          "plannedDate": "2026-06-24T00:00:00.000Z",
+          "completedDate": "2026-06-22T00:00:00.000Z",
+          "notes": ""
+        },
+        "testCaseWriting": {
+          "status": "Completed",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": "2026-07-02T00:00:00.000Z",
+          "notes": ""
+        },
+        "designValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "integrationTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "regressionTesting": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "uatSupport": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "releaseVerification": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        },
+        "postReleaseValidation": {
+          "status": "Not Started",
+          "owner": "",
+          "plannedDate": null,
+          "completedDate": null,
+          "notes": ""
+        }
+      }
+    },
+    "68vTF3h9URSwrMbrHUPx": {
+      "code": "PROJ-1952",
+      "name": "ATC(Usher's)",
+      "status": "ACTIVE",
+      "description": "",
+      "scope": "",
+      "requirements": "",
+      "startDate": null,
+      "targetReleaseDate": null,
+      "primaryQaEmail": [
+        "tirth.citrusbug@gmail.com"
+      ],
+      "primaryQaName": [
+        "Tirth Mistry"
+      ],
+      "supportingQaEmail": [],
+      "supportingQaName": [],
+      "teamLeadEmail": [
+        "jay5.citrusbug@gmail.com"
+      ],
+      "teamLeadName": [
+        "Jay Citrusbug"
+      ],
+      "developerEmails": [],
+      "developerNames": [],
+      "documents": [],
+      "timeline": {
+        "smokeTesting": {
+          "status": "Not Started",
           "owner": "",
           "plannedDate": null,
           "completedDate": null,
@@ -139,19 +248,20 @@
           "notes": ""
         }
       },
-      "documents": [
-        {
-          "id": "doc_1781784918233",
-          "name": "Bug report PTE Roman",
-          "category": "Other Documents",
-          "url": "https://docs.google.com/spreadsheets/d/1JN9ihr-Fdv---PTVj617ODF2LOCTX2jCO9ezvQZjrvE/edit?gid=0#gid=0",
-          "uploadedBy": "Jay Citrusbug",
-          "uploadedAt": "2026-06-18T12:15:18.233Z",
-          "isLink": true,
-          "favoritedBy": [
-            "jay5.citrusbug@gmail.com"
-          ]
-        }
+      "notesAndFlags": [],
+      "tl_name": "Jay Citrusbug",
+      "assignee_name": "Tirth Mistry",
+      "dev_name": "",
+      "updated_at": {
+        "seconds": 1782104912,
+        "nanoseconds": 356000000
+      },
+      "created_at": {
+        "seconds": 1782104912,
+        "nanoseconds": 356000000
+      },
+      "favoritedBy": [
+        "jay5.citrusbug@gmail.com"
       ]
     }
   },
@@ -206,6 +316,78 @@
         "nanoseconds": 321000000
       },
       "description": "1. new test case\n"
+    },
+    "EbrYEHzyRk1lrB9QnebD": {
+      "task_list_id": "AuwKKycUdmMyjD0FHWnj",
+      "task_number": 1003,
+      "title": "Task 1 in the taskboar",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "tirth.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1781866161,
+        "nanoseconds": 246000000
+      },
+      "updated_at": {
+        "seconds": 1782104458,
+        "nanoseconds": 661000000
+      },
+      "description": "**\n1. \n- *bold text***"
+    },
+    "f9gWCixmS54CEuZuNbgT": {
+      "task_list_id": "AuwKKycUdmMyjD0FHWnj",
+      "task_number": 1005,
+      "title": "Ziplyst jira tickets",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "updated_at": {
+        "seconds": 1782104356,
+        "nanoseconds": 610000000
+      },
+      "created_at": {
+        "seconds": 1782104356,
+        "nanoseconds": 610000000
+      }
+    },
+    "xdEO72u0kAPpXTTr5IUh": {
+      "task_list_id": "OujDlvdDLos8hZ7lpXpP",
+      "task_number": 1004,
+      "title": "Task 1",
+      "description": "",
+      "notes": "",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "steps": [],
+      "created_at": {
+        "seconds": 1782104242,
+        "nanoseconds": 94000000
+      },
+      "completed_at": {
+        "seconds": 1782104320,
+        "nanoseconds": 8000000
+      },
+      "updated_at": {
+        "seconds": 1782104320,
+        "nanoseconds": 8000000
+      },
+      "completed_by": "jay5.citrusbug@gmail.com",
+      "status": "Completed"
     }
   },
   "task_steps": {},
@@ -2497,6 +2679,20 @@
         "seconds": 1781852127,
         "nanoseconds": 650000000
       }
+    },
+    "AuwKKycUdmMyjD0FHWnj": {
+      "name": "Task 1",
+      "description": "",
+      "shared_with": [],
+      "created_by": "tirth.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1781866144,
+        "nanoseconds": 361000000
+      },
+      "created_at": {
+        "seconds": 1781866144,
+        "nanoseconds": 361000000
+      }
     }
   },
   "task_activities": {
@@ -2760,6 +2956,44 @@
       "created_at": {
         "seconds": 1781787805,
         "nanoseconds": 255000000
+      }
+    }
+  },
+  "my_drive": {
+    "Bc0ILGJ4OsHC3URaQMkU": {
+      "name": "ASSERTION_ENGINE_PROMPT_1_CORE_IMPLEMENTATION.md",
+      "url": "/uploads/my-drive/1782105148445_ASSERTION_ENGINE_PROMPT_1_CORE_IMPLEMENTATION.md",
+      "type": "file",
+      "category": "private",
+      "user_id": "boHO3GpjzJOQvXqr1nzEL0YlS0s2",
+      "uploaded_by": "Jay Citrusbug",
+      "file_size": 33785,
+      "file_ext": "md",
+      "uploaded_at": {
+        "seconds": 1782105149,
+        "nanoseconds": 408000000
+      },
+      "created_at": {
+        "seconds": 1782105149,
+        "nanoseconds": 408000000
+      }
+    },
+    "JJT1zK13SeL7SwNZ3woW": {
+      "name": "COMPLETE_SUMMARY_EXPECTED_RESULT_STRATEGY.md",
+      "url": "/uploads/my-drive/1782105150020_COMPLETE_SUMMARY_EXPECTED_RESULT_STRATEGY.md",
+      "type": "file",
+      "category": "private",
+      "user_id": "boHO3GpjzJOQvXqr1nzEL0YlS0s2",
+      "uploaded_by": "Jay Citrusbug",
+      "file_size": 15581,
+      "file_ext": "md",
+      "uploaded_at": {
+        "seconds": 1782105150,
+        "nanoseconds": 968000000
+      },
+      "created_at": {
+        "seconds": 1782105150,
+        "nanoseconds": 968000000
       }
     }
   }

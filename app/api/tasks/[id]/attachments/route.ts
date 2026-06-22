@@ -7,6 +7,7 @@ import { authOptions } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { uploadFile } from '@/lib/upload-helper';
 
 export async function POST(
   request: Request,
@@ -32,28 +33,8 @@ export async function POST(
       return NextResponse.json({ error: 'File size exceeds maximum limit of 25MB' }, { status: 400 });
     }
 
-    // Allowed extensions check
-    const ext = path.extname(file.name).toLowerCase().replace('.', '');
-    const allowedExts = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'png', 'jpg', 'jpeg', 'zip'];
-    if (!allowedExts.includes(ext)) {
-      return NextResponse.json({ error: `File extension .${ext} is not allowed` }, { status: 400 });
-    }
-
-    // Local workspace directory to save files
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
-    // Generate safe unique filename
-    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const uniqueFileName = `${Date.now()}-${sanitizedName}`;
-    const diskPath = path.join(uploadsDir, uniqueFileName);
-
     const buffer = Buffer.from(await file.arrayBuffer());
-    fs.writeFileSync(diskPath, buffer);
-
-    const fileUrl = `/uploads/${uniqueFileName}`;
+    const { url: fileUrl } = await uploadFile(buffer, file.name, file.type, 'tasks');
 
     const newAttachment = {
       task_id: id,

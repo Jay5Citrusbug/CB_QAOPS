@@ -24,8 +24,10 @@ import {
   User,
   Shield,
   ChevronRight,
-  Clock
+  Clock,
+  Eye
 } from "lucide-react";
+import DocumentPreviewModal from "@/components/DocumentPreviewModal";
 import { 
   toggleDocumentFavorite, 
   toggleProjectFavorite, 
@@ -94,6 +96,7 @@ export default function FavoritesPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [quickNotes, setQuickNotes] = useState<QuickNote[]>([]);
+  const [previewDoc, setPreviewDoc] = useState<any | null>(null);
   
   const [loading, setLoading] = useState(true);
   const [notesLoading, setNotesLoading] = useState(true);
@@ -578,11 +581,21 @@ export default function FavoritesPage() {
                       {/* Unfavorite Button */}
                       <button
                         onClick={() => handleUnfavoriteDocument(doc.projectId, doc.id)}
-                        className="p-2.5 text-amber-500 hover:bg-slate-100 rounded-xl shadow-xs border border-slate-150 transition-all bg-white cursor-pointer"
+                        className="p-2.5 text-amber-500 hover:bg-slate-100 rounded-xl shadow-xs border border-slate-155 transition-all bg-white cursor-pointer"
                         title="Remove from Favorites"
                       >
                         <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                       </button>
+
+                      {!doc.isLink && (
+                        <button
+                          onClick={() => setPreviewDoc(doc)}
+                          className="p-2.5 text-slate-505 hover:text-[#ed5c37] hover:bg-slate-100 rounded-xl shadow-xs border border-slate-150 transition-all bg-white flex items-center justify-center cursor-pointer"
+                          title="Preview"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      )}
 
                       {/* Download or Open Link */}
                       {doc.isLink ? (
@@ -835,6 +848,15 @@ export default function FavoritesPage() {
             </div>
           </div>
         </div>
+      )}
+      {previewDoc && (
+        <DocumentPreviewModal
+          isOpen={!!previewDoc}
+          onClose={() => setPreviewDoc(null)}
+          docName={previewDoc.name}
+          docUrl={previewDoc.url}
+          category={previewDoc.category}
+        />
       )}
     </div>
   );

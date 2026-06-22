@@ -9,11 +9,10 @@ import {
   FolderOpen, 
   Search, 
   FileText, 
-  Star, 
-  ExternalLink, 
-  Download, 
-  Eye, 
-  X, 
+  Star,
+  ExternalLink,
+  Download,
+  X,
   ArrowLeft,
   FileCheck,
   FileSpreadsheet,
@@ -23,9 +22,11 @@ import {
   Lock,
   ChevronRight,
   BookOpen,
-  FolderDot
+  FolderDot,
+  Eye
 } from "lucide-react";
 import { toggleDocumentFavorite } from "@/lib/actions";
+import DocumentPreviewModal from "@/components/DocumentPreviewModal";
 
 interface Document {
   id: string;
@@ -78,6 +79,7 @@ export default function ProjectDocsPage() {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<Document | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -495,6 +497,15 @@ export default function ProjectDocsPage() {
                                   </button>
 
                                   {/* Open Link or Download */}
+                                  {!doc.isLink && (
+                                    <button
+                                      onClick={() => setPreviewDoc(doc)}
+                                      className="p-2 text-slate-505 hover:text-[#ed5c37] hover:bg-white rounded-xl shadow-sm border border-slate-100 transition-all bg-white cursor-pointer"
+                                      title="Preview"
+                                    >
+                                      <Eye className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
                                   {doc.isLink ? (
                                     <a
                                       href={doc.url}
@@ -528,6 +539,15 @@ export default function ProjectDocsPage() {
             </div>
           </div>
         </div>
+      )}
+      {previewDoc && (
+        <DocumentPreviewModal
+          isOpen={!!previewDoc}
+          onClose={() => setPreviewDoc(null)}
+          docName={previewDoc.name}
+          docUrl={previewDoc.url}
+          category={previewDoc.category}
+        />
       )}
     </div>
   );

@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import fs from 'fs';
 import path from 'path';
+import { uploadFile, deleteFile } from '@/lib/upload-helper';
 
 // GET: Retrieve user-specific private drive items and all public items
 export async function GET(request: NextRequest) {
@@ -101,12 +102,6 @@ export async function POST(request: NextRequest) {
       const name = (file as any).name || 'file';
       const ext = name.split('.').pop()?.toLowerCase() || '';
 
-      // Allowed formats validation
-      const allowedExtensions = ["png", "jpg", "jpeg", "gif", "webp", "pdf", "txt", "doc", "docx", "xls", "xlsx", "zip"];
-      if (!allowedExtensions.includes(ext)) {
-        return NextResponse.json({ error: 'Unsupported file format. Allowed formats: PNG, JPG, JPEG, GIF, WEBP, PDF, TXT, DOC, DOCX, XLS, XLSX, ZIP' }, { status: 400 });
-      }
-
       // Size validations
       const MAX_SIZE = 25 * 1024 * 1024; // 25MB
       if (file.size > MAX_SIZE) {
@@ -117,24 +112,12 @@ export async function POST(request: NextRequest) {
       }
 
       const buffer = Buffer.from(await file.arrayBuffer());
-
-      // Create target directory: public/uploads/my-drive
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'my-drive');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-
-      // Sanitize file name to prevent directory traversal or shell injection
+      const { url: fileUrl } = await uploadFile(buffer, name, file.type, 'my-drive');
       const sanitizedBase = path.basename(name).replace(/[^a-zA-Z0-9.-]/g, '_');
-      const uniqueFileName = `${Date.now()}_${sanitizedBase}`;
-      const filePath = path.join(uploadDir, uniqueFileName);
-      fs.writeFileSync(filePath, buffer);
-
-      const relativeUrl = `/uploads/my-drive/${encodeURIComponent(uniqueFileName)}`;
 
       newDriveObj = {
         name: sanitizedBase,
-        url: relativeUrl,
+        url: fileUrl,
         type: 'file',
         category,
         user_id: userId,
@@ -186,19 +169,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // If it's a file, remove it from disk
+    // If it's a file, remove it from storage
     if (itemData.type === 'file' && itemData.url) {
-      try {
-        const decodedPath = decodeURIComponent(itemData.url);
-        const relativeDiskPath = decodedPath.replace(/^\//, ''); // strip leading slash
-        const fullDiskPath = path.join(process.cwd(), 'public', relativeDiskPath);
-        
-        if (fs.existsSync(fullDiskPath)) {
-          fs.unlinkSync(fullDiskPath);
-        }
-      } catch (err) {
-        console.error('Failed to delete physical file:', err);
-      }
+      await deleteFile(itemData.url);
     }
 
     await docRef.delete();

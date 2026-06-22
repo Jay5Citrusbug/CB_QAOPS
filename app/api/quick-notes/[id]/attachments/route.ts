@@ -7,6 +7,7 @@ import { authOptions } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { uploadFile, deleteFile } from '@/lib/upload-helper';
 
 // POST /api/quick-notes/[id]/attachments — upload file to a note
 export async function POST(
@@ -48,24 +49,14 @@ export async function POST(
 
     const ext = path.extname(file.name).toLowerCase().replace('.', '') || 'unknown';
 
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'notes');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
-    const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const uniqueFileName = `${Date.now()}-${sanitizedName}`;
-    const diskPath = path.join(uploadsDir, uniqueFileName);
     const buffer = Buffer.from(await file.arrayBuffer());
-    fs.writeFileSync(diskPath, buffer);
-
-    const filePath = `/uploads/notes/${uniqueFileName}`;
+    const { url: fileUrl } = await uploadFile(buffer, file.name, file.type, 'notes');
     const attachmentId = `att_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
     const newAttachment = {
       id: attachmentId,
       fileName: file.name,
-      filePath,
+      filePath: fileUrl,
       fileSize: file.size,
       fileExt: ext,
       uploadedAt: new Date().toISOString(),
@@ -120,8 +111,7 @@ export async function DELETE(
     const target = attachments.find((a: any) => a.id === attachmentId);
 
     if (target?.filePath) {
-      const fullPath = path.join(process.cwd(), 'public', target.filePath);
-      try { if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath); } catch {}
+      await deleteFile(target.filePath);
     }
 
     const updated = attachments.filter((a: any) => a.id !== attachmentId);

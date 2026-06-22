@@ -26,6 +26,7 @@ function getAdminApp() {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || (projectId ? `${projectId}.appspot.com` : undefined);
 
   if (!projectId || !clientEmail || !privateKey) {
     console.warn("⚠️ Firebase Admin SDK environment variables are not configured. Using dummy/mock credentials and forcing offline mode.");
@@ -39,8 +40,9 @@ function getAdminApp() {
       credential: admin.credential.cert({
         projectId: "mock-project-id",
         clientEmail: "mock-client@mock.iam.gserviceaccount.com",
-        privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCKrWilXI8UYfZq\n3SIKzSgsKOTizVGfYgTM9TGQOmKln4eNigGanXgEZXZgqUPEnO6083vuAauX5+EM\no5OyWVLAlzdBKHteVThF/K7zoa0tYuH2shIuC3HkSECSVbVNrAXqmR2KZVjM758p\nVZGHkvIeS0N/t9Yg6KeveO4bLY0UNpm7p65UEA7w8fFnP1VXDWPpHa6LdcfMKL+A\n+zO8wWpyHfA3xEyQDPCvLX5PthI7lMmxG6IeUS5f6mtEp7XxBZHo4Ta10rUg1/GF\nCcQrcQ1lh4Byh+9jh2Q8pyc9bwAdu07w9lj1YkUHG/wbgAZz8oYiX1fbVXHzOpWo\ny7bIezBRAgMBAAECggEAGnCLZhOql9lBkQhOKD8LLLgzQ2af7EJU5frNk1D+Y9Nx\nlbO9MIxbSINLuYwsBn1hKZDOjQc2fwTPrIg3baaIF339I+gi9U5MJ1PQy1SE3wVe\nTZmPy8WU1lBMN1ot8fwdOKgusKc38gKxlsDguTd0AACbgus64RVaeyMUSow5vKOQ\neReReNQAzTAajDSrc9ACrw7ZGQ7m4ks1hNbAKbRE6floixVHOZi9N9d8DPMpISQh\nU/ieP1WfgoqYNoMSAolnbgYMaoY8fJReMCLkGmYYSF5m1YGS3oSC2UPEF3IHpoAj\n4aKPIks0dVbfXTZPqrnXEGL7AgnZanIZYcpFEGkhEQKBgQDAYYXcz9F+2w/FVaWl\nsAGB1fjQvSzY8pdfRFEPPA7SwI8I+TlmrBVpKkz62N118hsxQpGTNP02kYP+RiQt\n4bBde29LFTLP/Df9uufaZQgDiFHop1DKWt+XQ48nDOSICt+//zeF+jeuuQS6Ma7y\nN8ZIVU0BcT7fMC7KVq4Ij+BszQKBgQC4iXq/AfNBfSVbvQqFihZNKkjm54v991XX\nUDmuzyiXhlJPIT+EAB5RO+I3XLgn02/qV24BY+QbCuZMML67TxVnvd8yCJv7S2l1\nXflCe6UTUfUiB5C2G92YXSp+iTYYwHAcRshq17b/cHaYWe9NNkMHUXxlmIRxMjmW\nwBVNyitRlQKBgDUJrfIWiVdD5bEtz6FCSOgWqaZCwV5+YyUsnHxqvlt0IvsCWsTn\npG997gMqTsP5n22RQLko3rZwn8c2ZzsPAaSEJ0a37W5Rxs34/XrEZ9UxfAN8PVXM\nf+AgDBNkBo1LEizIm/If7cIJ2DfNAsJchhnjCnvfUMoPapb2Frzdja3xAoGAZ/YD\nscHughF3z3PzjoHZyIUu5u7BXkVOFev7YzEPxDWG/09S0hGjAs7Cxb+1e7JRVWsF\n7UCSTG3aikfX2/xUqco9CJnzDiJQ+i8D8uFngTfl6tLqQr32HBU4kGrKkC0xu6xg\n0lhOnx+DoJbiCtSr9F6Cv1WqH39VFEmIdveTafUCgYA3nnhE1zJkph4rc3CKSzsb\nhzLWfcLqThaY+BIdRM5THzUGNKsEAD7taefHyNMWWduqIfjNAhsdoQz4fAu/hH3X\nCj4zl97SPUz+Hq68LrRb6saBj5/CkKWtshYHonNAhi+vXr4GNtZROQlNNj9x4Zrk\nnZQg5PYIK6Fpv7NO2eEvMw==\n-----END PRIVATE KEY-----",
+        privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCKrWilXI8UYfZq\n3SIKzSgsKOTizVGfYgTM9TGQOmKln4eNigGanXgEZXZgqUPEnO6083vuAauX5+EM\no5OyWVLAlzdBKHteVThF/K7zoa0tYuH2shIuC3HkSECSVbVNrAXqmR2KZVjM758p\nVZGHkvIeS0N/t9Yg6KeveO4bLY0UNpm7p65UEA7w8fFnP1VXDWPpHa6LdcfMKL+A\n+zO8wWpyHfA3xEyQDPCvLX5PthI7lMmxG6IeUS5f6mtEp7XxBZHo4Ta10rUg1/GF\nCcQrcQ1lh4Byh+9jh2Q8pyc9bwAdu07w9lj1YkUHG/wbgAZz8oYiX1fbVXHzOpWo\ny7bIezBRAgMBAAECggEAGnCLZhOql9lBkQhOKD8LLLgzQ2af7EJU5frNk1D+Y9Nx\nlbO9MIxbSINLuYwsBn1hKZDOjQc2fwTPrIg3baaIF339I+gi9U5MJ1PQy1SE3wVe\nTZmPy8WU1lBMN1ot8fwdOKgusKc38gKxlsDguTd0AACbgus64RVaeyMUSow5vKOQ\neReReNQAzTAajDSrc9ACrw7ZGQ7m4ks1hNbAKbRE6floixVHOZi9N9d8DPMpISQh\nU/ieP1WfgoqYNoMSAolnbgYMaoY8fJReMCLkGmYYSF5m1YGS3oSC2UPEF3IHpoAj\n4aKPIks0dVbfXTZPqrnXEGL7AgnZanIZYcpFEGkhEQKBgQDAYYXcz9F+2w/FVaWl\nsAGB1fjQvSzY8pdfRFEPPA7SwI8I+TlmrBVpKkz62N118hsxQpGTNP02kYP+RiQt\n4bBde29LFTLP/Df9uufaZQgDiFHop1DKWt+XQ48nDOSICt+//zeF+jeuuQS6Ma7y\nN8ZIVU0BcT7fMC7KVq4Ij+BszQKBgQC4iXq/AfNBfSVbvQqFihZNKkjm54v991XX\nUDmuzyiXhlJPIT+EAB5RO+I3XLgn02/qV24BY+QbCuZMML67TxVnvd8yCJv7S2l1\nXflCe6UTUfUiB5C2G92YXSp+iTYYwHAcRshq17b/cHaYWe9NNkMHUXxlmIRxMjmW\nwBVNyitRlQKBgDUJrfIWiVdD5bEtz6FCSOgWqaZCwV5+YyUsnHxqvlt0IvsCWsTn\npG997gMqTsP5n22RQLko3rZwn8c2ZzsPAaSEJ0a37W5Rxs34/XrEZ9UxfAN8PVXM\nf+AgDBNkBo1LEizIm/If7cIJ2DfNAsJchhnjCnvfUMoPapb2Frzdja3xAoGAZ/YD\scHughF3z3PzjoHZyIUu5u7BXkVOFev7YzEPxDWG/09S0hGjAs7Cxb+1e7JRVWsF\n7UCSTG3aikfX2/xUqco9CJnzDiJQ+i8D8uFngTfl6tLqQr32HBU4kGrKkC0xu6xg\n0lhOnx+DoJbiCtSr9F6Cv1WqH39VFEmIdveTafUCgYA3nnhE1zJkph4rc3CKSzsb\nhzLWfcLqThaY+BIdRM5THzUGNKsEAD7taefHyNMWWduqIfjNAhsdoQz4fAu/hH3X\nCj4zl97SPUz+Hq68LrRb6saBj5/CkKWtshYHonNAhi+vXr4GNtZROQlNNj9x4Zrk\nnZQg5PYIK6Fpv7NO2eEvMw==\n-----END PRIVATE KEY-----",
       } as admin.ServiceAccount),
+      storageBucket: "mock-project-id.appspot.com",
     });
   }
 
@@ -50,12 +52,14 @@ function getAdminApp() {
       clientEmail,
       privateKey,
     } as admin.ServiceAccount),
+    storageBucket,
   });
 }
 
 // Lazy singletons — only initialized on first use, not at module load time
 let _adminDb: admin.firestore.Firestore | null = null;
 let _adminAuth: admin.auth.Auth | null = null;
+let _adminStorage: admin.storage.Storage | null = null;
 
 export function getAdminDb(): admin.firestore.Firestore {
   if (!_adminDb) {
@@ -83,6 +87,19 @@ export function getAdminAuth(): admin.auth.Auth {
   }
   return _adminAuth;
 }
+
+export function getAdminStorage(): admin.storage.Storage {
+  if (!_adminStorage) {
+    _adminStorage = getAdminApp().storage();
+  }
+  return _adminStorage;
+}
+
+export const adminStorage = new Proxy({} as admin.storage.Storage, {
+  get(_target, prop) {
+    return (getAdminStorage() as any)[prop];
+  },
+});
 
 // ─── FIRESTORE LOCAL FALLBACK ENGINE ──────────────────────────────────────────
 
