@@ -21,6 +21,21 @@ export async function GET(request: Request) {
 
     // Check if query is for Task Board List
     if (taskListId) {
+      const listDoc = await adminDb.collection('task_lists').doc(taskListId).get();
+      if (!listDoc.exists) {
+        return NextResponse.json({ error: 'Task board list not found' }, { status: 404 });
+      }
+      const listData = listDoc.data() || {};
+      const listSharedWith = listData.shared_with || [];
+      const userEmail = session.user.email as string;
+      const userRole = (session.user as any).role || 'USER';
+      const isQaLead = userRole === 'ADMIN' || userRole === 'TL';
+
+      const hasAccess = listData.created_by === userEmail || isQaLead || listSharedWith.includes(userEmail);
+      if (!hasAccess) {
+        return NextResponse.json({ error: 'Forbidden: You do not have access to this task board' }, { status: 403 });
+      }
+
       let tasksQuery: FirebaseFirestore.Query = adminDb.collection('tasks').where('task_list_id', '==', taskListId);
       const tasksSnapshot = await tasksQuery.get();
       const tasks = tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
@@ -134,6 +149,21 @@ export async function POST(request: Request) {
 
     if (!title || !title.trim() || !taskListId) {
       return NextResponse.json({ error: 'Title and Task List ID are required' }, { status: 400 });
+    }
+
+    const listDoc = await adminDb.collection('task_lists').doc(taskListId).get();
+    if (!listDoc.exists) {
+      return NextResponse.json({ error: 'Task board list not found' }, { status: 404 });
+    }
+    const listData = listDoc.data() || {};
+    const listSharedWith = listData.shared_with || [];
+    const userEmail = session.user.email as string;
+    const userRole = (session.user as any).role || 'USER';
+    const isQaLead = userRole === 'ADMIN' || userRole === 'TL';
+
+    const hasAccess = listData.created_by === userEmail || isQaLead || listSharedWith.includes(userEmail);
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Forbidden: You do not have access to this task board' }, { status: 403 });
     }
 
     // Auto-increment task number (find max in tasks and add 1)

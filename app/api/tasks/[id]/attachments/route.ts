@@ -20,6 +20,29 @@ export async function POST(
     }
 
     const { id } = await params;
+    const taskDoc = await adminDb.collection('tasks').doc(id).get();
+    if (!taskDoc.exists) {
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+    const taskData = taskDoc.data() || {};
+    const userEmail = session.user.email;
+    const userRole = (session.user as any).role || 'USER';
+    const isQaLead = userRole === 'ADMIN' || userRole === 'TL';
+
+    // Fetch parent task list to verify visibility
+    if (taskData.task_list_id) {
+      const listDoc = await adminDb.collection('task_lists').doc(taskData.task_list_id).get();
+      if (!listDoc.exists) {
+        return NextResponse.json({ error: 'Task board list not found' }, { status: 404 });
+      }
+      const listData = listDoc.data() || {};
+      const listSharedWith = listData.shared_with || [];
+      const hasAccess = listData.created_by === userEmail || isQaLead || listSharedWith.includes(userEmail);
+      if (!hasAccess) {
+        return NextResponse.json({ error: 'Forbidden: You do not have access to this task board' }, { status: 403 });
+      }
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 

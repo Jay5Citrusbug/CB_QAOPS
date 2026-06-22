@@ -120,6 +120,8 @@ export default function DailyStatusPage() {
   }, [toast]);
 
   const { data: session } = useSession();
+  const userRole = (session?.user as any)?.role || "USER";
+  const isQaLead = userRole === "ADMIN" || userRole === "TL";
 
   // Fetch data
   const fetchData = async () => {
@@ -395,8 +397,12 @@ export default function DailyStatusPage() {
                   </div>
                   <div className="flex gap-1">
                     <button onClick={() => setViewStatusId(group.id)} className="p-2 text-slate-400 hover:text-[#ed5c37] hover:bg-[#ed5c37]/5 rounded-lg transition-all"><Eye className="w-4 h-4" /></button>
-                    <button onClick={() => handleEdit(group)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"><Edit2 className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(group.date)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><Trash2 className="w-4 h-4" /></button>
+                    {(group.user.email === session?.user?.email || isQaLead) && (
+                      <>
+                        <button onClick={() => handleEdit(group)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => handleDelete(group.date)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><Trash2 className="w-4 h-4" /></button>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -436,15 +442,31 @@ export default function DailyStatusPage() {
              <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-500">
                    <tr>
+                      {isQaLead && <th className="px-6 py-4">User</th>}
                       <th className="px-6 py-4">Project Name</th>
-                      <th className="px-6 py-4">Highlights</th>
-                      <th className="px-6 py-4">Timeline</th>
+                      <th className="px-6 py-4">Daily Wins</th>
+                      <th className="px-6 py-4">Future Tasks</th>
+                      <th className="px-6 py-4">Blockers</th>
+                      <th className="px-6 py-4">Target Date</th>
                       <th className="px-6 py-4 text-right">Actions</th>
                    </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                    {groupedStatuses.map((group) => (
                       <tr key={group.id} className="hover:bg-slate-50 transition-colors">
+                         {isQaLead && (
+                            <td className="px-6 py-4">
+                               <div className="flex items-center gap-2">
+                                  <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-[10px] uppercase shrink-0">
+                                     {getInitials(group.user.name)}
+                                  </div>
+                                  <div className="min-w-0">
+                                     <p className="font-bold text-slate-800 truncate text-xs">{group.user.name}</p>
+                                     <p className="text-[10px] text-slate-400 truncate">{group.user.email}</p>
+                                  </div>
+                               </div>
+                            </td>
+                         )}
                          <td className="px-6 py-4">
                             <div className="flex flex-wrap gap-1">
                               {group.projects.map(p => (
@@ -452,8 +474,20 @@ export default function DailyStatusPage() {
                               ))}
                             </div>
                          </td>
-                         <td className="px-6 py-4 max-w-sm">
-                            <p className="text-slate-600 font-medium truncate">{renderWithLinks(group.workDone)}</p>
+                         <td className="px-6 py-4 max-w-xs">
+                            <p className="text-slate-600 font-medium truncate text-xs" title={group.workDone}>{group.workDone}</p>
+                         </td>
+                         <td className="px-6 py-4 max-w-xs">
+                            <p className="text-slate-600 font-medium truncate text-xs" title={group.plannedWork}>{group.plannedWork}</p>
+                         </td>
+                         <td className="px-6 py-4 max-w-xs">
+                            {group.blockers ? (
+                               <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-700 border border-red-100 truncate max-w-[150px]" title={group.blockers}>
+                                  {group.blockers}
+                               </span>
+                            ) : (
+                               <span className="text-slate-400 text-xs italic">None</span>
+                            )}
                          </td>
                          <td className="px-6 py-4">
                             <div className="flex flex-col text-slate-400 font-bold text-xs">
@@ -464,8 +498,12 @@ export default function DailyStatusPage() {
                          <td className="px-6 py-4 text-right">
                              <div className="flex justify-end gap-1">
                                <button onClick={() => setViewStatusId(group.id)} className="p-2 text-slate-400 hover:text-[#ed5c37] hover:bg-[#ed5c37]/5 rounded-lg transition-all"><Eye className="w-4 h-4" /></button>
-                               <button onClick={() => handleEdit(group)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"><Edit2 className="w-4 h-4" /></button>
-                               <button onClick={() => handleDelete(group.date)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><Trash2 className="w-4 h-4" /></button>
+                               {(group.user.email === session?.user?.email || isQaLead) && (
+                                  <>
+                                     <button onClick={() => handleEdit(group)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"><Edit2 className="w-4 h-4" /></button>
+                                     <button onClick={() => handleDelete(group.date)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><Trash2 className="w-4 h-4" /></button>
+                                  </>
+                               )}
                              </div>
                          </td>
                       </tr>

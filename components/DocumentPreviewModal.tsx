@@ -51,9 +51,9 @@ export default function DocumentPreviewModal({
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-          <div>
-            <h3 className="font-extrabold text-slate-900 text-base line-clamp-1">{docName}</h3>
+        <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50 gap-4">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-extrabold text-slate-900 text-base break-all">{docName}</h3>
             {category && (
               <span className="px-2.5 py-0.5 bg-[#ed5c37]/10 text-[#ed5c37] rounded-md font-bold text-[10px] uppercase tracking-wider mt-1 inline-block">
                 {category}
@@ -62,7 +62,7 @@ export default function DocumentPreviewModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+            className="p-1.5 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-700 transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
@@ -90,7 +90,7 @@ export default function DocumentPreviewModal({
           ) : (
             <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-sm max-w-md w-full">
               {getDocIcon(docName)}
-              <h4 className="font-bold text-slate-800 text-sm mt-3">{docName}</h4>
+              <h4 className="font-bold text-slate-800 text-sm mt-3 break-all">{docName}</h4>
               <p className="text-xs text-slate-400 mt-1">
                 {isOfficeDoc && isLocalFile
                   ? "Office Document preview is only supported in production deployments."

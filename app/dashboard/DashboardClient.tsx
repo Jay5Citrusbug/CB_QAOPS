@@ -43,7 +43,7 @@ export default function DashboardClient({
   // Navigation & Filtering State
   const [activeTab, setActiveTab] = useState<"MY_DASH" | "TEAM_OVERVIEW">("MY_DASH");
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
-  const [tasksView, setTasksView] = useState<"PERSONAL" | "TEAM">("TEAM");
+  const [tasksView, setTasksView] = useState<"PERSONAL" | "TEAM">(isQaLead ? "TEAM" : "PERSONAL");
 
   // Form State
   const [showForm, setShowForm] = useState(false);
@@ -133,13 +133,13 @@ export default function DashboardClient({
       // Always show that user's tasks when inspecting their dashboard
       return allTasks.filter(t => t.assignedTo === targetUserEmail || t.createdBy === targetUserEmail || t.user_id === targetUserId);
     }
-    if (tasksView === "TEAM") {
+    if (tasksView === "TEAM" && isQaLead) {
       // Show all tasks across all users
       return allTasks;
     }
     // Default: Show logged in user's personal tasks
     return allTasks.filter(t => t.assignedTo === targetUserEmail || t.createdBy === targetUserEmail || t.user_id === targetUserId);
-  }, [allTasks, tasksView, viewingUserId, targetUserEmail, targetUserId]);
+  }, [allTasks, tasksView, viewingUserId, targetUserEmail, targetUserId, isQaLead]);
 
   // 3. Map Task List ID to Names
   const listsMap = useMemo(() => {
@@ -647,7 +647,7 @@ export default function DashboardClient({
         /* Standard Dashboard Cards (My Dashboard or Focused Member Dashboard) */
         <>
           {/* Tasks Scope Toggle */}
-          {!viewingUserId && (
+          {!viewingUserId && isQaLead && (
             <div className="flex justify-between items-center bg-slate-100/80 border border-slate-200/50 p-1 rounded-2xl w-fit gap-1 select-none animate-in fade-in duration-300">
               <button
                 type="button"

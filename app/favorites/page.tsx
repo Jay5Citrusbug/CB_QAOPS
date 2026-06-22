@@ -136,15 +136,14 @@ export default function FavoritesPage() {
   const fetchTestCases = async (projectsList: Project[]) => {
     setTestCasesLoading(true);
     try {
-      const promises = projectsList.map(async (p) => {
+      const favoritedProjectsList = projectsList.filter(p => p.favoritedBy?.includes(userEmail));
+      
+      const promises = favoritedProjectsList.map(async (p) => {
         const res = await fetch(`/api/projects/${p.id}/test-cases?limit=1000`);
         if (res.ok) {
           const data = await res.json();
-          // Filter only favorited ones for this user
-          const favCases = (data.testCases || []).filter((tc: any) => 
-            tc.favoritedBy?.includes(userEmail)
-          );
-          return favCases.map((tc: any) => ({
+          const cases = data.testCases || [];
+          return cases.map((tc: any) => ({
             ...tc,
             projectId: p.id,
             projectName: p.name,
@@ -262,12 +261,24 @@ export default function FavoritesPage() {
   const handleUnfavoriteTestCase = async (projectId: string, testCaseId: string) => {
     try {
       setIsSyncing(true);
-      const res = await toggleTestCaseFavorite(projectId, testCaseId);
+      const res = await toggleProjectFavorite(projectId);
       if (res && "error" in res) {
         setToast({ message: res.error || "Failed to update favorites", type: "error" });
       } else {
-        setToast({ message: "Removed testcase from favorites", type: "success" });
-        setTestCases(prev => prev.filter(tc => !(tc.projectId === projectId && tc.testCaseId === testCaseId)));
+        setToast({ message: "Removed project and its test cases from favorites", type: "success" });
+        setProjects(prev =>
+          prev.map(p => {
+            if (p.id === projectId) {
+              const favs = p.favoritedBy || [];
+              return {
+                ...p,
+                favoritedBy: favs.filter(email => email !== userEmail)
+              };
+            }
+            return p;
+          })
+        );
+        setTestCases(prev => prev.filter(tc => tc.projectId !== projectId));
       }
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
@@ -677,7 +688,7 @@ export default function FavoritesPage() {
             <div className="space-y-4">
               {filteredTestCases.length === 0 ? (
                 <div className="py-16 text-center text-slate-400 font-semibold border-2 border-dashed border-slate-200 rounded-3xl bg-white">
-                  {searchTerm ? "No matching favorited test cases." : "No favorited test cases yet. Visit Project Test Cases sheets to star test cases."}
+                  {searchTerm ? "No matching favorited test cases." : "No favorited test cases yet. Favorite a project to view its test cases here."}
                 </div>
               ) : (
                 filteredTestCases.map((tc) => (
@@ -801,19 +812,19 @@ export default function FavoritesPage() {
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 text-[#ed5c37] flex items-center justify-center shadow-xs">
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 gap-4">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 text-[#ed5c37] flex items-center justify-center shadow-xs shrink-0">
                   <StickyNote className="w-5.5 h-5.5" />
                 </div>
-                <div>
-                  <h3 className="font-extrabold text-slate-850 text-base">{selectedNote.title}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-extrabold text-slate-850 text-base break-all">{selectedNote.title}</h3>
                   <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider mt-0.5">Quick Note View</span>
                 </div>
               </div>
               <button 
                 onClick={() => setSelectedNote(null)}
-                className="p-2 hover:bg-slate-200/50 rounded-xl text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                className="p-2 hover:bg-slate-200/50 rounded-xl text-slate-400 hover:text-slate-700 transition-colors cursor-pointer shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>

@@ -1402,9 +1402,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
                               key={doc.id}
                               className="p-3.5 bg-slate-50 hover:bg-slate-100/50 border border-slate-100 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors group"
                             >
-                              <div className="flex items-start gap-4">
-                                <div className="mt-0.5">{getDocIcon(doc.name, doc.isLink)}</div>
-                                <div>
+                              <div className="flex items-start gap-4 flex-1 min-w-0">
+                                <div className="mt-0.5 shrink-0">{getDocIcon(doc.name, doc.isLink)}</div>
+                                <div className="min-w-0 flex-1">
                                   <div className="font-bold text-slate-800 text-sm line-clamp-1 group-hover:text-[#ed5c37] transition-colors">{doc.name}</div>
                                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-slate-400 text-[10px] font-bold uppercase tracking-wider mt-1">
                                     <span>Uploaded by {doc.uploadedBy}</span>
@@ -1765,16 +1765,18 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
       {previewDoc && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-              <div>
-                <h3 className="font-extrabold text-slate-900 text-base line-clamp-1">{previewDoc.name}</h3>
-                <span className="px-2.5 py-0.5 bg-[#ed5c37]/10 text-[#ed5c37] rounded-md font-bold text-[10px] uppercase tracking-wider mt-1 inline-block">
-                  {previewDoc.category}
-                </span>
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50 gap-4">
+              <div className="min-w-0 flex-1">
+                <h3 className="font-extrabold text-slate-900 text-base break-all">{previewDoc.name}</h3>
+                {previewDoc.category && (
+                  <span className="px-2.5 py-0.5 bg-[#ed5c37]/10 text-[#ed5c37] rounded-md font-bold text-[10px] uppercase tracking-wider mt-1 inline-block">
+                    {previewDoc.category}
+                  </span>
+                )}
               </div>
               <button
                 onClick={() => setPreviewDoc(null)}
-                className="p-1.5 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-700 transition-colors"
+                className="p-1.5 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-700 transition-colors shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1801,9 +1803,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
                   );
                 } else {
                   return (
-                    <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-sm max-w-md">
+                    <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-sm max-w-md w-full">
                       {getDocIcon(previewDoc.name)}
-                      <h4 className="font-bold text-slate-800 text-sm mt-3">{previewDoc.name}</h4>
+                      <h4 className="font-bold text-slate-800 text-sm mt-3 break-all">{previewDoc.name}</h4>
                       <p className="text-xs text-slate-400 mt-1">This file format cannot be previewed in the browser.</p>
                       <a
                         href={previewDoc.url}

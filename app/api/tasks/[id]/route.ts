@@ -27,6 +27,23 @@ export async function GET(
     }
 
     const task = taskDoc.data() || {};
+    const taskListId = task.task_list_id;
+    if (taskListId) {
+      const listDoc = await adminDb.collection('task_lists').doc(taskListId).get();
+      if (!listDoc.exists) {
+        return NextResponse.json({ error: 'Task board list not found' }, { status: 404 });
+      }
+      const listData = listDoc.data() || {};
+      const listSharedWith = listData.shared_with || [];
+      const userEmail = session.user.email as string;
+      const userRole = (session.user as any).role || 'USER';
+      const isQaLead = userRole === 'ADMIN' || userRole === 'TL';
+
+      const hasAccess = listData.created_by === userEmail || isQaLead || listSharedWith.includes(userEmail);
+      if (!hasAccess) {
+        return NextResponse.json({ error: 'Forbidden: You do not have access to this task board' }, { status: 403 });
+      }
+    }
 
     // Fetch attachments and activities
     const [attachmentsSnapshot, activitiesSnapshot] = await Promise.all([
@@ -111,8 +128,19 @@ export async function PUT(
     const userRole = (session.user as any).role || 'USER';
     const isQaLead = userRole === 'ADMIN' || userRole === 'TL';
 
-    // Permissions check: only creator, assignee, or QA Lead can edit tasks
-    if (oldData.created_by !== userEmail && oldData.assigned_to !== userEmail && !isQaLead) {
+    // Fetch parent task list to verify collaborative board permissions
+    let hasListAccess = false;
+    if (oldData.task_list_id) {
+      const listDoc = await adminDb.collection('task_lists').doc(oldData.task_list_id).get();
+      if (listDoc.exists) {
+        const listData = listDoc.data() || {};
+        const listSharedWith = listData.shared_with || [];
+        hasListAccess = listData.created_by === userEmail || isQaLead || listSharedWith.includes(userEmail);
+      }
+    }
+
+    // Permissions check: only creator, assignee, QA Lead, or shared board member can edit tasks
+    if (oldData.created_by !== userEmail && oldData.assigned_to !== userEmail && !isQaLead && !hasListAccess) {
       return NextResponse.json({ error: 'Forbidden: Cannot edit other team members\' tasks' }, { status: 403 });
     }
 
@@ -237,8 +265,19 @@ export async function DELETE(
     const userRole = (session.user as any).role || 'USER';
     const isQaLead = userRole === 'ADMIN' || userRole === 'TL';
 
-    // Permissions check: only creator or QA Lead can delete tasks
-    if (taskData.created_by !== userEmail && !isQaLead) {
+    // Fetch parent task list to verify collaborative board permissions
+    let hasListAccess = false;
+    if (taskData.task_list_id) {
+      const listDoc = await adminDb.collection('task_lists').doc(taskData.task_list_id).get();
+      if (listDoc.exists) {
+        const listData = listDoc.data() || {};
+        const listSharedWith = listData.shared_with || [];
+        hasListAccess = listData.created_by === userEmail || isQaLead || listSharedWith.includes(userEmail);
+      }
+    }
+
+    // Permissions check: only creator, QA Lead, or shared board member can delete tasks
+    if (taskData.created_by !== userEmail && !isQaLead && !hasListAccess) {
       return NextResponse.json({ error: 'Forbidden: Cannot delete other team members\' tasks' }, { status: 403 });
     }
 

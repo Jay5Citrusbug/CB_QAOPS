@@ -162,10 +162,21 @@ export default function TaskBoardPage() {
   const [showListUserDropdown, setShowListUserDropdown] = useState(false);
   const listUserDropdownRef = useRef<HTMLDivElement>(null);
 
+  const [showEditListModal, setShowEditListModal] = useState(false);
+  const [editListName, setEditListName] = useState("");
+  const [editListDesc, setEditListDesc] = useState("");
+  const [editListSharedWith, setEditListSharedWith] = useState<string[]>([]);
+  const [editListUserSearch, setEditListUserSearch] = useState("");
+  const [showEditListUserDropdown, setShowEditListUserDropdown] = useState(false);
+  const editListUserDropdownRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     function handleOutsideClick(e: MouseEvent) {
       if (listUserDropdownRef.current && !listUserDropdownRef.current.contains(e.target as Node)) {
         setShowListUserDropdown(false);
+      }
+      if (editListUserDropdownRef.current && !editListUserDropdownRef.current.contains(e.target as Node)) {
+        setShowEditListUserDropdown(false);
       }
     }
     document.addEventListener('mousedown', handleOutsideClick);
@@ -331,6 +342,57 @@ export default function TaskBoardPage() {
     } catch (err: any) {
       console.error("Failed to create task list", err);
       setToast({ message: err.message || "Failed to create task list.", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleOpenEditListModal = () => {
+    if (!selectedList) return;
+    setEditListName(selectedList.name);
+    setEditListDesc(selectedList.description || "");
+    setEditListSharedWith(selectedList.sharedWith || []);
+    setEditListUserSearch("");
+    setShowEditListUserDropdown(false);
+    setShowEditListModal(true);
+  };
+
+  const handleUpdateList = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editListName.trim() || !selectedList) return;
+    setIsSyncing(true);
+    try {
+      const res = await fetch(`/api/task-lists/${selectedList.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editListName.trim(),
+          description: editListDesc.trim(),
+          sharedWith: editListSharedWith
+        })
+      });
+      if (res.ok) {
+        setShowEditListModal(false);
+        setToast({ message: "Task list updated successfully!", type: "success" });
+        await fetchLists(true);
+        setLists(prev => prev.map(l => {
+          if (l.id === selectedList.id) {
+            return {
+              ...l,
+              name: editListName.trim(),
+              description: editListDesc.trim(),
+              sharedWith: editListSharedWith
+            };
+          }
+          return l;
+        }));
+      } else {
+        const data = await res.json();
+        setToast({ message: data.error || "Failed to update task list.", type: "error" });
+      }
+    } catch (err: any) {
+      console.error("Failed to update task list", err);
+      setToast({ message: err.message || "Failed to update task list.", type: "error" });
     } finally {
       setIsSyncing(false);
     }
@@ -1162,17 +1224,26 @@ export default function TaskBoardPage() {
           <>
             {/* Header: Title, Search, List Info */}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-lg font-black text-[#1D283A] truncate">{selectedList.name}</h1>
-                  {selectedList.created_by === userEmail && (
-                    <button
-                      onClick={() => handleDeleteList(selectedList.id)}
-                      className="p-1 text-slate-300 hover:text-red-500 rounded transition-all shrink-0"
-                      title="Delete this Task List"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-lg font-black text-[#1D283A] truncate max-w-md">{selectedList.name}</h1>
+                  {(selectedList.created_by === userEmail || isQaLead || selectedList.sharedWith?.includes(userEmail)) && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={handleOpenEditListModal}
+                        className="p-1 text-slate-350 hover:text-[#F46A3A] rounded transition-all cursor-pointer"
+                        title="Edit Task Board Details"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteList(selectedList.id)}
+                        className="p-1 text-slate-300 hover:text-red-500 rounded transition-all shrink-0 cursor-pointer"
+                        title="Delete this Task List"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   )}
                 </div>
                 <p className="text-xs font-semibold text-slate-400 mt-0.5 truncate">{selectedList.description || "No description provided."}</p>
@@ -1794,6 +1865,121 @@ export default function TaskBoardPage() {
               <div className="flex gap-4 pt-4 border-t border-slate-100">
                 <button type="button" onClick={() => setShowListModal(false)} className="flex-1 py-2.5 rounded-xl font-semibold bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs">Discard</button>
                 <button type="submit" className="flex-1 py-2.5 rounded-xl font-bold bg-[#F46A3A] hover:bg-[#F46A3A]/90 text-white text-xs shadow-lg shadow-orange-500/10">Create Board</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 4b. MODAL: Edit Task List */}
+      {showEditListModal && selectedList && (
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md z-[80] flex items-center justify-center p-6 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl relative animate-in zoom-in-95 duration-400">
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-black text-slate-900">Edit Board Details</h2>
+              <button onClick={() => setShowEditListModal(false)} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"><X className="w-5 h-5" /></button>
+            </div>
+            <form onSubmit={handleUpdateList} className="p-6 space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 block ml-1">List Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Daily Regression Activities"
+                    value={editListName}
+                    onChange={(e) => setEditListName(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-700 rounded-xl focus:bg-white focus:ring-4 focus:ring-[#F46A3A]/5 focus:border-[#F46A3A]/20 outline-none transition-all shadow-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 block ml-1">Description</label>
+                  <textarea
+                    placeholder="Describe the purpose of this task board list"
+                    value={editListDesc}
+                    onChange={(e) => setEditListDesc(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-700 rounded-xl focus:bg-white focus:ring-4 focus:ring-[#F46A3A]/5 focus:border-[#F46A3A]/20 outline-none transition-all shadow-sm resize-none"
+                  />
+                </div>
+                {/* Shared With - multi-select member picker (excludes DEV) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 block ml-1">Share With Members</label>
+                  <p className="text-[10px] text-slate-400 ml-1 -mt-0.5">Only selected members (+ QA Leads) can see this board. DEVs are excluded.</p>
+
+                  {/* Selected member tags */}
+                  {editListSharedWith.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 px-1">
+                      {editListSharedWith.map(email => {
+                        const u = users.find(x => x.email === email);
+                        return (
+                          <span key={email} className="flex items-center gap-1 px-2 py-1 bg-[#F46A3A]/10 text-[#F46A3A] text-[10px] font-black rounded-full border border-[#F46A3A]/20">
+                            {u?.name || email.split('@')[0]}
+                            <button type="button" onClick={() => setEditListSharedWith(prev => prev.filter(e => e !== email))} className="hover:text-red-500 transition-colors cursor-pointer">
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Searchable dropdown */}
+                  <div ref={editListUserDropdownRef} className="relative">
+                    <div
+                      onClick={() => setShowEditListUserDropdown(true)}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2 cursor-text focus-within:bg-white focus-within:border-[#F46A3A]/30 focus-within:ring-2 focus-within:ring-[#F46A3A]/10 transition-all"
+                    >
+                      <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <input
+                        type="text"
+                        placeholder="Search & invite team members..."
+                        value={editListUserSearch}
+                        onChange={e => { setEditListUserSearch(e.target.value); setShowEditListUserDropdown(true); }}
+                        className="flex-1 bg-transparent outline-none text-xs font-semibold text-slate-700 placeholder:text-slate-400"
+                      />
+                    </div>
+
+                    {showEditListUserDropdown && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-[90] max-h-44 overflow-y-auto">
+                        {users
+                          .filter(u =>
+                            u.role !== 'DEV' &&
+                            u.email !== userEmail &&
+                            !editListSharedWith.includes(u.email) &&
+                            (u.name.toLowerCase().includes(editListUserSearch.toLowerCase()) || u.email.toLowerCase().includes(editListUserSearch.toLowerCase()))
+                          )
+                          .map(u => (
+                            <div
+                              key={u.id}
+                              onClick={() => {
+                                setEditListSharedWith(prev => [...prev, u.email]);
+                                setEditListUserSearch("");
+                                setShowEditListUserDropdown(false);
+                              }}
+                              className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 cursor-pointer transition-colors"
+                            >
+                              <div className="w-7 h-7 rounded-full bg-[#1D283A] text-white flex items-center justify-center text-[10px] font-black shrink-0">
+                                {getInitials(u.name)}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-slate-800 truncate">{u.name}</p>
+                                <p className="text-[10px] text-slate-400 truncate">{u.role} · {u.email.split('@')[0]}</p>
+                              </div>
+                            </div>
+                          ))
+                        }
+                        {users.filter(u => u.role !== 'DEV' && u.email !== userEmail && !editListSharedWith.includes(u.email) && (u.name.toLowerCase().includes(editListUserSearch.toLowerCase()) || u.email.toLowerCase().includes(editListUserSearch.toLowerCase()))).length === 0 && (
+                          <div className="px-4 py-3 text-xs font-bold text-slate-400 text-center">No members found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-4 pt-4 border-t border-slate-100">
+                <button type="button" onClick={() => setShowEditListModal(false)} className="flex-1 py-2.5 rounded-xl font-semibold bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs cursor-pointer">Discard</button>
+                <button type="submit" className="flex-1 py-2.5 rounded-xl font-bold bg-[#F46A3A] hover:bg-[#F46A3A]/90 text-white text-xs shadow-lg shadow-orange-500/10 cursor-pointer">Save Changes</button>
               </div>
             </form>
           </div>

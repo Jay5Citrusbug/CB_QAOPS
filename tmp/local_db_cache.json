@@ -3,15 +3,15 @@
     "wUpu9MdzSTaHMXmSgf77R64lwAQ2": {
       "role": "ADMIN",
       "project_id": null,
-      "name": "Jay Citrusbug",
       "created_at": {
         "seconds": 1781607497,
         "nanoseconds": 651000000
       },
-      "email": "jay5.citrusbug@gmail.com"
+      "email": "jay5.citrusbug@gmail.com",
+      "name": "Jay Citrusbug",
+      "password": "$2b$10$iuhgEDUwB1XwH4HrPBwEf./cTvk9CUhbjhWCBHIJpzJ6lHBWt/swK"
     },
     "6q6eBCbJmGOvZQrh0jwoURH0zsB2": {
-      "name": "Tirth Mistry",
       "email": "tirth.citrusbug@gmail.com",
       "role": "USER",
       "project_id": null,
@@ -19,7 +19,8 @@
         "seconds": 1781608259,
         "nanoseconds": 607000000
       },
-      "password": "$2b$10$W5B6ma5vQ8OlMg5N10zyJefuR9HtqQjTFIMcp2qj6GgtKyq3aBZM6"
+      "password": "$2b$10$OF2VZ7b5O7nhaF59V205LOR9c0/MM8vIfXsVGTZX9vo8MD3KfIfYa",
+      "name": "Tirth mistry Mistry"
     },
     "Eyv6tTirnmgY4P6fZIv7ZCyZpMd2": {
       "name": "Bhargav Joshi",
@@ -167,7 +168,6 @@
     "68vTF3h9URSwrMbrHUPx": {
       "code": "PROJ-1952",
       "name": "ATC(Usher's)",
-      "status": "ACTIVE",
       "description": "",
       "scope": "",
       "requirements": "",
@@ -189,22 +189,80 @@
       ],
       "developerEmails": [],
       "developerNames": [],
-      "documents": [],
+      "tl_name": "Jay Citrusbug",
+      "assignee_name": "Tirth Mistry",
+      "dev_name": "",
+      "created_at": {
+        "seconds": 1782104912,
+        "nanoseconds": 356000000
+      },
+      "documents": [
+        {
+          "id": "doc_1782108099860",
+          "name": "other dopcs",
+          "category": "Other Documents",
+          "url": "https://docs.google.com/spreadsheets/d/1ZJP4RV_mjdXFpGoQ0YU9x4tOw_SDH67GdMXpdP2Cghg/edit?usp=sharing",
+          "uploadedBy": "Jay Citrusbug",
+          "uploadedAt": "2026-06-22T06:01:39.860Z",
+          "isLink": true,
+          "favoritedBy": [
+            "jay5.citrusbug@gmail.com"
+          ]
+        }
+      ],
+      "notesAndFlags": [
+        {
+          "id": "note_1782108768088",
+          "type": "Risk",
+          "title": "wrgwer4gwerg",
+          "description": "efgwetgw",
+          "createdBy": "Jay Citrusbug",
+          "createdDate": "2026-06-22T06:12:48.949Z",
+          "priority": "Medium",
+          "status": "Open"
+        },
+        {
+          "id": "note_1782108957408",
+          "type": "Blocker",
+          "title": "wwerfg",
+          "description": "wfwerw",
+          "createdBy": "Jay Citrusbug",
+          "createdDate": "2026-06-22T06:15:58.224Z",
+          "priority": "High",
+          "status": "Open"
+        }
+      ],
+      "googleSheet": {
+        "url": "https://docs.google.com/spreadsheets/d/1ZJP4RV_mjdXFpGoQ0YU9x4tOw_SDH67GdMXpdP2Cghg/edit?usp=sharing",
+        "sheetId": "1ZJP4RV_mjdXFpGoQ0YU9x4tOw_SDH67GdMXpdP2Cghg",
+        "connectedBy": "jay5.citrusbug@gmail.com",
+        "importedCount": 20,
+        "headers": [
+          "Test Case ID",
+          "Module",
+          "Test Case Title",
+          "Pre-Conditions",
+          "Test Steps",
+          "Test Data",
+          "Expected Result",
+          "Dev Status",
+          "Dev Date Executed",
+          "Dev Notes",
+          "QA Status",
+          "cross browser Verfied ?",
+          "Priority",
+          "JIRA Ticket"
+        ],
+        "connectedAt": {
+          "seconds": 1782109284,
+          "nanoseconds": 4000000
+        },
+        "lastSyncAt": {
+          "seconds": 1782109511,
+          "nanoseconds": 991000000
+        }
+      },
       "timeline": {
-        "smokeTesting": {
-          "status": "Not Started",
-          "owner": "",
-          "plannedDate": null,
-          "completedDate": null,
-          "notes": ""
-        },
-        "testCaseWriting": {
-          "status": "Not Started",
-          "owner": "",
-          "plannedDate": null,
-          "completedDate": null,
-          "notes": ""
-        },
         "designValidation": {
           "status": "Not Started",
           "owner": "",
@@ -248,21 +306,12 @@
           "notes": ""
         }
       },
-      "notesAndFlags": [],
-      "tl_name": "Jay Citrusbug",
-      "assignee_name": "Tirth Mistry",
-      "dev_name": "",
       "updated_at": {
-        "seconds": 1782104912,
-        "nanoseconds": 356000000
+        "seconds": 1782109626,
+        "nanoseconds": 978000000
       },
-      "created_at": {
-        "seconds": 1782104912,
-        "nanoseconds": 356000000
-      },
-      "favoritedBy": [
-        "jay5.citrusbug@gmail.com"
-      ]
+      "status": "ACTIVE",
+      "favoritedBy": []
     }
   },
   "tasks": {
@@ -344,24 +393,38 @@
       "task_list_id": "AuwKKycUdmMyjD0FHWnj",
       "task_number": 1005,
       "title": "Ziplyst jira tickets",
-      "description": "",
-      "notes": "",
-      "status": "To Do",
       "priority": "Medium",
       "due_date": null,
       "assigned_to": null,
       "created_by": "jay5.citrusbug@gmail.com",
-      "completed_at": null,
-      "completed_by": null,
-      "steps": [],
-      "updated_at": {
-        "seconds": 1782104356,
-        "nanoseconds": 610000000
-      },
       "created_at": {
         "seconds": 1782104356,
         "nanoseconds": 610000000
-      }
+      },
+      "description": "hello",
+      "steps": [
+        {
+          "id": "step_1782105772065",
+          "title": "gwgvwergfwefgwe",
+          "isCompleted": true
+        },
+        {
+          "id": "step_1782105783313",
+          "title": "rgverwewefwf",
+          "isCompleted": false
+        }
+      ],
+      "notes": "hello \n",
+      "completed_at": {
+        "seconds": 1782105841,
+        "nanoseconds": 821000000
+      },
+      "updated_at": {
+        "seconds": 1782105841,
+        "nanoseconds": 821000000
+      },
+      "completed_by": "jay5.citrusbug@gmail.com",
+      "status": "Completed"
     },
     "xdEO72u0kAPpXTTr5IUh": {
       "task_list_id": "OujDlvdDLos8hZ7lpXpP",
@@ -388,6 +451,159 @@
       },
       "completed_by": "jay5.citrusbug@gmail.com",
       "status": "Completed"
+    },
+    "A0IqLnqFVWS2HI3kTBYQ": {
+      "task_list_id": "AuwKKycUdmMyjD0FHWnj",
+      "task_number": 1006,
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "created_by": "jay5.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1782105864,
+        "nanoseconds": 805000000
+      },
+      "due_date": {
+        "seconds": 1781654400,
+        "nanoseconds": 0
+      },
+      "assigned_to": "jay5.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1782110582,
+        "nanoseconds": 313000000
+      },
+      "title": "wefwfwefcw"
+    },
+    "NvwQcJS6t8L2T6EImciy": {
+      "task_list_id": "TRE1XR47aJyXLUt3rQqI",
+      "task_number": 1007,
+      "title": "Do a task",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "updated_at": {
+        "seconds": 1782110667,
+        "nanoseconds": 402000000
+      },
+      "created_at": {
+        "seconds": 1782110667,
+        "nanoseconds": 402000000
+      }
+    },
+    "UXGlvKi3t8uGwPLnRk0J": {
+      "task_list_id": "hu5Sbsmer5UDfr5lAUBL",
+      "task_number": 1009,
+      "title": "Testing task",
+      "description": "",
+      "priority": "Medium",
+      "due_date": null,
+      "created_by": "tirth.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1782110924,
+        "nanoseconds": 180000000
+      },
+      "assigned_to": "tirth.citrusbug@gmail.com",
+      "steps": [
+        {
+          "id": "step_1782110965550",
+          "title": "ergergergerg",
+          "isCompleted": false
+        }
+      ],
+      "notes": "Internal notes\n",
+      "completed_at": {
+        "seconds": 1782111059,
+        "nanoseconds": 683000000
+      },
+      "updated_at": {
+        "seconds": 1782111059,
+        "nanoseconds": 683000000
+      },
+      "completed_by": "tirth.citrusbug@gmail.com",
+      "status": "Completed"
+    },
+    "WsT2KBib8EjNoTgY3gps": {
+      "task_list_id": "C8qsTGqWrR3DIL90PC0k",
+      "task_number": 1011,
+      "title": "work on production environment",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "assigned_to": null,
+      "created_by": "tirth.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1782111483,
+        "nanoseconds": 651000000
+      },
+      "updated_at": {
+        "seconds": 1782111489,
+        "nanoseconds": 67000000
+      },
+      "due_date": {
+        "seconds": 1782950400,
+        "nanoseconds": 0
+      }
+    },
+    "Z8ASvxSYLscQl3R4Aygj": {
+      "task_list_id": "hu5Sbsmer5UDfr5lAUBL",
+      "task_number": 1010,
+      "title": "working on ziplyst",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "tirth.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "updated_at": {
+        "seconds": 1782111417,
+        "nanoseconds": 610000000
+      },
+      "created_at": {
+        "seconds": 1782111417,
+        "nanoseconds": 610000000
+      }
+    },
+    "zPduSuDgLM21mtHNaY6L": {
+      "task_list_id": "TRE1XR47aJyXLUt3rQqI",
+      "task_number": 1008,
+      "title": "do ziplyst jira ticket",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1782110683,
+        "nanoseconds": 117000000
+      },
+      "updated_at": {
+        "seconds": 1782110697,
+        "nanoseconds": 65000000
+      },
+      "assigned_to": "tirth.citrusbug@gmail.com"
     }
   },
   "task_steps": {},
@@ -873,6 +1089,288 @@
         "category": "Other Documents",
         "isLink": true
       }
+    },
+    "0DHLFS3XKj48NisXBQey": {
+      "user": "Jay Citrusbug",
+      "action": "Project Status Changed",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "oldStatus": "INACTIVE",
+        "newStatus": "ACTIVE"
+      },
+      "timestamp": {
+        "seconds": 1782109627,
+        "nanoseconds": 319000000
+      }
+    },
+    "2ho2EqEWXlzXvuglZDES": {
+      "user": "Jay Citrusbug",
+      "action": "Project Status Changed",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "oldStatus": "ACTIVE",
+        "newStatus": "ON_HOLD"
+      },
+      "timestamp": {
+        "seconds": 1782105395,
+        "nanoseconds": 738000000
+      }
+    },
+    "2w9vpFVYFCeShiPsuUZq": {
+      "user": "Jay Citrusbug",
+      "action": "Project Status Changed",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "oldStatus": "ON_HOLD",
+        "newStatus": "COMPLETED"
+      },
+      "timestamp": {
+        "seconds": 1782109014,
+        "nanoseconds": 231000000
+      }
+    },
+    "4jl3L752b6ahf01wxjvo": {
+      "user": "Jay Citrusbug",
+      "action": "Project Updated",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "name": "ATC(Usher's)",
+        "code": "PROJ-1952"
+      },
+      "timestamp": {
+        "seconds": 1782109015,
+        "nanoseconds": 845000000
+      }
+    },
+    "6oZuyyEchJuqClVBuDN4": {
+      "user": "Jay Citrusbug",
+      "action": "Project Updated",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "name": "ATC(Usher's)",
+        "code": "PROJ-1952"
+      },
+      "timestamp": {
+        "seconds": 1782109628,
+        "nanoseconds": 935000000
+      }
+    },
+    "DTSGLBPPox8MtJdc6N0B": {
+      "user": "Jay Citrusbug",
+      "action": "Project Updated",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "name": "ATC(Usher's)",
+        "code": "PROJ-1952"
+      },
+      "timestamp": {
+        "seconds": 1782109037,
+        "nanoseconds": 938000000
+      }
+    },
+    "J2P4Zxsu0srjGlfdsMhj": {
+      "user": "Jay Citrusbug",
+      "action": "Project Status Changed",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "oldStatus": "COMPLETED",
+        "newStatus": "INACTIVE"
+      },
+      "timestamp": {
+        "seconds": 1782109036,
+        "nanoseconds": 353000000
+      }
+    },
+    "JFIcQGXxZZGjk2YenBQL": {
+      "user": "Jay Citrusbug",
+      "action": "Project Created",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "name": "ATC(Usher's)",
+        "code": "PROJ-1952"
+      },
+      "timestamp": {
+        "seconds": 1782104912,
+        "nanoseconds": 964000000
+      }
+    },
+    "PTmTLgtuFlu5bOfeTLj4": {
+      "user": "Jay Citrusbug",
+      "action": "Document Link Added",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "timestamp": {
+        "seconds": 1782108100,
+        "nanoseconds": 220000000
+      },
+      "details": {
+        "docId": "doc_1782108099860",
+        "fileName": "other dopcs",
+        "category": "Other Documents",
+        "isLink": true
+      }
+    },
+    "U4ZWGyN2KzTOPiNF01uS": {
+      "user": "Jay Citrusbug",
+      "action": "Primary QA Changed",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "newPrimaryQa": "tirth.citrusbug@gmail.com"
+      },
+      "timestamp": {
+        "seconds": 1782104913,
+        "nanoseconds": 585000000
+      }
+    },
+    "XlyCZGrA2B9elun5rjny": {
+      "user": "Jay Citrusbug",
+      "action": "Risk Added",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "title": "wrgwer4gwerg"
+      },
+      "timestamp": {
+        "seconds": 1782108769,
+        "nanoseconds": 473000000
+      }
+    },
+    "hnZI3960MDwP20wlKZHJ": {
+      "user": "Jay Citrusbug",
+      "action": "Blocker Added",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "title": "wwerfg"
+      },
+      "timestamp": {
+        "seconds": 1782108958,
+        "nanoseconds": 733000000
+      }
+    },
+    "yMiXwHWCXoDhyrTEAAbp": {
+      "user": "Jay Citrusbug",
+      "action": "Project Updated",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "name": "ATC(Usher's)",
+        "code": "PROJ-1952"
+      },
+      "timestamp": {
+        "seconds": 1782105399,
+        "nanoseconds": 640000000
+      }
+    },
+    "z2qFARm0yonZSkcWlh7M": {
+      "user": "Jay Citrusbug",
+      "action": "Project Updated",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "name": "ATC(Usher's)",
+        "code": "PROJ-1952"
+      },
+      "timestamp": {
+        "seconds": 1782109019,
+        "nanoseconds": 333000000
+      }
+    },
+    "OS3Rc7f8Uy78v9lE49Vp": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 2",
+      "timestamp": {
+        "seconds": 1782109511,
+        "nanoseconds": 662000000
+      }
+    },
+    "FF6Jw3WESrrRMeHgGWfl": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782109511,
+        "nanoseconds": 315000000
+      }
+    },
+    "McQKR0o1qvMRHZz04ndp": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Portal -> Sheet Sync: Updated 2 test cases in bulk",
+      "timestamp": {
+        "seconds": 1782109509,
+        "nanoseconds": 903000000
+      }
+    },
+    "m5cEhUkhNZUiQfSlFRxr": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Import Completed. Imported 20 test cases.",
+      "timestamp": {
+        "seconds": 1782109284,
+        "nanoseconds": 699000000
+      }
+    },
+    "UJYDwp7YgiLpAYcEtal6": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Google Sheet Connected",
+      "timestamp": {
+        "seconds": 1782109284,
+        "nanoseconds": 351000000
+      }
+    },
+    "3PvhagPNeguwCg1fGEgR": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Import Started",
+      "timestamp": {
+        "seconds": 1782109283,
+        "nanoseconds": 99000000
+      }
+    },
+    "ECVXzjWNS8ASsiHSMLJj": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Google Sheet Disconnected",
+      "timestamp": {
+        "seconds": 1782106095,
+        "nanoseconds": 97000000
+      }
+    },
+    "wasxpsTe7UNQBypD2GBs": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 1, Updated: 0, Inactive: 1, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782106071,
+        "nanoseconds": 582000000
+      }
+    },
+    "xumrOjekHwPZH73IUq0X": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782106071,
+        "nanoseconds": 262000000
+      }
+    },
+    "RCwPgfs6NzT70Bp1flCt": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Import Completed. Imported 20 test cases.",
+      "timestamp": {
+        "seconds": 1782106006,
+        "nanoseconds": 261000000
+      }
+    },
+    "GOHTbDfaWKJEgTEv7qTg": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Google Sheet Connected",
+      "timestamp": {
+        "seconds": 1782106005,
+        "nanoseconds": 946000000
+      }
+    },
+    "E95fUBvHFNZFQsI1C9Bz": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Import Started",
+      "timestamp": {
+        "seconds": 1782106004,
+        "nanoseconds": 574000000
+      }
+    },
+    "szTrq0Nm0f2mzBbicjfq": {
+      "user": "System",
+      "action": "Sync Failed: fetch failed",
+      "timestamp": "2026-06-22T06:34:23.270Z"
     }
   },
   "test_cases": {
@@ -2135,6 +2633,1354 @@
         "jiraTicket": ""
       },
       "updatedAt": {}
+    },
+    "Bug 01": {
+      "Test Case ID": "Bug 01",
+      "Module": "Login",
+      "Test Case Title": "Missing \"Forgot Password\" link and \"Remember Me\" checkbox",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/E4o-FLdFLImT",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 01",
+      "title": "Missing \"Forgot Password\" link and \"Remember Me\" checkbox",
+      "module": "Login",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/E4o-FLdFLImT",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "favoritedBy": [
+        "jay5.citrusbug@gmail.com"
+      ],
+      "qaStatus": "Passed",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 01",
+        "Module": "Login",
+        "Test Case Title": "Missing \"Forgot Password\" link and \"Remember Me\" checkbox",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/E4o-FLdFLImT",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 01",
+        "title": "Missing \"Forgot Password\" link and \"Remember Me\" checkbox",
+        "qaStatus": "Passed"
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109509,
+        "nanoseconds": 563000000
+      },
+      "updatedAt": {
+        "seconds": 1782109509,
+        "nanoseconds": 563000000
+      }
+    },
+    "Bug 09": {
+      "Test Case ID": "Bug 09",
+      "Module": "task-board",
+      "Test Case Title": "if we click on the text editor button without selecting the text like bol Italic numeric field so this things ad",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/38-WDhgOdA1Q",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 09",
+      "title": "if we click on the text editor button without selecting the text like bol Italic numeric field so this things ad",
+      "module": "task-board",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/38-WDhgOdA1Q",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "favoritedBy": [
+        "jay5.citrusbug@gmail.com"
+      ],
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 09",
+        "Module": "task-board",
+        "Test Case Title": "if we click on the text editor button without selecting the text like bol Italic numeric field so this things ad",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/38-WDhgOdA1Q",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 09",
+        "module": "task-board",
+        "title": "if we click on the text editor button without selecting the text like bol Italic numeric field so this things ad",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/38-WDhgOdA1Q",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 11": {
+      "Test Case ID": "Bug 11",
+      "Module": "team hub",
+      "Test Case Title": "unwanted space while search in the team hub",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/4zdZv7DN3MiG",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 11",
+      "title": "unwanted space while search in the team hub",
+      "module": "team hub",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/4zdZv7DN3MiG",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "favoritedBy": [
+        "jay5.citrusbug@gmail.com"
+      ],
+      "qaStatus": "Passed",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 11",
+        "Module": "team hub",
+        "Test Case Title": "unwanted space while search in the team hub",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/4zdZv7DN3MiG",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 11",
+        "title": "unwanted space while search in the team hub",
+        "qaStatus": "Passed"
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109509,
+        "nanoseconds": 563000000
+      },
+      "updatedAt": {
+        "seconds": 1782109509,
+        "nanoseconds": 563000000
+      }
+    },
+    "Bug 14": {
+      "Test Case ID": "Bug 14",
+      "Module": "My projects",
+      "Test Case Title": "down arrow in dropdown is to much align on the right side",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/VSot8uNGVHI1",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 14",
+      "title": "down arrow in dropdown is to much align on the right side",
+      "module": "My projects",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/VSot8uNGVHI1",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 14",
+        "Module": "My projects",
+        "Test Case Title": "down arrow in dropdown is to much align on the right side",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/VSot8uNGVHI1",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 14",
+        "module": "My projects",
+        "title": "down arrow in dropdown is to much align on the right side",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/VSot8uNGVHI1",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 15": {
+      "Test Case ID": "Bug 15",
+      "Module": "My projects",
+      "Test Case Title": "while saving the milestone with completed date it shows an error for project not found",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/ZjJvuLjOUWfZ",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 15",
+      "title": "while saving the milestone with completed date it shows an error for project not found",
+      "module": "My projects",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/ZjJvuLjOUWfZ",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 15",
+        "Module": "My projects",
+        "Test Case Title": "while saving the milestone with completed date it shows an error for project not found ",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/ZjJvuLjOUWfZ",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 15",
+        "module": "My projects",
+        "title": "while saving the milestone with completed date it shows an error for project not found",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/ZjJvuLjOUWfZ",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 16": {
+      "Test Case ID": "Bug 16",
+      "Module": "My projects",
+      "Test Case Title": "Progressbar is not align perfectly for the test plan milestone progress",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/WZypFP7YX5hi",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 16",
+      "title": "Progressbar is not align perfectly for the test plan milestone progress",
+      "module": "My projects",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/WZypFP7YX5hi",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 16",
+        "Module": "My projects",
+        "Test Case Title": "Progressbar is not align perfectly for the test plan milestone progress",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/WZypFP7YX5hi",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 16",
+        "module": "My projects",
+        "title": "Progressbar is not align perfectly for the test plan milestone progress",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/WZypFP7YX5hi",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 17": {
+      "Test Case ID": "Bug 17",
+      "Module": "My projects",
+      "Test Case Title": "project not found error shows while uploading a document, notes and flags.",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/zn6xdqHEasQQ",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 17",
+      "title": "project not found error shows while uploading a document, notes and flags.",
+      "module": "My projects",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/zn6xdqHEasQQ",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 17",
+        "Module": "My projects",
+        "Test Case Title": "project not found error shows while uploading a document, notes and flags.",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/zn6xdqHEasQQ",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 17",
+        "module": "My projects",
+        "title": "project not found error shows while uploading a document, notes and flags.",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/zn6xdqHEasQQ",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 18": {
+      "Test Case ID": "Bug 18",
+      "Module": "My projects",
+      "Test Case Title": "in milestone management section the milestone save button is hidden it only shows at the time of hover.",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/ypgFOBEu4wqz",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 18",
+      "title": "in milestone management section the milestone save button is hidden it only shows at the time of hover.",
+      "module": "My projects",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/ypgFOBEu4wqz",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 18",
+        "Module": "My projects",
+        "Test Case Title": "in milestone management section the milestone save button is hidden it only shows at the time of hover.",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/ypgFOBEu4wqz",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 18",
+        "module": "My projects",
+        "title": "in milestone management section the milestone save button is hidden it only shows at the time of hover.",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/ypgFOBEu4wqz",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 19": {
+      "Test Case ID": "Bug 19",
+      "Module": "My projects",
+      "Test Case Title": "No data has been shown in the recent activity",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/Njfa5JPmaqBA",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 19",
+      "title": "No data has been shown in the recent activity",
+      "module": "My projects",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/Njfa5JPmaqBA",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 19",
+        "Module": "My projects",
+        "Test Case Title": "No data has been shown in the recent activity",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/Njfa5JPmaqBA",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 19",
+        "module": "My projects",
+        "title": "No data has been shown in the recent activity",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/Njfa5JPmaqBA",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 20": {
+      "Test Case ID": "Bug 20",
+      "Module": "My projects",
+      "Test Case Title": "we can also add primary QA in the supportive QA",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/6DIYQWNV242Y",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 20",
+      "title": "we can also add primary QA in the supportive QA",
+      "module": "My projects",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/6DIYQWNV242Y",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 20",
+        "Module": "My projects",
+        "Test Case Title": "we can also add primary QA in the supportive QA ",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/6DIYQWNV242Y",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 20",
+        "module": "My projects",
+        "title": "we can also add primary QA in the supportive QA",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/6DIYQWNV242Y",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 21": {
+      "Test Case ID": "Bug 21",
+      "Module": "My projects",
+      "Test Case Title": "when ever user enter in the project detail page fromthe my project section then my project in the side bar is not highlighted",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/TDBuooMVg53V",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 21",
+      "title": "when ever user enter in the project detail page fromthe my project section then my project in the side bar is not highlighted",
+      "module": "My projects",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/TDBuooMVg53V",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 21",
+        "Module": "My projects",
+        "Test Case Title": "when ever user enter in the project detail page fromthe my project section then my project in the side bar is not highlighted",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/TDBuooMVg53V",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 21",
+        "module": "My projects",
+        "title": "when ever user enter in the project detail page fromthe my project section then my project in the side bar is not highlighted",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/TDBuooMVg53V",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 22": {
+      "Test Case ID": "Bug 22",
+      "Module": "setting",
+      "Test Case Title": "first name last name and change passoword is not persist after refresh",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/KcR9tSdkb3Rm",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 22",
+      "title": "first name last name and change passoword is not persist after refresh",
+      "module": "setting",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/KcR9tSdkb3Rm",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 22",
+        "Module": "setting",
+        "Test Case Title": "first name last name and change passoword is not persist after refresh",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/KcR9tSdkb3Rm",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 22",
+        "module": "setting",
+        "title": "first name last name and change passoword is not persist after refresh",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/KcR9tSdkb3Rm",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 23": {
+      "Test Case ID": "Bug 23",
+      "Module": "My projects",
+      "Test Case Title": "highlighted tab is my project and the heading on the page is QA Accountability Hub.",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/bv_S2JKVrKIV",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 23",
+      "title": "highlighted tab is my project and the heading on the page is QA Accountability Hub.",
+      "module": "My projects",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/bv_S2JKVrKIV",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 23",
+        "Module": "My projects",
+        "Test Case Title": "highlighted tab is my project and the heading on the page is QA Accountability Hub.",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/bv_S2JKVrKIV",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 23",
+        "module": "My projects",
+        "title": "highlighted tab is my project and the heading on the page is QA Accountability Hub.",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/bv_S2JKVrKIV",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 24": {
+      "Test Case ID": "Bug 24",
+      "Module": "Quick notes",
+      "Test Case Title": "the error message is not removed once the right file format file is uploaded",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/nFrQit83sEn4",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 24",
+      "title": "the error message is not removed once the right file format file is uploaded",
+      "module": "Quick notes",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/nFrQit83sEn4",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 24",
+        "Module": "Quick notes",
+        "Test Case Title": "the error message is not removed once the right file format file is uploaded",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/nFrQit83sEn4",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 24",
+        "module": "Quick notes",
+        "title": "the error message is not removed once the right file format file is uploaded",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/nFrQit83sEn4",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 25": {
+      "Test Case ID": "Bug 25",
+      "Module": "Quick notes",
+      "Test Case Title": "while creating a note it shows invalid error message and does not allow user to create a note",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/fXxg-DZisKax",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 25",
+      "title": "while creating a note it shows invalid error message and does not allow user to create a note",
+      "module": "Quick notes",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/fXxg-DZisKax",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 25",
+        "Module": "Quick notes",
+        "Test Case Title": "while creating a note it shows invalid error message and does not allow user to create a note",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/fXxg-DZisKax",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 25",
+        "module": "Quick notes",
+        "title": "while creating a note it shows invalid error message and does not allow user to create a note",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/fXxg-DZisKax",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 26": {
+      "Test Case ID": "Bug 26",
+      "Module": "Quick notes",
+      "Test Case Title": "view change is not persist on refresh",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/dW9HXdjD8nAe",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 26",
+      "title": "view change is not persist on refresh",
+      "module": "Quick notes",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/dW9HXdjD8nAe",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 26",
+        "Module": "Quick notes",
+        "Test Case Title": "view change is not persist on refresh",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/dW9HXdjD8nAe",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 26",
+        "module": "Quick notes",
+        "title": "view change is not persist on refresh",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/dW9HXdjD8nAe",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 27": {
+      "Test Case ID": "Bug 27",
+      "Module": "test cases",
+      "Test Case Title": "if TL is not selected then it shows QA engineer as a TL",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/GHOY48kwAoXf",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 27",
+      "title": "if TL is not selected then it shows QA engineer as a TL",
+      "module": "test cases",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/GHOY48kwAoXf",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 27",
+        "Module": "test cases",
+        "Test Case Title": "if TL is not selected then it shows QA engineer as a TL ",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/GHOY48kwAoXf",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 27",
+        "module": "test cases",
+        "title": "if TL is not selected then it shows QA engineer as a TL",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/GHOY48kwAoXf",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 28": {
+      "Test Case ID": "Bug 28",
+      "Module": "test cases",
+      "Test Case Title": "unable to add google sheet it shows an error while adding the google sheet link.and also the sidebar has not highlight any of the page name \n\nalso why there are 2 error message for the one error",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/w9OYNbNcI8DF",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 28",
+      "title": "unable to add google sheet it shows an error while adding the google sheet link.and also the sidebar has not highlight any of the page name \n\nalso why there are 2 error message for the one error",
+      "module": "test cases",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/w9OYNbNcI8DF",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 28",
+        "Module": "test cases",
+        "Test Case Title": "unable to add google sheet it shows an error while adding the google sheet link.and also the sidebar has not highlight any of the page name \n\nalso why there are 2 error message for the one error ",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/w9OYNbNcI8DF",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 28",
+        "module": "test cases",
+        "title": "unable to add google sheet it shows an error while adding the google sheet link.and also the sidebar has not highlight any of the page name \n\nalso why there are 2 error message for the one error",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/w9OYNbNcI8DF",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "Bug 29": {
+      "Test Case ID": "Bug 29",
+      "Module": "my-drive",
+      "Test Case Title": "No such path directory name error shows while uploading docs in my drive in private space and public space both and also errors are not disappeard when click anywhere in the website",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "https://prnt.sc/1Zzx4ZrZx7Sy\n\nhttps://prnt.sc/bdl6-IfagoLd",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "Bug 29",
+      "title": "No such path directory name error shows while uploading docs in my drive in private space and public space both and also errors are not disappeard when click anywhere in the website",
+      "module": "my-drive",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "https://prnt.sc/1Zzx4ZrZx7Sy\n\nhttps://prnt.sc/bdl6-IfagoLd",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "Bug 29",
+        "Module": "my-drive",
+        "Test Case Title": "No such path directory name error shows while uploading docs in my drive in private space and public space both and also errors are not disappeard when click anywhere in the website",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "https://prnt.sc/1Zzx4ZrZx7Sy\n\nhttps://prnt.sc/bdl6-IfagoLd",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "Bug 29",
+        "module": "my-drive",
+        "title": "No such path directory name error shows while uploading docs in my drive in private space and public space both and also errors are not disappeard when click anywhere in the website",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "https://prnt.sc/1Zzx4ZrZx7Sy\n\nhttps://prnt.sc/bdl6-IfagoLd",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
+    },
+    "TC-ROW-32": {
+      "Test Case ID": "TC-ROW-32",
+      "Module": "",
+      "Test Case Title": "Test Case Row 32",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "Test case page:-   https://prnt.sc/gGmofO3sevRF\n\nFavourite page:- https://prnt.sc/8fjwiyHRvCc8",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "TC-ROW-32",
+      "title": "Test Case Row 32",
+      "module": "",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "Test case page:-   https://prnt.sc/gGmofO3sevRF\n\nFavourite page:- https://prnt.sc/8fjwiyHRvCc8",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "lastSyncedValues": {
+        "Test Case ID": "TC-ROW-32",
+        "Module": "",
+        "Test Case Title": "Test Case Row 32",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "Test case page:-   https://prnt.sc/gGmofO3sevRF\n\nFavourite page:- https://prnt.sc/8fjwiyHRvCc8",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "TC-ROW-32",
+        "title": "Test Case Row 32"
+      },
+      "lastSyncedAt": {
+        "seconds": 1782106070,
+        "nanoseconds": 595000000
+      },
+      "status": "inactive"
+    },
+    "TC-ROW-32-1": {
+      "Test Case ID": "TC-ROW-32-1",
+      "Module": "",
+      "Test Case Title": "Test Case Row 32",
+      "Pre-Conditions": "",
+      "Test Steps": "",
+      "Test Data": "Test case page:-   https://prnt.sc/gGmofO3sevRF\n\nFavourite page:- https://prnt.sc/8fjwiyHRvCc8",
+      "Expected Result": "",
+      "Dev Status": "",
+      "Dev Date Executed": "",
+      "Dev Notes": "",
+      "QA Status": "",
+      "cross browser Verfied ?": "",
+      "Priority": "",
+      "JIRA Ticket": "",
+      "testCaseId": "TC-ROW-32-1",
+      "title": "Test Case Row 32",
+      "module": "",
+      "preConditions": "",
+      "testSteps": "",
+      "testData": "Test case page:-   https://prnt.sc/gGmofO3sevRF\n\nFavourite page:- https://prnt.sc/8fjwiyHRvCc8",
+      "expectedResult": "",
+      "devStatus": "Not Started",
+      "devDateExecuted": "",
+      "devNotes": "",
+      "qaStatus": "Not Run",
+      "crossBrowserVerified": "No",
+      "priority": "Medium",
+      "jiraTicket": "",
+      "status": "active",
+      "lastSyncedValues": {
+        "Test Case ID": "TC-ROW-32-1",
+        "Module": "",
+        "Test Case Title": "Test Case Row 32",
+        "Pre-Conditions": "",
+        "Test Steps": "",
+        "Test Data": "Test case page:-   https://prnt.sc/gGmofO3sevRF\n\nFavourite page:- https://prnt.sc/8fjwiyHRvCc8",
+        "Expected Result": "",
+        "Dev Status": "",
+        "Dev Date Executed": "",
+        "Dev Notes": "",
+        "QA Status": "",
+        "cross browser Verfied ?": "",
+        "Priority": "",
+        "JIRA Ticket": "",
+        "testCaseId": "TC-ROW-32-1",
+        "module": "",
+        "title": "Test Case Row 32",
+        "preConditions": "",
+        "testSteps": "",
+        "testData": "Test case page:-   https://prnt.sc/gGmofO3sevRF\n\nFavourite page:- https://prnt.sc/8fjwiyHRvCc8",
+        "expectedResult": "",
+        "devStatus": "Not Started",
+        "devDateExecuted": "",
+        "devNotes": "",
+        "qaStatus": "Not Run",
+        "crossBrowserVerified": "No",
+        "priority": "Medium",
+        "jiraTicket": ""
+      },
+      "lastSyncedAt": {
+        "seconds": 1782109510,
+        "nanoseconds": 396000000
+      }
     }
   },
   "sync_history": {
@@ -2487,6 +4333,42 @@
       "failedRecords": 0,
       "status": "COMPLETED",
       "duration": 2.09
+    },
+    "dfbrSeb7omjyPA46sKHU": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 2,
+      "status": "CONFLICT",
+      "duration": 1.9,
+      "syncTime": {
+        "seconds": 1782109510,
+        "nanoseconds": 965000000
+      }
+    },
+    "efuLREpNiFSgxMiJ45tB": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 1,
+      "updatedRecords": 0,
+      "inactiveRecords": 1,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.92,
+      "syncTime": {
+        "seconds": 1782106070,
+        "nanoseconds": 933000000
+      }
+    },
+    "b0voZ6xcT1PigbSrxgqX": {
+      "syncTime": "2026-06-22T06:34:20.162Z",
+      "triggeredBy": "System",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "FAILED",
+      "duration": 6.7
     }
   },
   "notifications": {
@@ -2681,17 +4563,77 @@
       }
     },
     "AuwKKycUdmMyjD0FHWnj": {
-      "name": "Task 1",
+      "description": "",
+      "created_by": "tirth.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1781866144,
+        "nanoseconds": 361000000
+      },
+      "shared_with": [
+        "tirth.citrusbug@gmail.com"
+      ],
+      "updated_at": {
+        "seconds": 1782111813,
+        "nanoseconds": 892000000
+      },
+      "name": "Task 1w"
+    },
+    "C8qsTGqWrR3DIL90PC0k": {
+      "name": "Usher task",
+      "description": "added the task based on the daily works\n",
+      "shared_with": [],
+      "created_by": "tirth.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1782111468,
+        "nanoseconds": 225000000
+      },
+      "created_at": {
+        "seconds": 1782111468,
+        "nanoseconds": 225000000
+      }
+    },
+    "SE8POWT7Z1j885KZq6f9": {
+      "name": "Ziplyst related task",
       "description": "",
       "shared_with": [],
       "created_by": "tirth.citrusbug@gmail.com",
       "updated_at": {
-        "seconds": 1781866144,
-        "nanoseconds": 361000000
+        "seconds": 1782111423,
+        "nanoseconds": 772000000
       },
       "created_at": {
-        "seconds": 1781866144,
-        "nanoseconds": 361000000
+        "seconds": 1782111423,
+        "nanoseconds": 772000000
+      }
+    },
+    "TRE1XR47aJyXLUt3rQqI": {
+      "name": "Checking visibility",
+      "description": "",
+      "shared_with": [],
+      "created_by": "jay5.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1782110650,
+        "nanoseconds": 17000000
+      },
+      "created_at": {
+        "seconds": 1782110650,
+        "nanoseconds": 17000000
+      }
+    },
+    "hu5Sbsmer5UDfr5lAUBL": {
+      "name": "Checking with permission to others",
+      "description": "",
+      "shared_with": [
+        "tirth.citrusbug@gmail.com"
+      ],
+      "created_by": "jay5.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1782110844,
+        "nanoseconds": 890000000
+      },
+      "created_at": {
+        "seconds": 1782110844,
+        "nanoseconds": 890000000
       }
     }
   },
@@ -2994,6 +4936,72 @@
       "created_at": {
         "seconds": 1782105150,
         "nanoseconds": 968000000
+      }
+    },
+    "08B8Ev1iKNAMAuOYDorN": {
+      "name": "CB qops",
+      "url": "https://docs.google.com/spreadsheets/d/1ZJP4RV_mjdXFpGoQ0YU9x4tOw_SDH67GdMXpdP2Cghg/edit?usp=sharing",
+      "type": "link",
+      "category": "private",
+      "user_id": "wUpu9MdzSTaHMXmSgf77R64lwAQ2",
+      "uploaded_by": "Jay Citrusbug",
+      "uploaded_at": {
+        "seconds": 1782106217,
+        "nanoseconds": 567000000
+      },
+      "created_at": {
+        "seconds": 1782106217,
+        "nanoseconds": 567000000
+      }
+    },
+    "54cMY2HGchEuFZ6YlmcO": {
+      "name": "rwegvrwege",
+      "url": "https://docs.google.com/spreadsheets/d/1ZJP4RV_mjdXFpGoQ0YU9x4tOw_SDH67GdMXpdP2Cghg/edit?usp=sharing",
+      "type": "link",
+      "category": "public",
+      "user_id": "wUpu9MdzSTaHMXmSgf77R64lwAQ2",
+      "uploaded_by": "Jay Citrusbug",
+      "uploaded_at": {
+        "seconds": 1782106236,
+        "nanoseconds": 290000000
+      },
+      "created_at": {
+        "seconds": 1782106236,
+        "nanoseconds": 290000000
+      }
+    },
+    "G91kWOSQvCjtQq9nMIL7": {
+      "name": "cb qops new",
+      "url": "https://docs.google.com/spreadsheets/d/1ZJP4RV_mjdXFpGoQ0YU9x4tOw_SDH67GdMXpdP2Cghg/edit?usp=sharing",
+      "type": "link",
+      "category": "public",
+      "user_id": "wUpu9MdzSTaHMXmSgf77R64lwAQ2",
+      "uploaded_by": "Jay Citrusbug",
+      "uploaded_at": {
+        "seconds": 1782106230,
+        "nanoseconds": 226000000
+      },
+      "created_at": {
+        "seconds": 1782106230,
+        "nanoseconds": 226000000
+      }
+    },
+    "YU3CurLTkQkjUWOPpH68": {
+      "name": "UI_feedback_for_QR_code.pdf",
+      "url": "/uploads/my-drive/1782108449978_UI_feedback_for_QR_code.pdf",
+      "type": "file",
+      "category": "private",
+      "user_id": "boHO3GpjzJOQvXqr1nzEL0YlS0s2",
+      "uploaded_by": "Jay Citrusbug",
+      "file_size": 224448,
+      "file_ext": "pdf",
+      "uploaded_at": {
+        "seconds": 1782108451,
+        "nanoseconds": 144000000
+      },
+      "created_at": {
+        "seconds": 1782108451,
+        "nanoseconds": 144000000
       }
     }
   }

@@ -14,9 +14,14 @@ export async function GET() {
     }
 
     const userId = (session.user as any).id;
+    const userRole = (session.user as any).role || 'USER';
+    const isQaLead = userRole === 'ADMIN' || userRole === 'TL';
 
-    const statusesQuery = adminDb.collection('daily_statuses')
-      .where('user_id', '==', userId);
+    let statusesQuery: admin.firestore.Query = adminDb.collection('daily_statuses');
+
+    if (!isQaLead) {
+      statusesQuery = statusesQuery.where('user_id', '==', userId);
+    }
 
     const statusesSnapshot = await statusesQuery.get();
     const statuses = statusesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
@@ -43,25 +48,32 @@ export async function GET() {
       }
     }
 
-    // Fetch user
-    const userDoc = await adminDb.collection('users').doc(userId).get();
-    const userData = userDoc.data() || {};
+    // Fetch all users mapping to populate user details for any daily status
+    const usersSnapshot = await adminDb.collection('users').get();
+    const usersMap: Record<string, any> = {};
+    usersSnapshot.docs.forEach(doc => {
+      usersMap[doc.id] = doc.data();
+    });
 
-    const normalized = statuses.map((s: any) => ({
-      id: s.id,
-      projectId: s.project_id,
-      project: { name: projectsMap[s.project_id]?.name ?? '' },
-      date: s.date ? s.date.toDate().toISOString() : null,
-      workDone: s.work_done,
-      plannedWork: s.planned_work,
-      hours: s.hours ?? 0,
-      blockers: s.blockers ?? null,
-      createdAt: s.created_at ? s.created_at.toDate().toISOString() : null,
-      user: {
-        name: userData.name ?? '',
-        email: userData.email ?? '',
-      },
-    }));
+    const normalized = statuses.map((s: any) => {
+      const statusUserId = s.user_id;
+      const statusUser = usersMap[statusUserId] || {};
+      return {
+        id: s.id,
+        projectId: s.project_id,
+        project: { name: projectsMap[s.project_id]?.name ?? '' },
+        date: s.date ? s.date.toDate().toISOString() : null,
+        workDone: s.work_done,
+        plannedWork: s.planned_work,
+        hours: s.hours ?? 0,
+        blockers: s.blockers ?? null,
+        createdAt: s.created_at ? s.created_at.toDate().toISOString() : null,
+        user: {
+          name: statusUser.name ?? '',
+          email: statusUser.email ?? '',
+        },
+      };
+    });
 
     return NextResponse.json(normalized);
   } catch (error: any) {

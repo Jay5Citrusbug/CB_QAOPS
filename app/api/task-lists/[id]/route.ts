@@ -31,9 +31,10 @@ export async function PUT(
     const userEmail = session.user.email;
     const userRole = (session.user as any).role || 'USER';
     const isQaLead = userRole === 'ADMIN' || userRole === 'TL';
+    const existingSharedWith = listData.shared_with || [];
 
-    // Permissions check: only creator or QA Lead can update lists
-    if (listData.created_by !== userEmail && !isQaLead) {
+    // Permissions check: only creator, QA Lead, or shared member can update lists
+    if (listData.created_by !== userEmail && !isQaLead && !existingSharedWith.includes(userEmail)) {
       return NextResponse.json({ error: 'Forbidden: Cannot edit other team members\' lists' }, { status: 403 });
     }
 
@@ -76,9 +77,10 @@ export async function DELETE(
     const userEmail = session.user.email;
     const userRole = (session.user as any).role || 'USER';
     const isQaLead = userRole === 'ADMIN' || userRole === 'TL';
+    const sharedWith = listData.shared_with || [];
 
-    // Permissions check: only creator or QA Lead can delete lists
-    if (listData.created_by !== userEmail && !isQaLead) {
+    // Permissions check: only creator, QA Lead, or shared member can delete lists
+    if (listData.created_by !== userEmail && !isQaLead && !sharedWith.includes(userEmail)) {
       return NextResponse.json({ error: 'Forbidden: Cannot delete other team members\' lists' }, { status: 403 });
     }
 

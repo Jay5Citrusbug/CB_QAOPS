@@ -600,7 +600,7 @@ function NoteCard({
       <div className="p-5 flex flex-col flex-1 gap-3">
         {/* Title row */}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-slate-900 text-sm leading-snug line-clamp-2 flex-1">{note.title}</h3>
+          <h3 className="font-bold text-slate-900 text-sm leading-snug line-clamp-2 flex-1 break-all">{note.title}</h3>
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
@@ -703,7 +703,7 @@ function NoteRow({
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-4">
-          <h3 className="font-bold text-slate-900 text-sm leading-snug">{note.title}</h3>
+          <h3 className="font-bold text-slate-900 text-sm leading-snug break-all">{note.title}</h3>
           <div className="flex items-center gap-1 shrink-0">
             {note.attachments.length > 0 && (
               <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
