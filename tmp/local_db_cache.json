@@ -196,20 +196,6 @@
         "seconds": 1782104912,
         "nanoseconds": 356000000
       },
-      "documents": [
-        {
-          "id": "doc_1782108099860",
-          "name": "other dopcs",
-          "category": "Other Documents",
-          "url": "https://docs.google.com/spreadsheets/d/1ZJP4RV_mjdXFpGoQ0YU9x4tOw_SDH67GdMXpdP2Cghg/edit?usp=sharing",
-          "uploadedBy": "Jay Citrusbug",
-          "uploadedAt": "2026-06-22T06:01:39.860Z",
-          "isLink": true,
-          "favoritedBy": [
-            "jay5.citrusbug@gmail.com"
-          ]
-        }
-      ],
       "notesAndFlags": [
         {
           "id": "note_1782108768088",
@@ -262,34 +248,38 @@
           "nanoseconds": 991000000
         }
       },
+      "updated_at": {
+        "seconds": 1782109626,
+        "nanoseconds": 978000000
+      },
+      "status": "ACTIVE",
+      "documents": [
+        {
+          "id": "doc_1782108099860",
+          "name": "other dopcs",
+          "category": "Other Documents",
+          "url": "https://docs.google.com/spreadsheets/d/1ZJP4RV_mjdXFpGoQ0YU9x4tOw_SDH67GdMXpdP2Cghg/edit?usp=sharing",
+          "uploadedBy": "Jay Citrusbug",
+          "uploadedAt": "2026-06-22T06:01:39.860Z",
+          "isLink": true,
+          "favoritedBy": [
+            "jay5.citrusbug@gmail.com",
+            "tirth.citrusbug@gmail.com"
+          ]
+        }
+      ],
+      "favoritedBy": [
+        "tirth.citrusbug@gmail.com",
+        "jay5.citrusbug@gmail.com"
+      ],
       "timeline": {
-        "designValidation": {
-          "status": "Not Started",
-          "owner": "",
-          "plannedDate": null,
-          "completedDate": null,
-          "notes": ""
-        },
-        "integrationTesting": {
-          "status": "Not Started",
-          "owner": "",
-          "plannedDate": null,
-          "completedDate": null,
-          "notes": ""
-        },
-        "regressionTesting": {
-          "status": "Not Started",
-          "owner": "",
-          "plannedDate": null,
-          "completedDate": null,
-          "notes": ""
-        },
         "uatSupport": {
           "status": "Not Started",
           "owner": "",
           "plannedDate": null,
           "completedDate": null,
-          "notes": ""
+          "notes": "",
+          "label": "UAT Support"
         },
         "releaseVerification": {
           "status": "Not Started",
@@ -305,13 +295,7 @@
           "completedDate": null,
           "notes": ""
         }
-      },
-      "updated_at": {
-        "seconds": 1782109626,
-        "nanoseconds": 978000000
-      },
-      "status": "ACTIVE",
-      "favoritedBy": []
+      }
     }
   },
   "tasks": {
@@ -457,11 +441,8 @@
       "task_number": 1006,
       "description": "",
       "notes": "",
-      "status": "To Do",
       "priority": "Medium",
       "created_by": "jay5.citrusbug@gmail.com",
-      "completed_at": null,
-      "completed_by": null,
       "steps": [],
       "created_at": {
         "seconds": 1782105864,
@@ -472,11 +453,17 @@
         "nanoseconds": 0
       },
       "assigned_to": "jay5.citrusbug@gmail.com",
-      "updated_at": {
-        "seconds": 1782110582,
-        "nanoseconds": 313000000
+      "title": "wefwfwefcw",
+      "completed_at": {
+        "seconds": 1782113307,
+        "nanoseconds": 872000000
       },
-      "title": "wefwfwefcw"
+      "updated_at": {
+        "seconds": 1782113307,
+        "nanoseconds": 872000000
+      },
+      "completed_by": "tirth.citrusbug@gmail.com",
+      "status": "Completed"
     },
     "NvwQcJS6t8L2T6EImciy": {
       "task_list_id": "TRE1XR47aJyXLUt3rQqI",
@@ -539,25 +526,28 @@
       "title": "work on production environment",
       "description": "",
       "notes": "",
-      "status": "To Do",
       "priority": "Medium",
       "assigned_to": null,
       "created_by": "tirth.citrusbug@gmail.com",
-      "completed_at": null,
-      "completed_by": null,
       "steps": [],
       "created_at": {
         "seconds": 1782111483,
         "nanoseconds": 651000000
       },
-      "updated_at": {
-        "seconds": 1782111489,
-        "nanoseconds": 67000000
-      },
       "due_date": {
         "seconds": 1782950400,
         "nanoseconds": 0
-      }
+      },
+      "completed_at": {
+        "seconds": 1782113124,
+        "nanoseconds": 386000000
+      },
+      "updated_at": {
+        "seconds": 1782113124,
+        "nanoseconds": 386000000
+      },
+      "completed_by": "tirth.citrusbug@gmail.com",
+      "status": "Completed"
     },
     "Z8ASvxSYLscQl3R4Aygj": {
       "task_list_id": "hu5Sbsmer5UDfr5lAUBL",
@@ -565,22 +555,25 @@
       "title": "working on ziplyst",
       "description": "",
       "notes": "",
-      "status": "To Do",
       "priority": "Medium",
       "due_date": null,
       "assigned_to": null,
       "created_by": "tirth.citrusbug@gmail.com",
-      "completed_at": null,
-      "completed_by": null,
       "steps": [],
-      "updated_at": {
-        "seconds": 1782111417,
-        "nanoseconds": 610000000
-      },
       "created_at": {
         "seconds": 1782111417,
         "nanoseconds": 610000000
-      }
+      },
+      "completed_at": {
+        "seconds": 1782113097,
+        "nanoseconds": 359000000
+      },
+      "updated_at": {
+        "seconds": 1782113097,
+        "nanoseconds": 359000000
+      },
+      "completed_by": "tirth.citrusbug@gmail.com",
+      "status": "Completed"
     },
     "zPduSuDgLM21mtHNaY6L": {
       "task_list_id": "TRE1XR47aJyXLUt3rQqI",
@@ -604,10 +597,235 @@
         "nanoseconds": 65000000
       },
       "assigned_to": "tirth.citrusbug@gmail.com"
+    },
+    "0Kz9DM3zvPpY9wYCwMEx": {
+      "task_list_id": "SE8POWT7Z1j885KZq6f9",
+      "task_number": 1012,
+      "title": "working on AWS sqs and lambda tickets with help of documents",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "assigned_to": null,
+      "created_by": "tirth.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1782112815,
+        "nanoseconds": 67000000
+      },
+      "updated_at": {
+        "seconds": 1782112901,
+        "nanoseconds": 137000000
+      },
+      "due_date": {
+        "seconds": 1782345600,
+        "nanoseconds": 0
+      }
+    },
+    "AleWLQ6GYOoe3SulmXNy": {
+      "task_list_id": "C8qsTGqWrR3DIL90PC0k",
+      "task_number": 1014,
+      "title": "work on staging",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "assigned_to": null,
+      "created_by": "tirth.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1782113327,
+        "nanoseconds": 396000000
+      },
+      "updated_at": {
+        "seconds": 1782113398,
+        "nanoseconds": 573000000
+      },
+      "due_date": {
+        "seconds": 1782086400,
+        "nanoseconds": 0
+      }
+    },
+    "NWOJxBpbUwNJCXb9ax94": {
+      "task_list_id": "SE8POWT7Z1j885KZq6f9",
+      "task_number": 1013,
+      "title": "today's task",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "assigned_to": null,
+      "created_by": "tirth.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1782112926,
+        "nanoseconds": 967000000
+      },
+      "updated_at": {
+        "seconds": 1782112934,
+        "nanoseconds": 314000000
+      },
+      "due_date": {
+        "seconds": 1782086400,
+        "nanoseconds": 0
+      }
+    },
+    "6owB6osDVaDGDXtmF6rl": {
+      "task_list_id": "AuwKKycUdmMyjD0FHWnj",
+      "task_number": 1015,
+      "title": "NEw project",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "tirth.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "updated_at": {
+        "seconds": 1782218064,
+        "nanoseconds": 152000000
+      },
+      "created_at": {
+        "seconds": 1782218064,
+        "nanoseconds": 152000000
+      }
+    },
+    "LbNGIeo4VbjgB6i0NHpd": {
+      "task_list_id": "VSuVupUPOv1HA50EQq1I",
+      "task_number": 1016,
+      "title": "DB task",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": null,
+      "assigned_to": null,
+      "created_by": "tirth.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "updated_at": {
+        "seconds": 1782218479,
+        "nanoseconds": 375000000
+      },
+      "created_at": {
+        "seconds": 1782218479,
+        "nanoseconds": 375000000
+      }
+    },
+    "6DHKBsNB25liTRfuKGUj": {
+      "task_list_id": "AuwKKycUdmMyjD0FHWnj",
+      "task_number": 1017,
+      "title": "Today task",
+      "description": "",
+      "notes": "",
+      "priority": "Medium",
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "steps": [],
+      "created_at": {
+        "seconds": 1782220415,
+        "nanoseconds": 368000000
+      },
+      "due_date": {
+        "seconds": 1782172800,
+        "nanoseconds": 0
+      },
+      "completed_at": {
+        "seconds": 1782220592,
+        "nanoseconds": 975000000
+      },
+      "updated_at": {
+        "seconds": 1782220592,
+        "nanoseconds": 975000000
+      },
+      "completed_by": "jay5.citrusbug@gmail.com",
+      "status": "Completed"
+    },
+    "xR9JxqQHKzwGCcqRFxGk": {
+      "task_list_id": "AuwKKycUdmMyjD0FHWnj",
+      "task_number": 1018,
+      "title": "Today last day",
+      "description": "",
+      "notes": "",
+      "status": "To Do",
+      "priority": "Medium",
+      "assigned_to": null,
+      "created_by": "jay5.citrusbug@gmail.com",
+      "completed_at": null,
+      "completed_by": null,
+      "steps": [],
+      "created_at": {
+        "seconds": 1782220861,
+        "nanoseconds": 252000000
+      },
+      "updated_at": {
+        "seconds": 1782223848,
+        "nanoseconds": 577000000
+      },
+      "due_date": null
     }
   },
   "task_steps": {},
-  "daily_statuses": {},
+  "daily_statuses": {
+    "BkgUxQhM3fpTcWnJSJfE": {
+      "user_id": "6q6eBCbJmGOvZQrh0jwoURH0zsB2",
+      "project_id": "0KQVSKzD9xakHPjTWjKU",
+      "date": {
+        "seconds": 1782086400,
+        "nanoseconds": 0
+      },
+      "work_done": "wrgwegwegwegwee",
+      "planned_work": "ergwgwegwegwe",
+      "hours": 2.5,
+      "blockers": null,
+      "created_at": {
+        "seconds": 1782111196,
+        "nanoseconds": 116000000
+      }
+    },
+    "LhQTcwIAsDobh4WVCif9": {
+      "user_id": "wUpu9MdzSTaHMXmSgf77R64lwAQ2",
+      "project_id": "0KQVSKzD9xakHPjTWjKU",
+      "date": {
+        "seconds": 1782086400,
+        "nanoseconds": 0
+      },
+      "work_done": "completed",
+      "planned_work": "not needed as complted all this",
+      "hours": 8,
+      "blockers": null,
+      "created_at": {
+        "seconds": 1782113028,
+        "nanoseconds": 265000000
+      }
+    },
+    "sMeTRKsEr4G9HJU9iW2k": {
+      "user_id": "wUpu9MdzSTaHMXmSgf77R64lwAQ2",
+      "project_id": "0KQVSKzD9xakHPjTWjKU",
+      "date": {
+        "seconds": 1784678400,
+        "nanoseconds": 0
+      },
+      "work_done": "Daily wins",
+      "planned_work": "future roadman\r\n",
+      "hours": 1,
+      "blockers": "not a blocker",
+      "created_at": {
+        "seconds": 1782109952,
+        "nanoseconds": 14000000
+      }
+    }
+  },
   "audit_logs": {
     "opfIjaSt4gPW6jet3IbX": {
       "user": "jay5@citrusbug.com",
@@ -1371,6 +1589,20 @@
       "user": "System",
       "action": "Sync Failed: fetch failed",
       "timestamp": "2026-06-22T06:34:23.270Z"
+    },
+    "4jDWeq72SfMw3W0Ma9ex": {
+      "user": "Jay Citrusbug",
+      "action": "Timeline Updated",
+      "project_id": "68vTF3h9URSwrMbrHUPx",
+      "details": {
+        "milestone": "smokeTesting",
+        "oldStatus": "Not Started",
+        "newStatus": "Not Started"
+      },
+      "timestamp": {
+        "seconds": 1782217697,
+        "nanoseconds": 825000000
+      }
     }
   },
   "test_cases": {
@@ -4635,6 +4867,36 @@
         "seconds": 1782110844,
         "nanoseconds": 890000000
       }
+    },
+    "Gs3Z9ILznAsktsPeMz9T": {
+      "name": "NEw task added",
+      "description": "jay",
+      "shared_with": [],
+      "created_by": "tirth.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1782218282,
+        "nanoseconds": 519000000
+      },
+      "created_at": {
+        "seconds": 1782218282,
+        "nanoseconds": 519000000
+      }
+    },
+    "VSuVupUPOv1HA50EQq1I": {
+      "name": "Ziplyst",
+      "description": "",
+      "shared_with": [
+        "jay5.citrusbug@gmail.com"
+      ],
+      "created_by": "tirth.citrusbug@gmail.com",
+      "updated_at": {
+        "seconds": 1782218469,
+        "nanoseconds": 98000000
+      },
+      "created_at": {
+        "seconds": 1782218469,
+        "nanoseconds": 98000000
+      }
     }
   },
   "task_activities": {
@@ -4857,6 +5119,99 @@
         "seconds": 1781852150,
         "nanoseconds": 321000000
       }
+    },
+    "LVER07nqsKvA4ntfS4AU": {
+      "task_id": "0Kz9DM3zvPpY9wYCwMEx",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "working on AWS sqs and lambda tickets with help of documents",
+      "performed_by": "tirth.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1782112815,
+        "nanoseconds": 407000000
+      }
+    },
+    "rrYTezCpBvJPdhAKHTwO": {
+      "task_id": "0Kz9DM3zvPpY9wYCwMEx",
+      "action": "Task Updated",
+      "old_value": "None",
+      "new_value": "2026-06-25",
+      "performed_by": "tirth.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1782112901,
+        "nanoseconds": 137000000
+      }
+    },
+    "TGPvSKyy4XcdluQ98XQQ": {
+      "task_id": "6owB6osDVaDGDXtmF6rl",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "NEw project",
+      "performed_by": "tirth.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1782218064,
+        "nanoseconds": 271000000
+      }
+    },
+    "n2Q7Tdkj2DCeNipehVpM": {
+      "task_id": "LbNGIeo4VbjgB6i0NHpd",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "DB task",
+      "performed_by": "tirth.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1782218480,
+        "nanoseconds": 56000000
+      }
+    },
+    "gG1Ofa63nWacHdHvqhSx": {
+      "task_id": "6DHKBsNB25liTRfuKGUj",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "Today task",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1782220418,
+        "nanoseconds": 183000000
+      }
+    },
+    "SM11oN9zBjqvlUNbxiQn": {
+      "task_id": "6DHKBsNB25liTRfuKGUj",
+      "action": "Task Updated",
+      "old_value": "None",
+      "new_value": "2026-06-23",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1782220528,
+        "nanoseconds": 379000000
+      }
+    },
+    "nNGffzW2Xyj2ieA17YY6": {
+      "task_id": "6DHKBsNB25liTRfuKGUj",
+      "action": "Task Completed",
+      "old_value": "To Do",
+      "new_value": "Completed",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": {
+        "seconds": 1782220592,
+        "nanoseconds": 975000000
+      }
+    },
+    "MP1xqvJCz3CRy0ZYSgg3": {
+      "task_id": "xR9JxqQHKzwGCcqRFxGk",
+      "action": "Task Created",
+      "old_value": null,
+      "new_value": "Today last day",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": "2026-06-23T13:21:08.654Z"
+    },
+    "HpdipzmQtvikgYMig7Oq": {
+      "task_id": "xR9JxqQHKzwGCcqRFxGk",
+      "action": "Task Updated",
+      "old_value": "2026-06-23",
+      "new_value": "None",
+      "performed_by": "jay5.citrusbug@gmail.com",
+      "created_at": "2026-06-23T14:12:12.368Z"
     }
   },
   "quick_notes": {

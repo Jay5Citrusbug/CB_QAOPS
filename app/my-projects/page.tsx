@@ -629,147 +629,85 @@ export default function MyProjectsPage() {
       {/* ==================================================== */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          {isQaLead ? (
-            /* ==================================================== */
-            /* QA LEAD VIEW */
-            /* ==================================================== */
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  <th className="py-4 px-3 w-10 text-center"></th>
-                  <th className="py-4 px-6">Project Name</th>
-                  <th className="py-4 px-4">Primary QA</th>
-                  <th className="py-4 px-4">Supporting QA</th>
-                  <th className="py-4 px-4">Status</th>
-                  <th className="py-4 px-4">Expected Delivery Date</th>
-                  <th className="py-4 px-4 text-center">Open Risks</th>
-                  <th className="py-4 px-4 text-center">Open Blockers</th>
-                  <th className="py-4 px-4">Last Updated</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <th className="py-4 px-3 w-10 text-center"></th>
+                <th className="py-4 px-6">Project Name</th>
+                <th className="py-4 px-4">Primary QA</th>
+                <th className="py-4 px-4">Supporting QA</th>
+                <th className="py-4 px-4">Status</th>
+                <th className="py-4 px-4">Expected Delivery Date</th>
+                <th className="py-4 px-4 text-center">Open Risks</th>
+                <th className="py-4 px-4 text-center">Open Blockers</th>
+                <th className="py-4 px-4">Last Updated</th>
+                <th className="py-4 px-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
+              {filteredProjects.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="py-12 px-6 text-center text-slate-400 font-semibold">
+                    No projects assigned yet. Please contact your administrator.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
-                {filteredProjects.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="py-12 px-6 text-center text-slate-400 font-semibold">
-                      No projects assigned yet. Please contact your administrator.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredProjects.map((p) => {
-                    const openRisks = p.notesAndFlags?.filter(n => n.type === 'Risk' && n.status === 'Open').length || 0;
-                    const openBlockers = p.notesAndFlags?.filter(n => n.type === 'Blocker' && n.status === 'Open').length || 0;
-                    const displayDate = p.updated_at ? formatDate(p.updated_at) : formatDate(p.createdAt);
+              ) : (
+                filteredProjects.map((p) => {
+                  const openRisks = p.notesAndFlags?.filter(n => n.type === 'Risk' && n.status === 'Open').length || 0;
+                  const openBlockers = p.notesAndFlags?.filter(n => n.type === 'Blocker' && n.status === 'Open').length || 0;
+                  const displayDate = p.updated_at ? formatDate(p.updated_at) : formatDate(p.createdAt);
 
-                    return (
-                      <tr 
-                        key={p.id} 
-                        onClick={() => router.push(`/my-projects/${p.id}`)}
-                        className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
-                      >
-                        <td className="py-4.5 px-3 text-center" onClick={(e) => { e.stopPropagation(); handleToggleFavorite(p.id); }}>
-                          <button className="p-1 hover:bg-slate-100 rounded-lg text-slate-350 hover:text-amber-500 transition-all cursor-pointer">
-                            <Star className={`w-3.5 h-3.5 ${p.favoritedBy?.includes(userEmail) ? "fill-amber-400 text-amber-400" : "text-slate-300"}`} />
-                          </button>
-                        </td>
-                        <td className="py-4.5 px-6">
-                          <div>
-                            <span className="font-extrabold text-slate-800 group-hover:text-[#ed5c37] transition-colors">{p.name}</span>
-                            {p.code && <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider mt-0.5">{p.code}</span>}
-                          </div>
-                        </td>
-                        <td className="py-4.5 px-4 font-semibold text-slate-800">
-                          {Array.isArray(p.primaryQaName) ? p.primaryQaName.join(', ') : (p.primaryQaName || "Unassigned")}
-                        </td>
-                        <td className="py-4.5 px-4 text-slate-600 font-medium">
-                          {Array.isArray(p.supportingQaName) ? p.supportingQaName.join(', ') : (p.supportingQaName || "None")}
-                        </td>
-                        <td className="py-4.5 px-4">{getStatusBadge(p.status)}</td>
-                        <td className="py-4.5 px-4 text-slate-600 font-semibold">{formatDate(p.targetReleaseDate)}</td>
-                        <td className="py-4.5 px-4 text-center">
-                          {openRisks > 0 ? (
-                            <span className="px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-700 rounded-md font-bold text-xs">
-                              {openRisks}
-                            </span>
-                          ) : <span className="text-slate-300">-</span>}
-                        </td>
-                        <td className="py-4.5 px-4 text-center">
-                          {openBlockers > 0 ? (
-                            <span className="px-2 py-0.5 bg-red-50 border border-red-200 text-red-700 rounded-md font-bold text-xs">
-                              {openBlockers}
-                            </span>
-                          ) : <span className="text-slate-300">-</span>}
-                        </td>
-                        <td className="py-4.5 px-4 text-slate-500 text-xs font-semibold">{displayDate}</td>
-                        <td className="py-4.5 px-6 text-right" onClick={(e) => e.stopPropagation()}>
-                          <Link href={`/my-projects/${p.id}`} className="px-4 py-1.5 bg-slate-900 hover:bg-[#ed5c37] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
-                            View Details
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          ) : (
-            /* ==================================================== */
-            /* STANDARD QA ENGINEER VIEW */
-            /* ==================================================== */
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  <th className="py-4 px-3 w-10 text-center"></th>
-                  <th className="py-4 px-6">Project Name</th>
-                  <th className="py-4 px-4">Project Status</th>
-                  <th className="py-4 px-4">Primary QA</th>
-                  <th className="py-4 px-4">Expected Delivery Date</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
-                {filteredProjects.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-12 px-6 text-center text-slate-400 font-semibold">
-                      No projects assigned yet. Please contact your administrator.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredProjects.map((p) => {
-                    return (
-                      <tr 
-                        key={p.id} 
-                        onClick={() => router.push(`/my-projects/${p.id}`)}
-                        className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
-                      >
-                        <td className="py-4.5 px-3 text-center" onClick={(e) => { e.stopPropagation(); handleToggleFavorite(p.id); }}>
-                          <button className="p-1 hover:bg-slate-100 rounded-lg text-slate-350 hover:text-amber-500 transition-all cursor-pointer">
-                            <Star className={`w-3.5 h-3.5 ${p.favoritedBy?.includes(userEmail) ? "fill-amber-400 text-amber-400" : "text-slate-300"}`} />
-                          </button>
-                        </td>
-                        <td className="py-4.5 px-6 font-extrabold text-slate-800">
-                          <div>
-                            <span className="hover:text-[#ed5c37] transition-colors group-hover:text-[#ed5c37]">{p.name}</span>
-                            {p.code && <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider mt-0.5">{p.code}</span>}
-                          </div>
-                        </td>
-                        <td className="py-4.5 px-4">{getStatusBadge(p.status)}</td>
-                        <td className="py-4.5 px-4 font-semibold text-slate-800">
-                          {Array.isArray(p.primaryQaName) ? p.primaryQaName.join(', ') : (p.primaryQaName || "Unassigned")}
-                        </td>
-                        <td className="py-4.5 px-4 text-slate-600 font-semibold">{formatDate(p.targetReleaseDate)}</td>
-                        <td className="py-4.5 px-6 text-right" onClick={(e) => e.stopPropagation()}>
-                          <Link href={`/my-projects/${p.id}`} className="px-4 py-1.5 bg-slate-900 hover:bg-[#ed5c37] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
-                            View Details
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          )}
+                  return (
+                    <tr 
+                      key={p.id} 
+                      onClick={() => router.push(`/my-projects/${p.id}`)}
+                      className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
+                    >
+                      <td className="py-4.5 px-3 text-center" onClick={(e) => { e.stopPropagation(); handleToggleFavorite(p.id); }}>
+                        <button className="p-1 hover:bg-slate-100 rounded-lg text-slate-350 hover:text-amber-500 transition-all cursor-pointer">
+                          <Star className={`w-3.5 h-3.5 ${p.favoritedBy?.includes(userEmail) ? "fill-amber-400 text-amber-400" : "text-slate-300"}`} />
+                        </button>
+                      </td>
+                      <td className="py-4.5 px-6">
+                        <div>
+                          <span className="font-extrabold text-slate-800 group-hover:text-[#ed5c37] transition-colors">{p.name}</span>
+                          {p.code && <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider mt-0.5">{p.code}</span>}
+                        </div>
+                      </td>
+                      <td className="py-4.5 px-4 font-semibold text-slate-800">
+                        {Array.isArray(p.primaryQaName) ? p.primaryQaName.join(', ') : (p.primaryQaName || "Unassigned")}
+                      </td>
+                      <td className="py-4.5 px-4 text-slate-600 font-medium">
+                        {Array.isArray(p.supportingQaName) ? p.supportingQaName.join(', ') : (p.supportingQaName || "None")}
+                      </td>
+                      <td className="py-4.5 px-4">{getStatusBadge(p.status)}</td>
+                      <td className="py-4.5 px-4 text-slate-600 font-semibold">{formatDate(p.targetReleaseDate)}</td>
+                      <td className="py-4.5 px-4 text-center">
+                        {openRisks > 0 ? (
+                          <span className="px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-700 rounded-md font-bold text-xs">
+                            {openRisks}
+                          </span>
+                        ) : <span className="text-slate-300">-</span>}
+                      </td>
+                      <td className="py-4.5 px-4 text-center">
+                        {openBlockers > 0 ? (
+                          <span className="px-2 py-0.5 bg-red-50 border border-red-200 text-red-700 rounded-md font-bold text-xs">
+                            {openBlockers}
+                          </span>
+                        ) : <span className="text-slate-300">-</span>}
+                      </td>
+                      <td className="py-4.5 px-4 text-slate-500 text-xs font-semibold">{displayDate}</td>
+                      <td className="py-4.5 px-6 text-right" onClick={(e) => e.stopPropagation()}>
+                        <Link href={`/my-projects/${p.id}`} className="px-4 py-1.5 bg-slate-900 hover:bg-[#ed5c37] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
+                          View Details
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 

@@ -468,6 +468,18 @@ export default function DashboardClient({
     return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
   };
 
+  // Resolve assignee name from email or format email prefix nicely
+  const getAssigneeName = (assignedToEmail: string | null) => {
+    if (!assignedToEmail) return "Unassigned";
+    const user = (users || []).find(u => u.email === assignedToEmail);
+    if (user && user.name) return user.name;
+    const prefix = assignedToEmail.split('@')[0];
+    return prefix
+      .split(/[\._-]/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   return (
     <div className="space-y-6 relative">
       {mounted && typeof window !== "undefined" && (togglingStatus || isSubmitting)
@@ -750,6 +762,11 @@ export default function DashboardClient({
                           {getPriorityBadge(task.priority)}
                           <span className="w-1 h-1 bg-slate-300 rounded-full" />
                           {getStatusBadge(task.status)}
+                          <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                          <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <span className="text-slate-400 font-semibold uppercase text-[8px] tracking-wider">Owner:</span>
+                            <span className="font-bold text-slate-700">{getAssigneeName(task.assignedTo)}</span>
+                          </span>
                         </div>
                       </div>
                       <button 
@@ -822,6 +839,11 @@ export default function DashboardClient({
                           </span>
                           <span className="w-1 h-1 bg-slate-300 rounded-full" />
                           {getPriorityBadge(task.priority)}
+                          <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                          <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <span className="text-slate-400 font-semibold uppercase text-[8px] tracking-wider">Owner:</span>
+                            <span className="font-bold text-slate-700">{getAssigneeName(task.assignedTo)}</span>
+                          </span>
                         </div>
                       </div>
                       <button 
@@ -1222,9 +1244,11 @@ export default function DashboardClient({
                     <p className="text-[9px] text-slate-400 uppercase tracking-wider">Assignee</p>
                     <div className="flex items-center gap-1.5 text-slate-700 mt-1">
                       <div className="w-4 h-4 rounded-full bg-slate-200 text-[9px] text-slate-600 flex items-center justify-center uppercase font-black font-sans shrink-0">
-                        {activeTask.assignedTo ? getInitials(activeTask.assignedTo.includes('@') ? activeTask.assignedTo.split('@')[0].replace(/[\._-]/g, ' ') : activeTask.assignedTo) : '?'}
+                        {activeTask.assignedTo ? getInitials(getAssigneeName(activeTask.assignedTo)) : '?'}
                       </div>
-                      <span className="truncate">{activeTask.assignedTo || "Unassigned"}</span>
+                      <span className="truncate" title={activeTask.assignedTo || "Unassigned"}>
+                        {activeTask.assignedTo ? getAssigneeName(activeTask.assignedTo) : "Unassigned"}
+                      </span>
                     </div>
                   </div>
                 </div>

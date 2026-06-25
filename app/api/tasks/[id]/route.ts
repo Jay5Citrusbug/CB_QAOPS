@@ -212,7 +212,7 @@ export async function PUT(
       }
     }
 
-    if (assignedTo !== undefined && assignedTo !== oldData.assigned_to) {
+    if (isQaLead && assignedTo !== undefined && assignedTo !== oldData.assigned_to) {
       updates.assigned_to = assignedTo || null;
       batch.set(adminDb.collection('task_activities').doc(), {
         task_id: id,

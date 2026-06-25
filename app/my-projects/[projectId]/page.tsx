@@ -1220,7 +1220,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
                             <button
                               onClick={() => handleSaveMilestone(key)}
                               disabled={msLoading}
-                              className="px-4.5 py-2 bg-slate-900 hover:bg-[#ed5c37] text-white rounded-xl font-bold text-xs shadow-sm flex items-center gap-1.5"
+                              className="px-4 py-2 bg-slate-900 hover:bg-[#ed5c37] text-white rounded-xl font-bold text-xs shadow-sm flex items-center gap-1.5"
                             >
                               {msLoading ? <Clock className="w-3 animate-spin" /> : "Save Changes"}
                             </button>
@@ -1886,7 +1886,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
                             <button 
                               type="button"
                               onClick={() => handleUpdateMilestone(m.key, editingMilestoneLabel)}
-                              className="px-3 py-1 bg-emerald-650 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg"
+                              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg"
                               disabled={milestoneActionLoading}
                             >
                               Save

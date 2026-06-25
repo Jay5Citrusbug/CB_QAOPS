@@ -186,7 +186,7 @@ export async function POST(request: Request) {
       status: 'To Do',
       priority: priority || 'Medium',
       due_date: dueDate ? admin.firestore.Timestamp.fromDate(new Date(dueDate)) : null,
-      assigned_to: assignedTo || null,
+      assigned_to: isQaLead ? (assignedTo || null) : userEmail,
       created_by: session.user.email,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
       updated_at: admin.firestore.FieldValue.serverTimestamp(),

@@ -44,7 +44,7 @@ export async function GET(
       return null;
     };
 
-    const rawTimeline = p.timeline || {};
+    const rawTimeline = p.timeline;
     const defaultMilestones = [
       { key: "smokeTesting", label: "Smoke Testing", order: 1 },
       { key: "testCaseWriting", label: "Test Case Writing", order: 2 },
@@ -57,21 +57,21 @@ export async function GET(
     ];
 
     const normalizedTimeline: any = {};
-    Object.entries(rawTimeline).forEach(([key, val]: [string, any]) => {
-      const defaultMatch = defaultMilestones.find(dm => dm.key === key);
-      normalizedTimeline[key] = {
-        label: val.label || defaultMatch?.label || key,
-        status: val.status || 'Not Started',
-        owner: val.owner || '',
-        plannedDate: val.plannedDate || null,
-        completedDate: val.completedDate || null,
-        notes: val.notes || '',
-        order: val.order !== undefined ? val.order : (defaultMatch?.order !== undefined ? defaultMatch.order : 999)
-      };
-    });
-
-    defaultMilestones.forEach(dm => {
-      if (!normalizedTimeline[dm.key]) {
+    if (rawTimeline !== undefined && rawTimeline !== null) {
+      Object.entries(rawTimeline).forEach(([key, val]: [string, any]) => {
+        const defaultMatch = defaultMilestones.find(dm => dm.key === key);
+        normalizedTimeline[key] = {
+          label: val.label || defaultMatch?.label || key,
+          status: val.status || 'Not Started',
+          owner: val.owner || '',
+          plannedDate: val.plannedDate || null,
+          completedDate: val.completedDate || null,
+          notes: val.notes || '',
+          order: val.order !== undefined ? val.order : (defaultMatch?.order !== undefined ? defaultMatch.order : 999)
+        };
+      });
+    } else {
+      defaultMilestones.forEach(dm => {
         normalizedTimeline[dm.key] = {
           label: dm.label,
           status: 'Not Started',
@@ -81,8 +81,8 @@ export async function GET(
           notes: '',
           order: dm.order
         };
-      }
-    });
+      });
+    }
 
     const sortedTimelineList = Object.entries(normalizedTimeline)
       .map(([key, val]: [string, any]) => ({ key, ...val }))
