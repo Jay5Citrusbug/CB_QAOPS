@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { getInitials } from "@/lib/utils";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useConfirm } from "@/components/providers/ConfirmProvider";
 import { 
   ArrowLeft, 
   Folder, 
@@ -98,6 +99,8 @@ interface Project {
     plannedDate: string | null;
     completedDate: string | null;
     notes: string;
+    label?: string;
+    order?: number;
   }>;
   notesAndFlags: Array<{
     id: string;
@@ -142,6 +145,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   const resolvedParams = use(params);
   const projectId = resolvedParams.projectId;
   const { data: session } = useSession();
+  const confirm = useConfirm();
 
   const [project, setProject] = useState<Project | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
@@ -175,7 +179,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   const [msLoading, setMsLoading] = useState(false);
 
   // Dynamic Milestone list state (initialize with defaults)
-  const [milestoneKeys, setMilestoneKeys] = useState<Array<{ key: string; label: string }>>(DEFAULT_MILESTONES);
+  const [milestoneKeys, setMilestoneKeys] = useState<Array<{ key: string; label: string; order?: number }>>(DEFAULT_MILESTONES);
   const [showMilestoneManageModal, setShowMilestoneManageModal] = useState(false);
   const [newMilestoneLabel, setNewMilestoneLabel] = useState("");
   const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
@@ -193,6 +197,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   }, [toast]);
 
   useEffect(() => {
+    if (showMilestoneManageModal || previewDoc) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showMilestoneManageModal, previewDoc]);
+
+  useEffect(() => {
     if (project?.timeline) {
       const keys = Object.entries(project.timeline)
         .map(([key, val]: [string, any]) => ({
@@ -208,63 +223,145 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   const handleAddMilestone = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMilestoneLabel.trim()) return;
-    setMilestoneActionLoading(true);
+
+    const labelText = newMilestoneLabel.trim();
+    const key = labelText.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/(^_|_$)/g, '');
+    if (!key) return;
+
+    // Check if duplicate key already exists
+    if (milestoneKeys.some(m => m.key === key)) {
+      setMilestoneError("Milestone already exists in this project");
+      return;
+    }
+
+    setNewMilestoneLabel("");
     setMilestoneError("");
-    setIsSyncing(true);
+
+    // Optimistically update states
+    const maxOrder = milestoneKeys.length > 0 ? Math.max(...milestoneKeys.map(m => m.order !== undefined ? m.order : 0)) : 0;
+    const newMilestone = { key, label: labelText, order: maxOrder + 1 };
+    
+    const prevMilestones = [...milestoneKeys];
+    const prevProject = project ? { ...project } : null;
+
+    setMilestoneKeys(prev => [...prev, newMilestone]);
+    if (project) {
+      setProject(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          timeline: {
+            ...prev.timeline,
+            [key]: {
+              label: labelText,
+              status: 'Not Started',
+              owner: '',
+              plannedDate: null,
+              completedDate: null,
+              notes: '',
+              order: maxOrder + 1
+            }
+          }
+        };
+      });
+    }
+
+    setToast({ message: "Milestone added successfully!", type: "success" });
+
     try {
-      const res = await addProjectMilestone(projectId, newMilestoneLabel.trim());
+      const res = await addProjectMilestone(projectId, labelText);
       if (res.error) throw new Error(res.error);
-      setNewMilestoneLabel("");
-      setToast({ message: "Milestone added successfully!", type: "success" });
-      setIsSyncing(false);
       fetchProjectDetails();
     } catch (err: any) {
+      // Revert on error
+      setMilestoneKeys(prevMilestones);
+      if (prevProject) setProject(prevProject);
       setMilestoneError(err.message || "Failed to add milestone");
       setToast({ message: err.message || "Failed to add milestone", type: "error" });
-    } finally {
-      setMilestoneActionLoading(false);
-      setIsSyncing(false);
     }
   };
 
   const handleUpdateMilestone = async (id: string, newLabel: string) => {
     if (!newLabel.trim()) return;
-    setMilestoneActionLoading(true);
     setMilestoneError("");
-    setIsSyncing(true);
+
+    const labelText = newLabel.trim();
+    const prevMilestones = [...milestoneKeys];
+    const prevProject = project ? { ...project } : null;
+
+    // Optimistically update states
+    setMilestoneKeys(prev => prev.map(m => m.key === id ? { ...m, label: labelText } : m));
+    if (project) {
+      setProject(prev => {
+        if (!prev || !prev.timeline || !prev.timeline[id]) return prev;
+        return {
+          ...prev,
+          timeline: {
+            ...prev.timeline,
+            [id]: {
+              ...prev.timeline[id],
+              label: labelText
+            }
+          }
+        };
+      });
+    }
+
+    setEditingMilestoneId(null);
+    setToast({ message: "Milestone label updated successfully!", type: "success" });
+
     try {
-      const res = await editProjectMilestone(projectId, id, newLabel.trim());
+      const res = await editProjectMilestone(projectId, id, labelText);
       if (res.error) throw new Error(res.error);
-      setEditingMilestoneId(null);
-      setToast({ message: "Milestone label updated successfully!", type: "success" });
-      setIsSyncing(false);
       fetchProjectDetails();
     } catch (err: any) {
+      // Revert on error
+      setMilestoneKeys(prevMilestones);
+      if (prevProject) setProject(prevProject);
       setMilestoneError(err.message || "Failed to update milestone");
       setToast({ message: err.message || "Failed to update milestone", type: "error" });
-    } finally {
-      setMilestoneActionLoading(false);
-      setIsSyncing(false);
     }
   };
 
   const handleDeleteMilestone = async (id: string) => {
-    if (!confirm("Are you sure? Removing this milestone will remove it from this project. Existing status data for this milestone will be ignored but preserved in documents.")) return;
-    setMilestoneActionLoading(true);
+    const isConfirmed = await confirm({
+      title: "Remove Milestone",
+      message: "Are you sure? Removing this milestone will remove it from this project. Existing status data for this milestone will be ignored but preserved in documents.",
+      confirmText: "Remove",
+      type: "danger"
+    });
+    if (!isConfirmed) return;
+
     setMilestoneError("");
-    setIsSyncing(true);
+    const prevMilestones = [...milestoneKeys];
+    const prevProject = project ? { ...project } : null;
+
+    // Optimistically update states
+    setMilestoneKeys(prev => prev.filter(m => m.key !== id));
+    if (project) {
+      setProject(prev => {
+        if (!prev || !prev.timeline) return prev;
+        const nextTimeline = { ...prev.timeline };
+        delete nextTimeline[id];
+        return {
+          ...prev,
+          timeline: nextTimeline
+        };
+      });
+    }
+
+    setToast({ message: "Milestone deleted successfully!", type: "success" });
+
     try {
       const res = await deleteProjectMilestone(projectId, id);
       if (res.error) throw new Error(res.error);
-      setToast({ message: "Milestone deleted successfully!", type: "success" });
-      setIsSyncing(false);
       fetchProjectDetails();
     } catch (err: any) {
+      // Revert on error
+      setMilestoneKeys(prevMilestones);
+      if (prevProject) setProject(prevProject);
       setMilestoneError(err.message || "Failed to delete milestone");
       setToast({ message: err.message || "Failed to delete milestone", type: "error" });
-    } finally {
-      setMilestoneActionLoading(false);
-      setIsSyncing(false);
     }
   };
 
@@ -272,9 +369,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
     if (direction === 'up' && index === 0) return;
     if (direction === 'down' && index === milestoneKeys.length - 1) return;
 
-    setMilestoneActionLoading(true);
     setMilestoneError("");
-    setIsSyncing(true);
+    const prevMilestones = [...milestoneKeys];
+    const prevProject = project ? { ...project } : null;
 
     const newMilestones = [...milestoneKeys];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -283,19 +380,44 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
     newMilestones[index] = newMilestones[targetIndex];
     newMilestones[targetIndex] = temp;
 
-    const orders = newMilestones.map((m, idx) => ({ key: m.key, order: idx + 1 }));
+    // Reassign orders
+    const updatedMilestones = newMilestones.map((m, idx) => ({ ...m, order: idx + 1 }));
+    setMilestoneKeys(updatedMilestones);
+
+    // Optimistically update project state timeline orders
+    if (project) {
+      setProject(prev => {
+        if (!prev || !prev.timeline) return prev;
+        const nextTimeline = { ...prev.timeline };
+        updatedMilestones.forEach(m => {
+          if (nextTimeline[m.key]) {
+            nextTimeline[m.key] = {
+              ...nextTimeline[m.key],
+              order: m.order
+            };
+          }
+        });
+        return {
+          ...prev,
+          timeline: nextTimeline
+        };
+      });
+    }
+
+    setToast({ message: "Milestone order updated!", type: "success" });
+
+    const orders = updatedMilestones.map((m) => ({ key: m.key, order: m.order }));
 
     try {
       const res = await reorderProjectMilestones(projectId, orders);
       if (res.error) throw new Error(res.error);
-      setMilestoneKeys(newMilestones);
-      setToast({ message: "Milestone order saved!", type: "success" });
+      fetchProjectDetails();
     } catch (err: any) {
+      // Revert on error
+      setMilestoneKeys(prevMilestones);
+      if (prevProject) setProject(prevProject);
       setMilestoneError(err.message || "Failed to reorder milestones");
       setToast({ message: err.message || "Failed to reorder milestones", type: "error" });
-    } finally {
-      setMilestoneActionLoading(false);
-      setIsSyncing(false);
     }
   };
 
@@ -394,7 +516,13 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
         if (!finalReplaceId && project?.documents) {
           const duplicate = project.documents.find(d => d.name.toLowerCase() === uploadFile.name.toLowerCase());
           if (duplicate) {
-            if (confirm(`A file named "${uploadFile.name}" already exists. Do you want to replace it as a new version?`)) {
+            const isConfirmed = await confirm({
+              title: "File Already Exists",
+              message: `A file named "${uploadFile.name}" already exists. Do you want to replace it as a new version?`,
+              confirmText: "Replace",
+              type: "warning"
+            });
+            if (isConfirmed) {
               finalReplaceId = duplicate.id;
               formData.delete("replaceDocId");
               formData.append("replaceDocId", finalReplaceId);
@@ -441,8 +569,31 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   };
 
   const handleDeleteDoc = async (docId: string) => {
-    if (!confirm("Are you sure you want to delete this document?")) return;
-    setIsSyncing(true);
+    const isConfirmed = await confirm({
+      title: "Delete Document",
+      message: "Are you sure you want to delete this document?",
+      confirmText: "Delete",
+      type: "danger"
+    });
+    if (!isConfirmed) return;
+
+    const prevProject = project ? { ...project } : null;
+
+    // Optimistically update states
+    if (project) {
+      setProject(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          documents: prev.documents.filter(d => d.id !== docId)
+        };
+      });
+    }
+    if (previewDoc && previewDoc.id === docId) {
+      setPreviewDoc(null);
+    }
+    setToast({ message: "Document deleted successfully!", type: "success" });
+
     try {
       const res = await fetch(`/api/projects/${projectId}/documents?docId=${docId}`, {
         method: "DELETE",
@@ -452,16 +603,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
         const data = await res.json();
         throw new Error(data.error || "Failed to delete document");
       }
-
-      setToast({ message: "Document deleted successfully!", type: "success" });
-      await Promise.all([fetchProjectDetails(), fetchAuditLogs()]);
-      if (previewDoc && previewDoc.id === docId) {
-        setPreviewDoc(null);
-      }
+      Promise.all([fetchProjectDetails(), fetchAuditLogs()]);
     } catch (err: any) {
+      if (prevProject) setProject(prevProject);
       setToast({ message: err.message || "Failed to delete document", type: "error" });
-    } finally {
-      setIsSyncing(false);
     }
   };
 
@@ -511,46 +656,43 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
   // Milestone Save Handler
   const handleSaveMilestone = async (key: string) => {
     if (!project) return;
-    setMsLoading(true);
-    setIsSyncing(true);
+    const prevProject = { ...project };
+
+    const updatedTimelineObj = {
+      status: msStatus,
+      owner: msOwner,
+      plannedDate: msPlanned ? new Date(msPlanned).toISOString() : null,
+      completedDate: msCompleted ? new Date(msCompleted).toISOString() : null,
+      notes: msNotes,
+    };
+
+    // Optimistically update project timeline state
+    setProject(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        timeline: {
+          ...prev.timeline,
+          [key]: {
+            ...prev.timeline[key],
+            ...updatedTimelineObj,
+          }
+        }
+      };
+    });
+
+    setEditingMilestoneKey(null);
+    setToast({ message: "Milestone updated successfully!", type: "success" });
+
     try {
-      const res = await updateProjectMilestone(project.id, key, {
-        status: msStatus,
-        owner: msOwner,
-        plannedDate: msPlanned ? new Date(msPlanned).toISOString() : null,
-        completedDate: msCompleted ? new Date(msCompleted).toISOString() : null,
-        notes: msNotes,
-      });
+      const res = await updateProjectMilestone(project.id, key, updatedTimelineObj);
       if (res && 'error' in res) {
-        setToast({ message: res.error || "Failed to update milestone", type: "error" });
-      } else {
-        setToast({ message: "Milestone updated successfully!", type: "success" });
-        setProject(prev => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            timeline: {
-              ...prev.timeline,
-              [key]: {
-                ...prev.timeline[key],
-                status: msStatus,
-                owner: msOwner,
-                plannedDate: msPlanned ? new Date(msPlanned).toISOString() : null,
-                completedDate: msCompleted ? new Date(msCompleted).toISOString() : null,
-                notes: msNotes,
-              }
-            }
-          };
-        });
-        setEditingMilestoneKey(null);
-        setIsSyncing(false);
-        fetchProjectDetails();
+        throw new Error(res.error);
       }
+      fetchProjectDetails();
     } catch (err: any) {
-      setToast({ message: err.message || "An error occurred", type: "error" });
-    } finally {
-      setMsLoading(false);
-      setIsSyncing(false);
+      if (prevProject) setProject(prevProject);
+      setToast({ message: err.message || "Failed to update milestone", type: "error" });
     }
   };
 
@@ -612,23 +754,35 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
     }
   };
 
-  // Delete Note Handler
   const handleDeleteNote = async (noteId: string) => {
-    if (!project || !confirm("Are you sure you want to delete this note/flag?")) return;
-    setIsSyncing(true);
+    if (!project) return;
+    const isConfirmed = await confirm({
+      title: "Delete Note/Flag",
+      message: "Are you sure you want to delete this note/flag?",
+      confirmText: "Delete",
+      type: "danger"
+    });
+    if (!isConfirmed) return;
+
+    const prevProject = { ...project };
+
+    // Optimistically update states
+    setProject(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        notesAndFlags: prev.notesAndFlags.filter(n => n.id !== noteId)
+      };
+    });
+    setToast({ message: "Note deleted successfully!", type: "success" });
+
     try {
       const res = await deleteProjectNote(project.id, noteId);
-      if (res && 'error' in res) {
-        setToast({ message: res.error || "Failed to delete note", type: "error" });
-      } else {
-        setToast({ message: "Note deleted successfully!", type: "success" });
-        setIsSyncing(false);
-        fetchProjectDetails();
-      }
+      if (res && 'error' in res) throw new Error(res.error);
+      fetchProjectDetails();
     } catch (err: any) {
+      setProject(prevProject);
       setToast({ message: err.message || "An error occurred", type: "error" });
-    } finally {
-      setIsSyncing(false);
     }
   };
 
@@ -1823,8 +1977,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
         </div>
       )}
       {showMilestoneManageModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100 max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-start justify-center p-4 pt-16 md:pt-24 overflow-y-auto animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100 max-h-[85vh] flex flex-col shrink-0">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div>
                 <h3 className="font-extrabold text-slate-900 text-lg">Manage Milestones</h3>

@@ -103,3 +103,111 @@ body {
   display: none;
 }
 
+/* Dark Mode Override System */
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+}
+
+.dark body {
+  background: #0b0f19;
+  color: #f1f5f9;
+}
+
+.dark .bg-\[\#f8fafc\] {
+  background-color: #0b0f19 !important;
+}
+
+.dark .bg-white {
+  background-color: #131b2e !important;
+}
+
+.dark .bg-slate-50 {
+  background-color: #0f172a !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+}
+
+.dark .bg-slate-200 {
+  background-color: #273449 !important;
+}
+
+.dark .bg-slate-50\/50 {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+}
+
+.dark .border-slate-50,
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-300 {
+  border-color: #1e293b !important;
+}
+
+.dark .text-slate-950,
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-slate-600,
+.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .hover\:bg-slate-50:hover {
+  background-color: #1e293b !important;
+}
+
+.dark .hover\:bg-slate-100:hover {
+  background-color: #273449 !important;
+}
+
+.dark .hover\:bg-slate-50\/50:hover {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+.dark input:disabled {
+  background-color: #111827 !important;
+  color: #64748b !important;
+}
+
+.dark input:focus,
+.dark textarea:focus {
+  background-color: #131b2e !important;
+  border-color: #ed5c37 !important;
+}
+
+.dark .page-title {
+  color: #ffffff !important;
+}
+
+.dark .page-desc {
+  color: #94a3b8 !important;
+}
+
+.dark .bg-slate-900\/40 {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1e293b !important;
+}
+
+.dark pre,
+.dark code {
+  background-color: #0f172a !important;
+  color: #cbd5e1 !important;
+}
+

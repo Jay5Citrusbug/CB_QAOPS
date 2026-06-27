@@ -23,7 +23,8 @@ import {
   FileText,
   Lock,
   Star,
-  Loader2
+  Loader2,
+  X
 } from "lucide-react";
 
 interface Project {
@@ -620,6 +621,20 @@ export default function MyProjectsPage() {
                 </select>
               </div>
             )}
+
+            {(searchTerm !== "" || statusFilter !== "all" || primaryFilter !== "all") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm("");
+                  setStatusFilter("all");
+                  setPrimaryFilter("all");
+                }}
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-2xl transition-all cursor-pointer border border-rose-100 shadow-sm"
+              >
+                <X className="w-3.5 h-3.5" /> Clear Filters
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -675,10 +690,14 @@ export default function MyProjectsPage() {
                         </div>
                       </td>
                       <td className="py-4.5 px-4 font-semibold text-slate-800">
-                        {Array.isArray(p.primaryQaName) ? p.primaryQaName.join(', ') : (p.primaryQaName || "Unassigned")}
+                        {Array.isArray(p.primaryQaName) 
+                          ? (p.primaryQaName.filter(Boolean).join(', ') || "-") 
+                          : (p.primaryQaName || "-")}
                       </td>
                       <td className="py-4.5 px-4 text-slate-600 font-medium">
-                        {Array.isArray(p.supportingQaName) ? p.supportingQaName.join(', ') : (p.supportingQaName || "None")}
+                        {Array.isArray(p.supportingQaName) 
+                          ? (p.supportingQaName.filter(Boolean).join(', ') || "-") 
+                          : (p.supportingQaName || "-")}
                       </td>
                       <td className="py-4.5 px-4">{getStatusBadge(p.status)}</td>
                       <td className="py-4.5 px-4 text-slate-600 font-semibold">{formatDate(p.targetReleaseDate)}</td>
@@ -777,7 +796,9 @@ export default function MyProjectsPage() {
                         <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
                           pm.status === 'Blocked' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
                         }`}>{pm.status}</span>
-                        {pm.plannedDate && <span className="text-[9px] text-slate-400 block mt-1">Due {formatDate(pm.plannedDate)}</span>}
+                        <span className="text-[9px] text-slate-400 block mt-1">
+                          Planned: {pm.plannedDate ? formatDate(pm.plannedDate) : "-"}
+                        </span>
                       </div>
                     </Link>
                   ))

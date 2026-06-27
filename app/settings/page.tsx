@@ -23,7 +23,9 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Clock
+  Clock,
+  Sun,
+  Moon
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -52,6 +54,24 @@ export default function SettingsPage() {
 
   // Active section tab
   const [activeTab, setActiveTab] = useState("profile");
+
+  // Theme states
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("cb_qops_theme") === "dark" ? "dark" : "light";
+    setTheme(savedTheme);
+  }, []);
+
+  const handleThemeChange = (newTheme: "light" | "dark") => {
+    setTheme(newTheme);
+    localStorage.setItem("cb_qops_theme", newTheme);
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
 
   // Profile Form States
   const [firstName, setFirstName] = useState("");
@@ -357,6 +377,22 @@ export default function SettingsPage() {
               </span>
               <ChevronRight className="w-4 h-4" />
             </button>
+
+            {/* Appearance tab – temporarily hidden until dark mode is fully polished
+            <button 
+              onClick={() => setActiveTab("appearance")} 
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all text-left cursor-pointer ${
+                activeTab === "appearance" 
+                  ? "bg-[#ed5c37]/5 text-[#ed5c37]" 
+                  : "text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                <Settings className="w-4 h-4" /> Appearance
+              </span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            */}
 
             {isAdmin && (
               <button 
@@ -771,6 +807,88 @@ export default function SettingsPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          )}
+
+          {/* APPEARANCE SETTINGS TAB */}
+          {activeTab === "appearance" && (
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in duration-300">
+              <div className="p-8 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-xl font-bold shadow-inner">
+                    🎨
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">Appearance</h2>
+                    <p className="text-sm font-medium text-slate-500 mt-1">Configure interface color theme preferences</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-8 space-y-6">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Select Theme Mode</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    
+                    {/* Light Mode Switcher Card */}
+                    <button
+                      onClick={() => handleThemeChange("light")}
+                      className={`p-6 rounded-2xl border-2 text-left transition-all relative group flex flex-col justify-between h-44 cursor-pointer ${
+                        theme === "light"
+                          ? "border-[#ed5c37] bg-[#ed5c37]/5 shadow-md shadow-[#ed5c37]/5"
+                          : "border-slate-200 hover:border-slate-350 hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+                          <Sun className="w-5 h-5" />
+                        </div>
+                        {theme === "light" && (
+                          <span className="w-5 h-5 rounded-full bg-[#ed5c37] flex items-center justify-center text-white text-[10px] font-black">✓</span>
+                        )}
+                      </div>
+                      <div className="mt-6">
+                        <h4 className="font-bold text-slate-900 text-sm">Light Mode</h4>
+                        <p className="text-xs text-slate-500 font-medium mt-1 font-semibold">Standard, high-contrast crisp day look.</p>
+                      </div>
+                    </button>
+
+                    {/* Dark Mode Switcher Card */}
+                    <button
+                      onClick={() => handleThemeChange("dark")}
+                      className={`p-6 rounded-2xl border-2 text-left transition-all relative group flex flex-col justify-between h-44 cursor-pointer ${
+                        theme === "dark"
+                          ? "border-[#ed5c37] bg-[#ed5c37]/5 shadow-md shadow-[#ed5c37]/5"
+                          : "border-slate-200 hover:border-slate-350 hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center text-indigo-400">
+                          <Moon className="w-5 h-5" />
+                        </div>
+                        {theme === "dark" && (
+                          <span className="w-5 h-5 rounded-full bg-[#ed5c37] flex items-center justify-center text-white text-[10px] font-black">✓</span>
+                        )}
+                      </div>
+                      <div className="mt-6">
+                        <h4 className="font-bold text-slate-900 text-sm">Dark Mode</h4>
+                        <p className="text-xs text-slate-500 font-medium mt-1 font-semibold">Premium, low-light aesthetic to reduce eye strain.</p>
+                      </div>
+                    </button>
+
+                  </div>
+                </div>
+
+                <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex gap-3 text-slate-500">
+                  <Info className="w-4 h-4 shrink-0 text-slate-400 mt-0.5" />
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Instant Synchronization</span>
+                    <p className="text-[10px] leading-relaxed font-semibold">
+                      Your choice is applied immediately across the entire workspace on this browser without requiring a system restart.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

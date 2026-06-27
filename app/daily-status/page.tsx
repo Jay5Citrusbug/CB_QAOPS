@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { addDailyStatus, updateGroupedDailyStatus, deleteGroupedDailyStatus } from "@/lib/actions";
 import { Plus, X, Calendar, CheckCircle2, User, LayoutGrid, List, Search, Filter, Briefcase, Edit2, Trash2, Clock, ChevronDown, Check, Eye, Copy, BarChart2, AlertTriangle, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useConfirm } from "@/components/providers/ConfirmProvider";
 
 interface DailyStatus {
   id: string;
@@ -66,6 +67,7 @@ const renderWithLinks = (text: string) => {
 
 export default function DailyStatusPage() {
   const router = useRouter();
+  const confirm = useConfirm();
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditDate, setCurrentEditDate] = useState("");
@@ -79,7 +81,8 @@ export default function DailyStatusPage() {
   
   // Filters State
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterDate, setFilterDate] = useState("");
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
   const [filterProject, setFilterProject] = useState("ALL");
 
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
@@ -165,12 +168,15 @@ export default function DailyStatusPage() {
         s.workDone.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.user.name.toLowerCase().includes(searchQuery.toLowerCase());
       
-      const matchesDate = filterDate ? s.date.split('T')[0] === filterDate : true;
+      const sDateStr = s.date.split('T')[0];
+      const matchesStartDate = filterStartDate ? sDateStr >= filterStartDate : true;
+      const matchesEndDate = filterEndDate ? sDateStr <= filterEndDate : true;
+      const matchesDate = matchesStartDate && matchesEndDate;
       const matchesProject = filterProject === "ALL" ? true : s.projectId === filterProject;
 
       return matchesSearch && matchesDate && matchesProject;
     });
-  }, [statuses, searchQuery, filterDate, filterProject]);
+  }, [statuses, searchQuery, filterStartDate, filterEndDate, filterProject]);
 
   const activeProjects = useMemo(() => {
     if (!Array.isArray(projects)) return [];
@@ -230,23 +236,30 @@ export default function DailyStatusPage() {
   };
 
   const handleDelete = async (dateStr: string) => {
-    if (confirm("Permanently delete this entire status report?")) {
-      try {
-        setIsSyncing(true);
-        const res = await deleteGroupedDailyStatus(dateStr);
-        if (res && 'error' in res) {
-          setToast({ message: res.error || "Failed to delete status.", type: "error" });
-        } else {
-          setToast({ message: "Status report deleted successfully!", type: "success" });
-        }
-        await fetchData();
-      } catch (err: any) {
-        setToast({ message: err.message || "An error occurred during deletion.", type: "error" });
-      } finally {
-        setIsSyncing(false);
-      }
+    const isConfirmed = await confirm({
+      title: "Delete Status Report",
+      message: "Are you sure you want to permanently delete this entire status report?",
+      confirmText: "Delete",
+      type: "danger"
+    });
+    if (!isConfirmed) return;
+
+    const prevStatuses = [...statuses];
+    const targetDateStr = dateStr.split("T")[0];
+    setStatuses(prev => prev.filter(s => s.date.split("T")[0] !== targetDateStr));
+    setToast({ message: "Status report deleted successfully!", type: "success" });
+
+    try {
+      const res = await deleteGroupedDailyStatus(dateStr);
+      if (res && 'error' in res) throw new Error(res.error);
+      fetchData();
+    } catch (err: any) {
+      setStatuses(prevStatuses);
+      setToast({ message: err.message || "An error occurred during deletion.", type: "error" });
     }
   };
+
+  const hasActiveFilters = searchQuery !== "" || filterProject !== "ALL" || filterStartDate !== "" || filterEndDate !== "";
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -286,30 +299,64 @@ export default function DailyStatusPage() {
       )}
 
       {/* Filter Hub */}
-      <div className="premium-card grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-        <div className="md:col-span-2 space-y-1.5">
-           <label className="text-xs font-bold text-slate-500 ml-1">Search</label>
-           <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#ed5c37] transition-colors" />
-              <input type="text" placeholder="Search milestones, projects..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm" />
-           </div>
+      <div className="premium-card flex flex-col md:flex-row md:items-center gap-3 flex-wrap">
+        {/* Search */}
+        <div className="relative group min-w-[240px] flex-1 md:flex-initial">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#ed5c37] transition-colors" />
+          <input 
+            type="text" 
+            placeholder="Search milestones, projects..." 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm" 
+          />
         </div>
         
-        <div className="space-y-1.5">
-           <label className="text-xs font-bold text-slate-500 ml-1">Project</label>
-           <div className="relative">
-              <select value={filterProject} onChange={(e) => setFilterProject(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 rounded-xl appearance-none focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm">
-                <option value="ALL">All Projects</option>
-                {activeProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-              <Briefcase className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-           </div>
+        {/* Project Selector */}
+        <div className="relative min-w-[180px] w-full md:w-auto">
+          <select 
+            value={filterProject} 
+            onChange={(e) => setFilterProject(e.target.value)} 
+            className="w-full pl-4 pr-10 py-2 bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-xl appearance-none focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm cursor-pointer"
+          >
+            <option value="ALL">All Projects</option>
+            {activeProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          <Briefcase className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
         </div>
 
-        <div className="space-y-1.5">
-           <label className="text-xs font-bold text-slate-500 ml-1">Date</label>
-           <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm" />
+        {/* Date Range */}
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <input 
+            type="date" 
+            value={filterStartDate} 
+            onChange={(e) => setFilterStartDate(e.target.value)} 
+            className="px-3 py-2 bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm" 
+          />
+          <span className="text-slate-400 font-medium text-xs">to</span>
+          <input 
+            type="date" 
+            value={filterEndDate} 
+            onChange={(e) => setFilterEndDate(e.target.value)} 
+            className="px-3 py-2 bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm" 
+          />
         </div>
+
+        {/* Clear Filters Button */}
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setFilterProject("ALL");
+              setFilterStartDate("");
+              setFilterEndDate("");
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all cursor-pointer border border-rose-100 shadow-sm md:ml-auto"
+          >
+            <X className="w-3.5 h-3.5" /> Clear Filters
+          </button>
+        )}
       </div>      <div className="relative min-h-[300px]">
         {isSyncing && statuses.length > 0 && (
           <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#ed5c37] animate-pulse z-50 rounded-t-2xl" />
@@ -386,7 +433,7 @@ export default function DailyStatusPage() {
                         <h3 className="font-bold text-slate-900 leading-none">{group.user.name}</h3>
                         <div className="flex flex-wrap gap-1">
                           {group.projects.map(p => (
-                            <span key={p.projectId} className="px-2 py-0.5 bg-slate-900 text-[10px] font-bold text-white rounded-md uppercase tracking-wider">{p.projectName} &bull; {p.hours || 0}h</span>
+                            <span key={p.projectId} className="px-2 py-0.5 bg-slate-900 text-[10px] font-bold text-white rounded-md uppercase tracking-wider whitespace-nowrap">{p.projectName} &bull; {p.hours || 0}h</span>
                           ))}
                         </div>
                       </div>
@@ -467,13 +514,13 @@ export default function DailyStatusPage() {
                                </div>
                             </td>
                          )}
-                         <td className="px-6 py-4">
-                            <div className="flex flex-wrap gap-1">
-                              {group.projects.map(p => (
-                                <span key={p.projectId} className="text-[9px] bg-slate-900 text-white px-2 py-1 rounded-md w-fit uppercase font-bold tracking-wider">{p.projectName} &bull; {p.hours || 0}h</span>
-                              ))}
-                            </div>
-                         </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                             <div className="flex items-center gap-1.5 whitespace-nowrap">
+                               {group.projects.map(p => (
+                                 <span key={p.projectId} className="text-[9px] bg-slate-900 text-white px-2 py-1 rounded-md w-fit uppercase font-bold tracking-wider whitespace-nowrap">{p.projectName} &bull; {p.hours || 0}h</span>
+                               ))}
+                             </div>
+                          </td>
                          <td className="px-6 py-4 max-w-xs">
                             <p className="text-slate-600 font-medium truncate text-xs" title={group.workDone}>{group.workDone}</p>
                          </td>
@@ -564,9 +611,12 @@ export default function DailyStatusPage() {
               <button onClick={() => { setShowModal(false); setSelectedProjects([]); setProjectHours({}); setIsDropdownOpen(false); }} className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"><X className="w-6 h-6" /></button>
             </div>
             
-            <form action={async (formData) => {
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              if (loading) return;
               setLoading(true);
               setWarningMessage("");
+              const formData = new FormData(e.currentTarget);
               try {
                 const res = isEditing 
                   ? await updateGroupedDailyStatus(currentEditDate, formData) 

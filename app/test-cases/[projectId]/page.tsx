@@ -3,6 +3,7 @@
 import { useState, useEffect, use, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useConfirm } from "@/components/providers/ConfirmProvider";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import {
@@ -38,6 +39,9 @@ import {
   AlertCircle,
   X,
   Star,
+  Edit2,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 
 // Google Sheet Type Definitions
@@ -358,6 +362,7 @@ function MultiSelectDropdown({
 export default function ProjectTestCasesPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params);
   const { data: session } = useSession();
+  const confirm = useConfirm();
 
   // Authentication Details
   const userEmail = session?.user?.email || "Unknown";
@@ -809,12 +814,14 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     URL.revokeObjectURL(url);
   };
 
-  const handleLocalClear = () => {
-    if (
-      confirm(
-        "Are you sure you want to clear all test cases? This will delete the data from your local storage for this project."
-      )
-    ) {
+  const handleLocalClear = async () => {
+    const isConfirmed = await confirm({
+      title: "Clear Local Cache",
+      message: "Are you sure you want to clear all test cases? This will delete the data from your local storage for this project.",
+      confirmText: "Clear",
+      type: "danger"
+    });
+    if (isConfirmed) {
       setLocalTestCases([]);
       localStorage.removeItem(`cbqops_testcases_${projectId}`);
       setMode("uninitialized");
@@ -948,17 +955,27 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
   };
 
   const handleDisconnectSheet = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to disconnect this Google Sheet? Portal test cases will remain, but synchronization will stop."
-      )
-    ) {
+    const isConfirmed = await confirm({
+      title: "Disconnect Google Sheet",
+      message: "Are you sure you want to disconnect this Google Sheet? Portal test cases will remain, but synchronization will stop.",
+      confirmText: "Disconnect",
+      type: "danger"
+    });
+    if (!isConfirmed) {
       return;
     }
 
-    setLoading(true);
-    setIsSyncing(true);
-    setError("");
+    const prevSheetConnection = sheetConnection;
+    const prevTestCases = [...testCases];
+    const prevTotalCases = totalCases;
+    const prevMode = mode;
+
+    setSheetConnection(null);
+    setTestCases([]);
+    setTotalCases(0);
+    setMode("uninitialized");
+    setToast({ message: "Google Sheet disconnected successfully!", type: "success" });
+
     try {
       const res = await fetch(`/api/projects/${projectId}/google-sheet`, {
         method: "DELETE",
@@ -968,19 +985,14 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       if (!res.ok || data.error) {
         throw new Error(data.error || "Failed to disconnect.");
       }
-
-      setToast({ message: "Google Sheet disconnected successfully!", type: "success" });
-      setSheetConnection(null);
-      setTestCases([]);
-      setTotalCases(0);
-      setMode("uninitialized");
+      fetchConnection(true);
     } catch (err: any) {
+      setSheetConnection(prevSheetConnection);
+      setTestCases(prevTestCases);
+      setTotalCases(prevTotalCases);
+      setMode(prevMode);
       setError(err.message || "Disconnect request failed.");
       setToast({ message: err.message || "Disconnect request failed.", type: "error" });
-    } finally {
-      setLoading(false);
-      setIsSyncing(false);
-      fetchConnection(true);
     }
   };
 
@@ -1866,8 +1878,21 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                     ))}
                   </select>
                 )}
+                {(localSearch !== "" || localModuleFilter !== "all" || localJiraFilter !== "all") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLocalSearch("");
+                      setLocalModuleFilter("all");
+                      setLocalJiraFilter("all");
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all cursor-pointer border border-rose-100 shadow-sm md:ml-auto"
+                  >
+                    <X className="w-3.5 h-3.5" /> Clear Filters
+                  </button>
+                )}
 
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm ml-auto whitespace-nowrap">
+                <span className={`text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm whitespace-nowrap ${(localSearch !== "" || localModuleFilter !== "all" || localJiraFilter !== "all") ? "" : "ml-auto"}`}>
                   {filteredLocalCases.length} / {localTestCases.length} rows
                 </span>
               </div>

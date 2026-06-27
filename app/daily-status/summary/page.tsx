@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BarChart2, Calendar, Clock } from "lucide-react";
+import { ArrowLeft, BarChart2, Calendar, Clock, X } from "lucide-react";
 
 interface DailyStatus {
   id: string;
@@ -185,6 +185,20 @@ export default function StatusSummaryPage() {
               ))}
             </select>
           </div>
+
+          {(projectFilter !== "ALL" || customStartDate !== "" || customEndDate !== "") && (
+            <button
+              type="button"
+              onClick={() => {
+                setProjectFilter("ALL");
+                setCustomStartDate("");
+                setCustomEndDate("");
+              }}
+              className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all cursor-pointer border border-rose-100 shadow-sm"
+            >
+              <X className="w-3.5 h-3.5" /> Clear Filters
+            </button>
+          )}
         </div>
       </div>
 

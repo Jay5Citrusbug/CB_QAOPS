@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/providers/ConfirmProvider";
 
 interface TaskList {
   id: string;
@@ -124,6 +125,7 @@ const normalizeTask = (t: any): Task => {
 export default function TaskBoardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const confirm = useConfirm();
 
   // App States
   const [lists, setLists] = useState<TaskList[]>([]);
@@ -314,6 +316,7 @@ export default function TaskBoardPage() {
   // Create Task List
   const handleCreateList = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSyncing) return;
     if (!newListName.trim()) return;
     setIsSyncing(true);
     try {
@@ -360,6 +363,7 @@ export default function TaskBoardPage() {
 
   const handleUpdateList = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSyncing) return;
     if (!editListName.trim() || !selectedList) return;
     setIsSyncing(true);
     try {
@@ -401,31 +405,58 @@ export default function TaskBoardPage() {
 
   // Delete Task List
   const handleDeleteList = async (listId: string) => {
-    if (!confirm("Are you sure you want to delete this list? This will cascadingly delete all tasks and attachments!")) return;
-    setIsSyncing(true);
+    const isConfirmed = await confirm({
+      title: "Delete Task List",
+      message: "Are you sure you want to delete this list? This will cascadingly delete all tasks and attachments!",
+      confirmText: "Delete",
+      type: "danger"
+    });
+    if (!isConfirmed) return;
+
+    const prevLists = [...lists];
+    const prevTasks = [...tasks];
+    const prevSelectedListId = selectedListId;
+
+    const nextLists = lists.filter(l => l.id !== listId);
+    setLists(nextLists);
+    setToast({ message: "Task list deleted successfully!", type: "success" });
+
+    let nextSelectedId: string | null = null;
+    if (nextLists.length > 0) {
+      nextSelectedId = nextLists[0].id;
+      setSelectedListId(nextSelectedId);
+      fetchTasks(nextSelectedId, true);
+    } else {
+      setSelectedListId(null);
+      setTasks([]);
+    }
+
     try {
       const res = await fetch(`/api/task-lists/${listId}`, {
         method: "DELETE"
       });
-      if (res.ok) {
-        setSelectedListId(null);
-        setToast({ message: "Task list deleted successfully!", type: "success" });
-        await fetchLists();
-      } else {
+      if (!res.ok) {
         const data = await res.json();
-        setToast({ message: data.error || "Failed to delete task list.", type: "error" });
+        throw new Error(data.error || "Failed to delete task list.");
+      }
+      // Silently fetch fresh lists to keep in sync
+      const listRes = await fetch(`/api/task-lists?t=${Date.now()}`, { cache: 'no-store' });
+      if (listRes.ok) {
+        const data = await listRes.json();
+        setLists(data);
       }
     } catch (err: any) {
-      console.error("Failed to delete list", err);
+      setLists(prevLists);
+      setTasks(prevTasks);
+      setSelectedListId(prevSelectedListId);
       setToast({ message: err.message || "Failed to delete task list.", type: "error" });
-    } finally {
-      setIsSyncing(false);
     }
   };
 
   // Create Task (Detailed Modal)
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSyncing) return;
     if (!newTaskTitle.trim() || !selectedListId) return;
     setIsSyncing(true);
     try {
@@ -716,8 +747,21 @@ export default function TaskBoardPage() {
 
   // Delete Task
   const handleDeleteTask = async (taskId: string) => {
-    if (!confirm("Are you sure you want to delete this task? This is irreversible.")) return;
-    setIsSyncing(true);
+    const isConfirmed = await confirm({
+      title: "Delete Task",
+      message: "Are you sure you want to delete this task? This is irreversible.",
+      confirmText: "Delete",
+      type: "danger"
+    });
+    if (!isConfirmed) return;
+
+    const prevTasks = [...tasks];
+    const prevLists = [...lists];
+
+    // Optimistically close details drawer
+    setSelectedTaskId(null);
+    setTaskDetails(null);
+
     // Optimistically remove task from state
     setTasks(prev => prev.filter(t => t.id !== taskId));
 
@@ -738,37 +782,21 @@ export default function TaskBoardPage() {
       }));
     }
 
+    setToast({ message: "Task deleted successfully!", type: "success" });
+
     try {
       const res = await fetch(`/api/tasks/${taskId}`, { method: "DELETE" });
-      if (res.ok) {
-        setSelectedTaskId(null);
-        setToast({ message: "Task deleted successfully!", type: "success" });
-        if (selectedListId) {
-          await Promise.all([
-            fetchTasks(selectedListId, true),
-            fetchLists(true)
-          ]);
-        }
-      } else {
-        setToast({ message: "Failed to delete task.", type: "error" });
-        if (selectedListId) {
-          await Promise.all([
-            fetchTasks(selectedListId, true),
-            fetchLists(true)
-          ]);
-        }
-      }
-    } catch (err: any) {
-      console.error("Failed to delete task", err);
-      setToast({ message: err.message || "Failed to delete task.", type: "error" });
+      if (!res.ok) throw new Error("Failed to delete task.");
       if (selectedListId) {
         await Promise.all([
           fetchTasks(selectedListId, true),
           fetchLists(true)
         ]);
       }
-    } finally {
-      setIsSyncing(false);
+    } catch (err: any) {
+      setTasks(prevTasks);
+      setLists(prevLists);
+      setToast({ message: err.message || "Failed to delete task.", type: "error" });
     }
   };
 
@@ -806,7 +834,13 @@ export default function TaskBoardPage() {
 
   // Delete Attachment
   const handleDeleteAttachment = async (attId: string) => {
-    if (!confirm("Remove this attachment?")) return;
+    const isConfirmed = await confirm({
+      title: "Remove Attachment",
+      message: "Are you sure you want to remove this attachment?",
+      confirmText: "Remove",
+      type: "danger"
+    });
+    if (!isConfirmed) return;
     setIsSyncing(true);
     try {
       const res = await fetch(`/api/attachments/${attId}`, { method: "DELETE" });
@@ -1375,7 +1409,17 @@ export default function TaskBoardPage() {
                             <div className="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-wrap">
                               <div
                                 className="relative flex items-center gap-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md px-1.5 py-0.5 transition-all text-slate-500 hover:text-slate-700 cursor-pointer"
-                                onClick={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const input = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement | null;
+                                  if (input && typeof input.showPicker === 'function') {
+                                    try {
+                                      input.showPicker();
+                                    } catch (err) {
+                                      console.error("showPicker failed:", err);
+                                    }
+                                  }
+                                }}
                               >
                                 {task.dueDate ? (
                                   <span className={`flex items-center gap-1 ${new Date(task.dueDate) < new Date() ? "text-red-500 font-bold" : ""}`}>
@@ -1972,8 +2016,10 @@ export default function TaskBoardPage() {
                 </div>
               </div>
               <div className="flex gap-4 pt-4 border-t border-slate-100">
-                <button type="button" onClick={() => setShowListModal(false)} className="flex-1 py-2.5 rounded-xl font-semibold bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs">Discard</button>
-                <button type="submit" className="flex-1 py-2.5 rounded-xl font-bold bg-[#F46A3A] hover:bg-[#F46A3A]/90 text-white text-xs shadow-lg shadow-orange-500/10">Create Board</button>
+                <button type="button" disabled={isSyncing} onClick={() => setShowListModal(false)} className="flex-1 py-2.5 rounded-xl font-semibold bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs disabled:opacity-50">Discard</button>
+                <button type="submit" disabled={isSyncing} className="flex-1 py-2.5 rounded-xl font-bold bg-[#F46A3A] hover:bg-[#F46A3A]/90 text-white text-xs shadow-lg shadow-orange-500/10 flex items-center justify-center gap-1.5 disabled:opacity-50">
+                  {isSyncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Create Board"}
+                </button>
               </div>
             </form>
           </div>
@@ -2087,8 +2133,10 @@ export default function TaskBoardPage() {
                 </div>
               </div>
               <div className="flex gap-4 pt-4 border-t border-slate-100">
-                <button type="button" onClick={() => setShowEditListModal(false)} className="flex-1 py-2.5 rounded-xl font-semibold bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs cursor-pointer">Discard</button>
-                <button type="submit" className="flex-1 py-2.5 rounded-xl font-bold bg-[#F46A3A] hover:bg-[#F46A3A]/90 text-white text-xs shadow-lg shadow-orange-500/10 cursor-pointer">Save Changes</button>
+                <button type="button" disabled={isSyncing} onClick={() => setShowEditListModal(false)} className="flex-1 py-2.5 rounded-xl font-semibold bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs disabled:opacity-50 cursor-pointer">Discard</button>
+                <button type="submit" disabled={isSyncing} className="flex-1 py-2.5 rounded-xl font-bold bg-[#F46A3A] hover:bg-[#F46A3A]/90 text-white text-xs shadow-lg shadow-orange-500/10 flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer">
+                  {isSyncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save Changes"}
+                </button>
               </div>
             </form>
           </div>
@@ -2181,8 +2229,10 @@ export default function TaskBoardPage() {
               </div>
 
               <div className="flex gap-4 pt-4 border-t border-slate-100">
-                <button type="button" onClick={() => setShowTaskModal(false)} className="flex-1 py-2.5 rounded-xl font-semibold bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs">Discard</button>
-                <button type="submit" className="flex-1 py-2.5 rounded-xl font-bold bg-[#F46A3A] hover:bg-[#F46A3A]/90 text-white text-xs shadow-lg shadow-orange-500/10">Publish Task</button>
+                <button type="button" disabled={isSyncing} onClick={() => setShowTaskModal(false)} className="flex-1 py-2.5 rounded-xl font-semibold bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs disabled:opacity-50">Discard</button>
+                <button type="submit" disabled={isSyncing} className="flex-1 py-2.5 rounded-xl font-bold bg-[#F46A3A] hover:bg-[#F46A3A]/90 text-white text-xs shadow-lg shadow-orange-500/10 flex items-center justify-center gap-1.5 disabled:opacity-50">
+                  {isSyncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Publish Task"}
+                </button>
               </div>
             </form>
           </div>

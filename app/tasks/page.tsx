@@ -17,6 +17,7 @@ import {
   Home, List, User as UserIcon, Check, AlertCircle, LayoutGrid, Loader2
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useConfirm } from "@/components/providers/ConfirmProvider";
 
 interface TaskStep {
   id: string;
@@ -46,6 +47,7 @@ interface User {
 }
 
 export default function TasksPage() {
+  const confirm = useConfirm();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -174,23 +176,26 @@ export default function TasksPage() {
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    if (confirm("Delete this task?")) {
-      setIsSyncing(true);
-      try {
-        const res = await deleteTask(taskId);
-        if (res && (res as any).error) {
-          setToast({ message: (res as any).error, type: "error" });
-        } else {
-          setSelectedTaskId(null);
-          await fetchTasks(activeUserId || undefined);
-          setToast({ message: "Task deleted successfully!", type: "success" });
-        }
-      } catch (err) {
-        console.error(err);
-        setToast({ message: "Failed to delete task.", type: "error" });
-      } finally {
-        setIsSyncing(false);
-      }
+    const isConfirmed = await confirm({
+      title: "Delete Task",
+      message: "Are you sure you want to delete this task?",
+      confirmText: "Delete",
+      type: "danger"
+    });
+    if (!isConfirmed) return;
+
+    const prevTasks = [...tasks];
+    setTasks(prev => prev.filter(t => t.id !== taskId));
+    setSelectedTaskId(null);
+    setToast({ message: "Task deleted successfully!", type: "success" });
+
+    try {
+      const res = await deleteTask(taskId);
+      if (res && (res as any).error) throw new Error((res as any).error);
+      fetchTasks(activeUserId || undefined);
+    } catch (err: any) {
+      setTasks(prevTasks);
+      setToast({ message: err.message || "Failed to delete task.", type: "error" });
     }
   };
 

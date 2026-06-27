@@ -21,8 +21,10 @@ import {
   Calendar,
   Layers,
   LayoutGrid,
-  Eye
+  Eye,
+  Loader2
 } from "lucide-react";
+import { useConfirm } from "@/components/providers/ConfirmProvider";
 
 interface Project {
   id: string;
@@ -58,6 +60,7 @@ interface UserProfile {
 
 export default function ProjectHubPage() {
   const router = useRouter();
+  const confirm = useConfirm();
   const [currentTab, setCurrentTab] = useState<"projects" | "workload" | "matrix">("projects");
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -188,21 +191,25 @@ export default function ProjectHubPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure? This will delete the project and cascade delete daily statuses!")) {
-      try {
-        setIsSyncing(true);
-        const res = await deleteProject(id);
-        if (res && 'error' in res) {
-          setToast({ message: res.error || "Failed to delete project.", type: "error" });
-        } else {
-          setToast({ message: "Project deleted successfully!", type: "success" });
-        }
-        await fetchProjects();
-      } catch (err: any) {
-        setToast({ message: err.message || "An error occurred during deletion.", type: "error" });
-      } finally {
-        setIsSyncing(false);
-      }
+    const isConfirmed = await confirm({
+      title: "Delete Project",
+      message: "Are you sure? This will delete the project and cascade delete daily statuses!",
+      confirmText: "Delete",
+      type: "danger"
+    });
+    if (!isConfirmed) return;
+
+    const prevProjects = [...projects];
+    setProjects(prev => prev.filter(p => p.id !== id));
+    setToast({ message: "Project deleted successfully!", type: "success" });
+
+    try {
+      const res = await deleteProject(id);
+      if (res && 'error' in res) throw new Error(res.error);
+      fetchProjects();
+    } catch (err: any) {
+      setProjects(prevProjects);
+      setToast({ message: err.message || "An error occurred during deletion.", type: "error" });
     }
   };
 
@@ -449,11 +456,15 @@ export default function ProjectHubPage() {
                       <td className="px-6 py-4.5">{getStatusBadge(project.status)}</td>
                       <td className="px-6 py-4.5">
                         <span className="font-semibold text-slate-800">
-                          {Array.isArray(project.primaryQaName) ? project.primaryQaName.join(', ') : (project.primaryQaName || "Unassigned")}
+                          {Array.isArray(project.primaryQaName) 
+                            ? (project.primaryQaName.filter(Boolean).join(', ') || "-") 
+                            : (project.primaryQaName || "-")}
                         </span>
                         {project.primaryQaEmail && (
                           <span className="text-[10px] text-slate-400 block">
-                            {Array.isArray(project.primaryQaEmail) ? project.primaryQaEmail.join(', ') : project.primaryQaEmail}
+                            {Array.isArray(project.primaryQaEmail) 
+                              ? (project.primaryQaEmail.filter(Boolean).join(', ') || "-") 
+                              : (project.primaryQaEmail || "-")}
                           </span>
                         )}
                       </td>
@@ -568,7 +579,9 @@ export default function ProjectHubPage() {
                       <td className="px-6 py-4.5 font-bold text-slate-800 hover:text-[#ed5c37] transition-colors">{p.name}</td>
                       <td className="px-6 py-4.5">
                         <span className="font-semibold text-slate-800">
-                          {Array.isArray(p.primaryQaName) ? p.primaryQaName.join(', ') : (p.primaryQaName || "Unassigned")}
+                          {Array.isArray(p.primaryQaName) 
+                            ? (p.primaryQaName.filter(Boolean).join(', ') || "-") 
+                            : (p.primaryQaName || "-")}
                         </span>
                       </td>
                       <td className="px-6 py-4.5">{getStatusBadge(p.status)}</td>
@@ -600,9 +613,17 @@ export default function ProjectHubPage() {
               </button>
             </div>
             
-            <form action={async (formData) => {
-              setLoading(true);
-              setError("");
+            <form 
+              onSubmit={(e) => {
+                if (loading) {
+                  e.preventDefault();
+                  return;
+                }
+              }}
+              action={async (formData) => {
+                if (loading) return;
+                setLoading(true);
+                setError("");
 
               try {
                 const res = isEditing && currentProject 
@@ -904,9 +925,9 @@ export default function ProjectHubPage() {
               {error && <div className="flex items-center gap-2 px-4 py-2.5 bg-red-50 border border-red-100 rounded-xl"><AlertCircle className="w-4 h-4 text-red-500 shrink-0" /><span className="text-xs font-bold text-red-600">{error}</span></div>}
 
               <div className="pt-2 flex gap-4 border-t border-slate-100">
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 px-4 rounded-xl font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all text-sm">Cancel</button>
-                <button type="submit" disabled={loading} className="flex-1 btn-primary justify-center shadow-lg shadow-orange-500/20 bg-[#ed5c37] hover:bg-[#d94a28] text-white font-bold py-3 rounded-xl transition-all text-sm">
-                  {loading ? <Clock className="w-4 h-4 animate-spin" /> : (isEditing ? "Update Project" : "Save Project")}
+                <button type="button" disabled={loading} onClick={() => setShowModal(false)} className="flex-1 py-3 px-4 rounded-xl font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 disabled:opacity-50 transition-all text-sm">Cancel</button>
+                <button type="submit" disabled={loading} className="flex-1 btn-primary justify-center shadow-lg shadow-orange-500/20 bg-[#ed5c37] hover:bg-[#d94a28] text-white font-bold py-3 rounded-xl disabled:opacity-50 transition-all text-sm flex items-center gap-1.5">
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isEditing ? "Update Project" : "Save Project")}
                 </button>
               </div>
             </form>

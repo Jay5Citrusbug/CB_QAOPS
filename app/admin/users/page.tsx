@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { createUser, updateUser, deleteUser } from "@/lib/actions";
-import { Users, Plus, X, Search, Shield, User, Mail, MoreHorizontal, Clock, Eye, EyeOff, Edit2, Trash2, AlertTriangle, CheckCircle2, AlertCircle } from "lucide-react";
+import { Users, Plus, X, Search, Shield, User, Mail, MoreHorizontal, Clock, Eye, EyeOff, Edit2, Trash2, AlertTriangle, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { getInitials } from "@/lib/utils";
+import { useConfirm } from "@/components/providers/ConfirmProvider";
 
 interface UserData {
   id: string;
@@ -20,6 +21,7 @@ interface Project {
 }
 
 export default function AdminUsersPage() {
+  const confirm = useConfirm();
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -91,21 +93,25 @@ export default function AdminUsersPage() {
   };
 
   const handleDelete = async (userId: string) => {
-    if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-      try {
-        setIsSyncing(true);
-        const res = await deleteUser(userId);
-        if (res?.error) {
-          setToast({ message: res.error || "Failed to delete user.", type: "error" });
-        } else {
-          setToast({ message: "User deleted successfully!", type: "success" });
-        }
-        await fetchUsers();
-      } catch (err: any) {
-        setToast({ message: err.message || "An error occurred during deletion.", type: "error" });
-      } finally {
-        setIsSyncing(false);
-      }
+    const isConfirmed = await confirm({
+      title: "Delete User",
+      message: "Are you sure you want to delete this user? This action cannot be undone.",
+      confirmText: "Delete",
+      type: "danger"
+    });
+    if (!isConfirmed) return;
+
+    const prevUsers = [...users];
+    setUsers(prev => prev.filter(u => u.id !== userId));
+    setToast({ message: "User deleted successfully!", type: "success" });
+
+    try {
+      const res = await deleteUser(userId);
+      if (res?.error) throw new Error(res.error);
+      fetchUsers();
+    } catch (err: any) {
+      setUsers(prevUsers);
+      setToast({ message: err.message || "An error occurred during deletion.", type: "error" });
     }
   };
 
@@ -280,8 +286,16 @@ export default function AdminUsersPage() {
               </button>
             </div>
             
-            <form action={async (formData) => {
-              setLoading(true);
+            <form 
+              onSubmit={(e) => {
+                if (loading) {
+                  e.preventDefault();
+                  return;
+                }
+              }}
+              action={async (formData) => {
+                if (loading) return;
+                setLoading(true);
               try {
                 const res = editingUser 
                   ? await updateUser(editingUser.id, formData)
@@ -397,9 +411,9 @@ export default function AdminUsersPage() {
               {error && <div className="text-[10px] font-bold text-red-500 uppercase tracking-widest text-center">{error}</div>}
 
               <div className="pt-2 flex gap-3">
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3 px-4 rounded-xl font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all text-sm">Cancel</button>
-                <button type="submit" disabled={loading} className="flex-1 btn-primary justify-center shadow-lg shadow-orange-500/20">
-                  {loading ? <Clock className="w-4 h-4 animate-spin" /> : editingUser ? "Update User" : "Invite User"}
+                <button type="button" disabled={loading} onClick={() => setShowModal(false)} className="flex-1 py-3 px-4 rounded-xl font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 disabled:opacity-50 transition-all text-sm">Cancel</button>
+                <button type="submit" disabled={loading} className="flex-1 btn-primary justify-center shadow-lg shadow-orange-500/20 disabled:opacity-50 flex items-center gap-1.5">
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : editingUser ? "Update User" : "Invite User"}
                 </button>
               </div>
             </form>
