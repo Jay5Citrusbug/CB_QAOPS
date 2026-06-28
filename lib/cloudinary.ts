@@ -61,7 +61,7 @@ export async function uploadToCloudinary(
   const signature = signParameters(params);
 
   const formData = new FormData();
-  formData.append('file', new Blob([buffer], { type: mimeType }), fileName);
+  formData.append('file', new Blob([new Uint8Array(buffer)], { type: mimeType }), fileName);
   formData.append('folder', folder);
   formData.append('public_id', publicId);
   formData.append('timestamp', timestamp);
