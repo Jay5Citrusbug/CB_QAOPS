@@ -103,7 +103,7 @@ body {
   display: none;
 }
 
-/* Dark Mode Override System */
+/* Dark Mode Override System
 .dark {
   --background: #0f172a;
   --foreground: #f8fafc;
@@ -210,4 +210,5 @@ body {
   background-color: #0f172a !important;
   color: #cbd5e1 !important;
 }
+*/
 

@@ -13,12 +13,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("cb_qops_theme");
-    if (savedTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    localStorage.setItem("cb_qops_theme", "light");
+    document.documentElement.classList.remove("dark");
   }, []);
 
   const isLoginPage = pathname === "/login";

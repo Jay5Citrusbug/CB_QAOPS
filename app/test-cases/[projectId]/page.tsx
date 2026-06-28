@@ -857,9 +857,8 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
   }, [localTestCases]);
 
   const localColumns = useMemo(() => {
-    if (localTestCases.length === 0) return [];
-    const rawCols = Object.keys(localTestCases[0]).filter(k => k !== "_internalId");
-    return rawCols.filter(col => !isColumnEmpty(localTestCases, col));
+    if (localTestCases.length === 0) return DEFAULT_COLUMNS;
+    return Object.keys(localTestCases[0]).filter(k => k !== "_internalId");
   }, [localTestCases]);
 
   const uniqueLocalModules = useMemo(() => {
@@ -1145,12 +1144,8 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     if (sheetConnection?.headers && sheetConnection.headers.length > 0) {
       return sheetConnection.headers;
     }
-    if (testCases.length > 0) {
-      const exclude = ["_ref", "status", "lastSyncedAt", "lastSyncedValues", "createdAt", "updatedAt", "id", "favoritedBy"];
-      return Object.keys(testCases[0]).filter(k => !exclude.includes(k));
-    }
     return DEFAULT_COLUMNS;
-  }, [sheetConnection, testCases]);
+  }, [sheetConnection]);
 
   const handleGoogleCellChangeState = (testCaseId: string, columnName: string, value: any) => {
     const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();
@@ -1174,6 +1169,77 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         return tc;
       })
     );
+  };
+
+  // Delete a single test case
+  const handleDeleteTestCase = async (testCaseId: string) => {
+    const isConfirmed = await confirm({
+      title: "Delete Test Case",
+      message: `Are you sure you want to permanently delete test case "${testCaseId}"? This action cannot be undone and will also remove it from the linked Google Sheet.`,
+      confirmText: "Delete",
+      type: "danger",
+    });
+    if (!isConfirmed) return;
+
+    try {
+      setIsSyncing(true);
+      const res = await fetch(
+        `/api/projects/${projectId}/test-cases?testCaseId=${encodeURIComponent(testCaseId)}`,
+        { method: "DELETE" }
+      );
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || "Delete failed.");
+
+      setTestCases(prev => prev.filter(tc => tc.testCaseId !== testCaseId));
+      setTotalCases(prev => Math.max(0, prev - 1));
+      setSelectedCaseIds(prev => prev.filter(id => id !== testCaseId));
+      setToast({ message: `Test case "${testCaseId}" deleted successfully!`, type: "success" });
+
+      if (data.syncError) {
+        setToast({ message: `Deleted from portal. Sheet sync: ${data.syncError}`, type: "error" });
+      }
+    } catch (err: any) {
+      setToast({ message: err.message || "Failed to delete test case.", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Bulk delete selected test cases
+  const handleBulkDeleteTestCases = async () => {
+    if (selectedCaseIds.length === 0) return;
+    const isConfirmed = await confirm({
+      title: "Delete Selected Test Cases",
+      message: `Are you sure you want to permanently delete ${selectedCaseIds.length} selected test case(s)? This cannot be undone.`,
+      confirmText: `Delete ${selectedCaseIds.length}`,
+      type: "danger",
+    });
+    if (!isConfirmed) return;
+
+    try {
+      setIsSyncing(true);
+      let deletedCount = 0;
+      for (const testCaseId of selectedCaseIds) {
+        try {
+          const res = await fetch(
+            `/api/projects/${projectId}/test-cases?testCaseId=${encodeURIComponent(testCaseId)}`,
+            { method: "DELETE" }
+          );
+          const data = await res.json();
+          if (res.ok && !data.error) deletedCount++;
+        } catch {
+          // continue deleting others
+        }
+      }
+      setTestCases(prev => prev.filter(tc => !selectedCaseIds.includes(tc.testCaseId)));
+      setTotalCases(prev => Math.max(0, prev - deletedCount));
+      setSelectedCaseIds([]);
+      setToast({ message: `${deletedCount} test case(s) deleted successfully!`, type: "success" });
+    } catch (err: any) {
+      setToast({ message: err.message || "Bulk delete failed.", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleToggleFavorite = async (testCaseId: string) => {
@@ -1516,6 +1582,12 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         {mode === "google" && (
           <div className="flex items-center gap-3">
             <button
+              onClick={() => setShowDirectConnectModal(true)}
+              className="btn-primary shadow-sm !py-2.5 !px-4 hover:shadow-[#ed5c37]/20 flex items-center gap-2 cursor-pointer"
+            >
+              <Link2 className="w-4 h-4" /> Connect / Import
+            </button>
+            <button
               onClick={handleSyncNow}
               disabled={syncing}
               className="btn-primary shadow-sm !py-2.5 !px-4 hover:shadow-[#ed5c37]/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
@@ -1535,6 +1607,12 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
         {mode === "local" && (
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowDirectConnectModal(true)}
+              className="btn-primary shadow-sm !py-2.5 !px-4 hover:shadow-[#ed5c37]/20 flex items-center gap-2 cursor-pointer"
+            >
+              <Link2 className="w-4 h-4" /> Connect / Import
+            </button>
             <button
               onClick={handleLocalExport}
               className="btn-primary !bg-slate-800 hover:!bg-slate-900 border border-slate-700 shadow-none !py-2.5 !px-4"
@@ -1963,11 +2041,11 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                               )}
                             </div>
                           ) : (
-                            <input
-                              type="text"
+                            <textarea
                               value={tc[col] || ""}
                               onChange={e => handleLocalCellChange(tc._internalId, col, e.target.value)}
-                              className="w-full px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all"
+                              rows={Math.max(1, (tc[col] || "").split("\n").length)}
+                              className="w-full min-w-[220px] px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all resize-y whitespace-pre-wrap overflow-y-auto"
                               placeholder="—"
                             />
                           )}
@@ -2309,6 +2387,15 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                     )}
                   </button>
                   </div>
+                  {/* Bulk Delete */}
+                  <button
+                    onClick={handleBulkDeleteTestCases}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all cursor-pointer shadow-sm"
+                    title={`Delete ${selectedCaseIds.length} selected test case(s)`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Delete {selectedCaseIds.length}
+                  </button>
                   <button
                     onClick={() => setSelectedCaseIds([])}
                     className="ml-auto text-xs font-bold text-slate-400 hover:text-slate-700 cursor-pointer px-2 py-1 hover:bg-slate-100 rounded-lg transition-all"
@@ -2480,12 +2567,12 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                                   )}
                                 </div>
                               ) : (
-                                <input
-                                  type="text"
+                                <textarea
                                   value={tc[col] || ""}
                                   onChange={e => handleGoogleCellChangeState(tc.testCaseId, col, e.target.value)}
                                   onBlur={e => handleGoogleCellSync(tc.testCaseId, col, e.target.value)}
-                                  className="w-full px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all"
+                                  rows={Math.max(1, (tc[col] || "").split("\n").length)}
+                                  className="w-full min-w-[220px] px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all resize-y whitespace-pre-wrap overflow-y-auto"
                                   placeholder="—"
                                 />
                               )}
@@ -2493,12 +2580,21 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                           );
                         })}
                         <td className="px-4 py-2 text-right whitespace-nowrap">
-                          <button
-                            onClick={() => setSelectedCase(tc)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-[#ed5c37] hover:text-white rounded-xl text-xs font-semibold transition-all shadow-sm cursor-pointer"
-                          >
-                            Details
-                          </button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => setSelectedCase(tc)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-[#ed5c37] hover:text-white rounded-xl text-xs font-semibold transition-all shadow-sm cursor-pointer"
+                            >
+                              Details
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTestCase(tc.testCaseId)}
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-100 hover:border-rose-500 transition-all shadow-sm cursor-pointer opacity-0 group-hover:opacity-100"
+                              title={`Delete ${tc.testCaseId}`}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -2866,6 +2962,11 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                     setNewCasePreConditions(""); setNewCaseTestSteps("");
                     setNewCaseTestData(""); setNewCaseExpectedResult("");
                     setNewCaseJiraTicket("");
+                    // If in uninitialized mode, switch to google mode to show the test cases repo
+                    if (mode === "uninitialized") {
+                      setMode("google");
+                      setActiveTab("repository");
+                    }
                     await fetchTestCases();
                   } catch (err: any) {
                     setError(err.message || "Failed to create test case.");
@@ -3267,6 +3368,103 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
           <button onClick={() => setToast(null)} className="ml-2 p-0.5 hover:bg-black/5 rounded text-slate-400 hover:text-slate-600 transition-colors">
             <X className="w-4 h-4" />
           </button>
+        </div>
+      )}
+      {showDirectConnectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-slate-50 rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden border border-slate-100 animate-in zoom-in-95 duration-200 my-8">
+            <div className="p-6 bg-white border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-lg text-slate-900">Connect / Import Test Cases</h3>
+                <p className="text-xs text-slate-500 font-semibold">Choose a source to import or connect test cases to "{project?.name || "this project"}"</p>
+              </div>
+              <button
+                onClick={() => setShowDirectConnectModal(false)}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8 max-h-[70vh] overflow-y-auto animate-in fade-in duration-200">
+              {/* Option 1: Google Sheet */}
+              <div className="premium-card p-8 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-white to-slate-50/50">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shadow-sm">
+                    <Link2 className="w-6 h-6" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900">Google Sheet Two-Way Synced Mode</h2>
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    Directly connect a Google Sheet URL. Imports test cases to our secure server databases, enabling
+                    centralized sharing and active two-way sync back to your Google Sheet rows on portal updates.
+                  </p>
+
+                  <form onSubmit={handleConnectSheet} className="space-y-4 pt-4">
+                    <div className="relative group">
+                      <input
+                        type="url"
+                        value={sheetUrl}
+                        onChange={e => setSheetUrl(e.target.value)}
+                        placeholder="https://docs.google.com/spreadsheets/d/..."
+                        className="w-full pl-4 pr-32 py-3 bg-white border border-slate-200 text-slate-700 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-[#ed5c37]/5 focus:border-[#ed5c37]/20 outline-none transition-all shadow-sm"
+                        required
+                      />
+                      <button
+                        type="submit"
+                        disabled={connecting}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 btn-primary !py-1.5 !px-4 text-xs font-semibold cursor-pointer disabled:opacity-50"
+                      >
+                        {connecting ? "Validating..." : "Connect"}
+                      </button>
+                    </div>
+                  </form>
+
+                  <div className="pt-2 text-xs text-slate-400 font-semibold flex items-center gap-1.5">
+                    <Info className="w-4 h-4 text-slate-400 shrink-0" />
+                    <span>
+                      Share sheet with <strong>firebase-adminsdk-fbsvc@cbqaops.iam.gserviceaccount.com</strong> as Editor.
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={downloadTemplate}
+                  className="mt-8 w-full py-2.5 border border-slate-200 rounded-xl text-xs font-bold bg-white text-slate-600 hover:bg-slate-50 transition-colors flex justify-center items-center gap-1.5 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" /> Download Schema Template
+                </button>
+              </div>
+
+              {/* Option 2: Local CSV */}
+              <div className="premium-card p-8 flex flex-col justify-between bg-gradient-to-br from-white to-slate-50/50">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-[#ed5c37]/5 border border-[#ed5c37]/10 text-[#ed5c37] flex items-center justify-center shadow-sm">
+                    <UploadCloud className="w-6 h-6" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900">Local CSV / Excel Offline Mode</h2>
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    Upload a test cases file exported from your test management tools (CSV, XLSX, XLS). Data is cached in your browser&apos;s local storage, allowing offline interactive inline editing.
+                  </p>
+
+                  <div className="pt-6">
+                    <button
+                      onClick={() => {
+                        setShowDirectConnectModal(false);
+                        fileInputRef.current?.click();
+                      }}
+                      className="w-full btn-primary justify-center py-3.5 cursor-pointer"
+                    >
+                      <UploadCloud className="w-5 h-5" /> Browse CSV or Excel File
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-8 text-xs text-slate-400 font-semibold text-center">
+                  Requires files to contain at least <strong>Dev Status</strong> and <strong>QA Status</strong> column headers.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -195,3 +195,65 @@ export function findHeaderIndex(headers: string[], target: string): number {
   return headers.findIndex(h => normalize(h) === normTarget);
 }
 
+/**
+ * Fetches sheet names and numerical sheetIds from a Google Spreadsheet.
+ */
+export async function getSpreadsheetSheetsMetadata(
+  spreadsheetId: string,
+  accessToken: string
+): Promise<{ title: string; sheetId: number }[]> {
+  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Failed to fetch spreadsheet metadata: ${errText}`);
+  }
+
+  const data = await res.json();
+  return data.sheets.map((s: any) => ({
+    title: s.properties.title,
+    sheetId: s.properties.sheetId,
+  }));
+}
+
+/**
+ * Deletes a row by index from a spreadsheet tab.
+ */
+export async function deleteSpreadsheetRow(
+  spreadsheetId: string,
+  sheetId: number,
+  rowNumber: number, // 1-indexed row number
+  accessToken: string
+): Promise<void> {
+  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId: sheetId,
+              dimension: "ROWS",
+              startIndex: rowNumber - 1, // 0-indexed inclusive
+              endIndex: rowNumber,       // 0-indexed exclusive
+            },
+          },
+        },
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Failed to delete row from Google Sheet: ${errText}`);
+  }
+}
+

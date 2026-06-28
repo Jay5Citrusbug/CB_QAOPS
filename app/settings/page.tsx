@@ -59,18 +59,15 @@ export default function SettingsPage() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("cb_qops_theme") === "dark" ? "dark" : "light";
-    setTheme(savedTheme);
+    setTheme("light");
+    localStorage.setItem("cb_qops_theme", "light");
+    document.documentElement.classList.remove("dark");
   }, []);
 
   const handleThemeChange = (newTheme: "light" | "dark") => {
-    setTheme(newTheme);
-    localStorage.setItem("cb_qops_theme", newTheme);
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    setTheme("light");
+    localStorage.setItem("cb_qops_theme", "light");
+    document.documentElement.classList.remove("dark");
   };
 
   // Profile Form States

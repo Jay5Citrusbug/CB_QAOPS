@@ -614,42 +614,40 @@ export default function ProjectHubPage() {
             </div>
             
             <form 
-              onSubmit={(e) => {
-                if (loading) {
-                  e.preventDefault();
-                  return;
-                }
-              }}
-              action={async (formData) => {
+              onSubmit={async (e) => {
+                e.preventDefault();
                 if (loading) return;
                 setLoading(true);
                 setError("");
 
-              try {
-                const res = isEditing && currentProject 
-                  ? await updateProject(currentProject.id, formData) 
-                  : await createProject(formData);
-                
-                if (res && 'error' in res) {
-                  setError(res.error || "An error occurred");
-                  setToast({ message: res.error || "Failed to save project.", type: "error" });
-                  setLoading(false);
-                } else {
-                  setError("");
-                  setShowModal(false);
-                  await fetchProjects();
-                  setToast({ 
-                    message: isEditing ? "Project updated successfully!" : "Project registered successfully!", 
-                    type: "success" 
-                  });
+                const formData = new FormData(e.currentTarget);
+                try {
+                  const res = isEditing && currentProject 
+                    ? await updateProject(currentProject.id, formData) 
+                    : await createProject(formData);
+                  
+                  if (res && 'error' in res) {
+                    setError(res.error || "An error occurred");
+                    setToast({ message: res.error || "Failed to save project.", type: "error" });
+                    setLoading(false);
+                  } else {
+                    setError("");
+                    setShowModal(false);
+                    await fetchProjects();
+                    setToast({ 
+                      message: isEditing ? "Project updated successfully!" : "Project registered successfully!", 
+                      type: "success" 
+                    });
+                    setLoading(false);
+                  }
+                } catch (err: any) {
+                  setError(err.message || "An unexpected error occurred.");
+                  setToast({ message: err.message || "An unexpected error occurred.", type: "error" });
                   setLoading(false);
                 }
-              } catch (err: any) {
-                setError(err.message || "An unexpected error occurred.");
-                setToast({ message: err.message || "An unexpected error occurred.", type: "error" });
-                setLoading(false);
-              }
-            }} className="p-6 space-y-5 overflow-y-auto flex-1">
+              }}
+              className="p-6 space-y-5 overflow-y-auto flex-1"
+            >
 
               {/* ── Row 1: Project Name | Project Status ── */}
               <div className="grid grid-cols-2 gap-5">

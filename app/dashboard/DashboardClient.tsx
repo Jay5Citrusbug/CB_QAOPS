@@ -8,7 +8,7 @@ import { addDailyStatus, updateGroupedDailyStatus } from "@/lib/actions";
 import { 
   CheckSquare, Calendar, Clock, AlertCircle, PlayCircle, 
   CheckCircle2, ArrowRight, Eye, Plus, Edit2, Loader2, X, AlertTriangle, ChevronRight,
-  Check, RefreshCw
+  Check, RefreshCw, Folder, FlaskConical, FileText, BookOpen, History, Star
 } from "lucide-react";
 import Link from "next/link";
 
@@ -39,6 +39,17 @@ export default function DashboardClient({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // --- Recent Activity Items (localStorage-backed) ---
+  type RecentItem = { id: string; label: string; sub: string; href: string; type: 'project' | 'testcase' | 'projectdoc' | 'qadoc'; visitedAt: number; };
+  const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('cb_qops_recent_items');
+      if (raw) setRecentItems(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, [mounted]);
 
   // Navigation & Filtering State
   const [activeTab, setActiveTab] = useState<"MY_DASH" | "TEAM_OVERVIEW">("MY_DASH");
@@ -848,7 +859,7 @@ export default function DashboardClient({
                       </div>
                       <button 
                         onClick={() => handleQuickView(task)}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold rounded-xl shadow-xs hover:bg-slate-50 hover:text-blue-600 transition-colors"
+                        className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 text-slate-650 text-[11px] font-bold rounded-xl shadow-xs hover:bg-slate-50 hover:text-blue-600 transition-colors"
                       >
                         <Eye className="w-3.5 h-3.5" /> View
                       </button>
@@ -874,14 +885,119 @@ export default function DashboardClient({
             </div>
           </div>
 
-          {/* Row 2 (Full Width) - Today's Status or Team Status Submissions */}
+
+          {/* Row 2 (Full Width) - Quick Access / Recent Activity */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-            {tasksView === "TEAM" && !viewingUserId ? (
-              /* Team Status Submissions Grid for QA Lead / Team View */
+
+            {/* Section Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#ed5c37]/10 flex items-center justify-center">
+                  <History className="w-4 h-4 text-[#ed5c37]" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-slate-800 leading-none">Quick Access</h2>
+                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Recently visited items across the portal</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link href="/daily-status" className="text-xs font-bold text-slate-500 hover:text-[#ed5c37] flex items-center gap-1 transition-colors">
+                  <Clock className="w-3.5 h-3.5" /> Daily Status
+                </Link>
+                <span className="text-slate-200">|</span>
+                <Link href="/task-board" className="text-xs font-bold text-slate-500 hover:text-[#ed5c37] flex items-center gap-1 transition-colors">
+                  <CheckSquare className="w-3.5 h-3.5" /> Task Board
+                </Link>
+                <span className="text-slate-200">|</span>
+                <Link href="/test-cases" className="text-xs font-bold text-slate-500 hover:text-[#ed5c37] flex items-center gap-1 transition-colors">
+                  <FlaskConical className="w-3.5 h-3.5" /> Test Cases
+                </Link>
+                <span className="text-slate-200">|</span>
+                <Link href="/project-docs" className="text-xs font-bold text-slate-500 hover:text-[#ed5c37] flex items-center gap-1 transition-colors">
+                  <FileText className="w-3.5 h-3.5" /> Project Docs
+                </Link>
+              </div>
+            </div>
+
+            {recentItems.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                {recentItems
+                  .sort((a, b) => b.visitedAt - a.visitedAt)
+                  .slice(0, 10)
+                  .map((item) => {
+                    const iconMap = {
+                      project: <Folder className="w-5 h-5" />,
+                      testcase: <FlaskConical className="w-5 h-5" />,
+                      projectdoc: <FileText className="w-5 h-5" />,
+                      qadoc: <BookOpen className="w-5 h-5" />,
+                    };
+                    const colorMap = {
+                      project:    { bg: 'bg-blue-50',   icon: 'bg-blue-100 text-blue-600',   border: 'border-blue-100',   badge: 'bg-blue-100 text-blue-700' },
+                      testcase:   { bg: 'bg-violet-50', icon: 'bg-violet-100 text-violet-600', border: 'border-violet-100', badge: 'bg-violet-100 text-violet-700' },
+                      projectdoc: { bg: 'bg-emerald-50',icon: 'bg-emerald-100 text-emerald-600',border: 'border-emerald-100',badge: 'bg-emerald-100 text-emerald-700' },
+                      qadoc:      { bg: 'bg-amber-50',  icon: 'bg-amber-100 text-amber-600',  border: 'border-amber-100',  badge: 'bg-amber-100 text-amber-700' },
+                    };
+                    const colors = colorMap[item.type];
+                    const labelMap = { project: 'Project', testcase: 'Test Cases', projectdoc: 'Project Docs', qadoc: 'QA Docs' };
+                    const minutesAgo = Math.round((Date.now() - item.visitedAt) / 60000);
+                    const timeLabel = minutesAgo < 1 ? 'Just now' : minutesAgo < 60 ? `${minutesAgo}m ago` : minutesAgo < 1440 ? `${Math.round(minutesAgo / 60)}h ago` : `${Math.round(minutesAgo / 1440)}d ago`;
+                    return (
+                      <Link
+                        key={item.id}
+                        href={item.href}
+                        className={`group flex flex-col gap-3 p-4 rounded-2xl border ${colors.border} ${colors.bg} hover:shadow-md hover:scale-[1.02] transition-all duration-200`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${colors.icon}`}>
+                            {iconMap[item.type]}
+                          </div>
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${colors.badge}`}>{labelMap[item.type]}</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-black text-slate-800 leading-tight block line-clamp-2 group-hover:text-[#ed5c37] transition-colors">{item.label}</span>
+                          {item.sub && <span className="text-[10px] text-slate-400 font-semibold mt-0.5 block truncate">{item.sub}</span>}
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] text-slate-400 font-semibold">
+                          <Clock className="w-3 h-3" />
+                          {timeLabel}
+                        </div>
+                      </Link>
+                    );
+                  })}
+              </div>
+            ) : (
+              /* Empty state - show shortcut cards to all sections */
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'Daily Status', desc: 'View status submission history', href: '/daily-status', icon: <Clock className="w-6 h-6" />, bg: 'bg-blue-50', icon_bg: 'bg-blue-100 text-blue-600', border: 'border-blue-100' },
+                  { label: 'Task Board', desc: 'Manage checklists and tasks', href: '/task-board', icon: <CheckSquare className="w-6 h-6" />, bg: 'bg-violet-50', icon_bg: 'bg-violet-100 text-violet-600', border: 'border-violet-100' },
+                  { label: 'Test Cases', desc: 'Manage test suites and coverage', href: '/test-cases', icon: <FlaskConical className="w-6 h-6" />, bg: 'bg-emerald-50', icon_bg: 'bg-emerald-100 text-emerald-600', border: 'border-emerald-100' },
+                  { label: 'Project Docs', desc: 'View project documentation', href: '/project-docs', icon: <FileText className="w-6 h-6" />, bg: 'bg-amber-50', icon_bg: 'bg-amber-100 text-amber-600', border: 'border-amber-100' },
+                ].map(item => (
+                  <Link key={item.href} href={item.href} className={`group flex flex-col gap-3 p-5 rounded-2xl border ${item.border} ${item.bg} hover:shadow-md hover:scale-[1.02] transition-all duration-200`}>
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${item.icon_bg}`}>{item.icon}</div>
+                    <div>
+                      <span className="text-sm font-black text-slate-800 group-hover:text-[#ed5c37] transition-colors block">{item.label}</span>
+                      <span className="text-[10px] text-slate-500 font-semibold mt-0.5 block">{item.desc}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
+                      Open <ArrowRight className="w-3 h-3" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Today's Status — only shown for QA Lead / Admin */}
+          {isQaLead && !viewingUserId && (
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+            {(
+              /* Team Status Submissions Grid for QA Lead */
               <>
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-black text-slate-800">Team Status Today</h2>
+                    <h2 className="text-lg font-black text-slate-800">Today's Status</h2>
                     <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">
                       {teamStatusSubmissions.filter(s => s.hasSubmitted).length}/{teamStatusSubmissions.length} Submitted
                     </span>
@@ -931,6 +1047,7 @@ export default function DashboardClient({
                     </div>
                   ))}
 
+
                   {teamStatusSubmissions.length === 0 && (
                     <div className="col-span-full py-12 text-center text-slate-400 italic text-sm">
                       No team members found.
@@ -938,221 +1055,9 @@ export default function DashboardClient({
                   )}
                 </div>
               </>
-            ) : (
-              /* Standard Individual Status Display / Form Container */
-              <div className="flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-                    <h2 className="text-lg font-black text-slate-800">Today&apos;s Status</h2>
-                    <div className="flex items-center gap-2">
-                      {todayGroupedStatus ? (
-                        <span className="flex items-center gap-1 text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 rounded-full">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-500" /> Submitted
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-200 px-2.5 py-0.5 rounded-full">
-                          Pending
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {todayGroupedStatus && !showForm ? (
-                    /* Confirmation Screen if Submitted (Grid layout for full-width) */
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap gap-1.5">
-                        {todayGroupedStatus.projects.map(p => (
-                          <span key={p.projectId} className="px-2.5 py-1 bg-slate-900 text-[10px] font-bold text-white rounded-lg uppercase tracking-wider">
-                            {p.name} • {p.hours}h
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wins / Highlights</p>
-                          <p className="text-sm text-slate-700 font-medium leading-relaxed bg-slate-50/50 p-4 rounded-2xl border border-slate-100 whitespace-pre-wrap">{todayGroupedStatus.workDone}</p>
-                        </div>
-                        
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Next Activities</p>
-                          <p className="text-sm text-slate-650 italic font-medium leading-relaxed bg-slate-50/50 p-4 rounded-2xl border border-slate-100 whitespace-pre-wrap">{todayGroupedStatus.plannedWork}</p>
-                        </div>
-                      </div>
-
-                      {todayGroupedStatus.blockers && (
-                        <div className="space-y-1 pt-1">
-                          <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest flex items-center gap-1">
-                            <AlertTriangle className="w-3.5 h-3.5" /> Blockers
-                          </p>
-                          <p className="text-xs text-red-700 font-bold leading-relaxed bg-red-50/50 p-3.5 rounded-2xl border border-red-100 whitespace-pre-wrap">{todayGroupedStatus.blockers}</p>
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mt-2">
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>Submitted today at {new Date(todayGroupedStatus.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Submission form or read-only placeholder */
-                    viewingUserId ? (
-                      <div className="py-12 text-center bg-slate-50 border border-slate-100 rounded-2xl">
-                        <p className="text-slate-500 text-sm font-semibold italic">
-                          No status submitted today by {selectedUser?.name || "this user"}.
-                        </p>
-                      </div>
-                    ) : (
-                      /* Inline Submission / Edit Form */
-                      <form onSubmit={handleSubmit} className="space-y-4">
-                        {formError && (
-                          <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-xs font-semibold flex items-center gap-2">
-                            <AlertTriangle className="w-4 h-4 shrink-0" />
-                            <span>{formError}</span>
-                          </div>
-                        )}
-
-                        {formSuccess && (
-                          <div className="p-3 bg-green-50 border border-green-200 text-green-600 rounded-2xl text-xs font-bold flex items-center gap-2 animate-pulse">
-                            <CheckCircle2 className="w-4 h-4 shrink-0" />
-                            <span>Status saved successfully!</span>
-                          </div>
-                        )}
-
-                        {/* Project Selector with checkboxes */}
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select Projects</label>
-                          <div className="max-h-[110px] overflow-y-auto border border-slate-200/80 rounded-2xl p-2.5 space-y-1.5 bg-slate-50/50 scrollbar-hide">
-                            {projects.map(proj => (
-                              <label 
-                                key={proj.id}
-                                className="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-100/50 rounded-lg cursor-pointer transition-colors select-none text-xs font-semibold text-slate-700"
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={selectedProjects.includes(proj.id)}
-                                  onChange={() => toggleProject(proj.id)}
-                                  className="w-4 h-4 text-blue-600 border-slate-300 rounded-sm focus:ring-blue-500"
-                                />
-                                <span className="truncate">{proj.name}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Checked Project Hours Inputs */}
-                        {selectedProjects.length > 0 && (
-                          <div className="space-y-1.5 border-t border-slate-100 pt-3">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Logged Hours</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              {selectedProjects.map(pid => {
-                                const proj = projects.find(p => p.id === pid);
-                                return (
-                                  <div key={pid} className="flex items-center justify-between bg-slate-50 px-3 py-2 border border-slate-100 rounded-xl">
-                                    <span className="text-xs font-semibold text-slate-600 truncate pr-2">{proj?.name}</span>
-                                    <div className="flex items-center gap-1 shrink-0">
-                                      <input
-                                        type="number"
-                                        min="0.5"
-                                        max="24"
-                                        step="0.5"
-                                        value={projectHours[pid] || "8"}
-                                        onChange={(e) => setProjectHours((prev: Record<string, string>) => ({ ...prev, [pid]: e.target.value }))}
-                                        className="w-12 px-1.5 py-0.5 bg-white border border-slate-200 text-xs font-bold text-center rounded-md focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-                                      />
-                                      <span className="text-[10px] font-bold text-slate-400">h</span>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Work Done & Planned */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wins / Work Done</label>
-                            <textarea
-                              placeholder="What did you finish today?"
-                              value={workDone}
-                              onChange={(e) => setWorkDone(e.target.value)}
-                              rows={3}
-                              className="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all resize-none"
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Planned Work</label>
-                            <textarea
-                              placeholder="What is planned next?"
-                              value={plannedWork}
-                              onChange={(e) => setPlannedWork(e.target.value)}
-                              rows={3}
-                              className="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all resize-none"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Blockers */}
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Blockers (Optional)</label>
-                          <input
-                            placeholder="Are you blocked by anything?"
-                            value={blockers}
-                            onChange={(e) => setBlockers(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 text-xs font-medium text-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all"
-                          />
-                        </div>
-
-                        {/* Form Buttons */}
-                        <div className="flex gap-2.5 pt-1">
-                          <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 disabled:bg-blue-400 cursor-pointer"
-                          >
-                            {isSubmitting ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Check className="w-3.5 h-3.5" />
-                            )}
-                            <span>{isEditing ? "Save Changes" : "Submit Status"}</span>
-                          </button>
-                          {isEditing && (
-                            <button
-                              type="button"
-                              onClick={() => { setShowForm(false); setIsEditing(false); }}
-                              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
-                            >
-                              Cancel
-                            </button>
-                          )}
-                        </div>
-                      </form>
-                    )
-                  )}
-                </div>
-
-                {/* Footer Actions */}
-                <div className="border-t border-slate-100 pt-4 mt-4 flex items-center justify-between">
-                  <Link 
-                    href="/daily-status" 
-                    className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
-                  >
-                    View Status History <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                  {!viewingUserId && tasksView !== "TEAM" && todayGroupedStatus && !showForm && (
-                    <button 
-                      onClick={handleEditClick}
-                      className="flex items-center gap-1 px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-xl transition-colors cursor-pointer"
-                    >
-                      <Edit2 className="w-3 h-3 text-blue-600" /> Edit Status
-                    </button>
-                  )}
-                </div>
-              </div>
             )}
           </div>
+          )}
         </>
       )}
 

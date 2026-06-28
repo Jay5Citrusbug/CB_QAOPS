@@ -11,6 +11,8 @@ import {
   getSheetValues,
   updateSheetValuesBatch,
   findHeaderIndex,
+  getSpreadsheetSheetsMetadata,
+  deleteSpreadsheetRow,
 } from "@/lib/google-sheets";
 
 function hasProjectAccess(session: any, projectId: string): boolean {
@@ -531,6 +533,105 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
       });
     }
+
+    return NextResponse.json({
+      success: true,
+      synced: syncSuccess,
+      syncError: syncErrorMsg || null,
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE an individual test case and sync (remove row) with Google Sheet
+ */
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const session = await getServerSession(authOptions);
+    const { id: projectId } = await params;
+
+    if (!session?.user || !hasProjectAccess(session, projectId)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userEmail = session.user.email || "Unknown";
+    
+    // Parse testCaseId from query parameters
+    const searchParams = req.nextUrl.searchParams;
+    const testCaseId = searchParams.get("testCaseId");
+
+    if (!testCaseId) {
+      return NextResponse.json({ error: "Missing required query parameter: testCaseId" }, { status: 400 });
+    }
+
+    const projectRef = adminDb.collection("projects").doc(projectId);
+    const tcRef = projectRef.collection("test_cases").doc(testCaseId);
+    
+    const tcSnap = await tcRef.get();
+    if (!tcSnap.exists) {
+      return NextResponse.json({ error: "Test Case not found" }, { status: 404 });
+    }
+
+    const projectSnap = await projectRef.get();
+    const projectData = projectSnap.data() as any;
+    const googleSheet = projectData.googleSheet;
+
+    let syncSuccess = false;
+    let syncErrorMsg = "";
+
+    if (googleSheet && googleSheet.url) {
+      try {
+        const spreadsheetId = googleSheet.sheetId;
+        const accessToken = await getGoogleAuthToken();
+        const sheetMetadata = await getSpreadsheetSheetsMetadata(spreadsheetId, accessToken);
+        
+        if (sheetMetadata.length > 0) {
+          const firstSheet = sheetMetadata[0];
+          const rawRows = await getSheetValues(spreadsheetId, firstSheet.title, accessToken);
+          
+          if (rawRows.length > 0) {
+            const headers = rawRows[0];
+            let tcIdColIndex = findHeaderIndex(headers, "Test Case ID");
+            if (tcIdColIndex === -1) tcIdColIndex = findHeaderIndex(headers, "ID");
+            if (tcIdColIndex === -1) tcIdColIndex = findHeaderIndex(headers, "TC ID");
+            
+            if (tcIdColIndex !== -1) {
+              let rowNumber = -1;
+              for (let i = 1; i < rawRows.length; i++) {
+                if ((rawRows[i][tcIdColIndex] || "").trim() === testCaseId) {
+                  rowNumber = i + 1; // 1-indexed
+                  break;
+                }
+              }
+
+              if (rowNumber !== -1) {
+                await deleteSpreadsheetRow(spreadsheetId, firstSheet.sheetId, rowNumber, accessToken);
+                syncSuccess = true;
+              } else {
+                syncErrorMsg = "Test Case ID not found in Google Sheet row.";
+              }
+            } else {
+              syncErrorMsg = "Required column 'Test Case ID' missing in Google Sheet.";
+            }
+          }
+        }
+      } catch (err: any) {
+        console.error("Failed to sync deletion to Google Sheet:", err);
+        syncErrorMsg = err.message || "Failed to contact Google Sheets API.";
+      }
+    }
+
+    // Delete in Firestore
+    await tcRef.delete();
+
+    // Write audit logs
+    await adminDb.collection("projects").doc(projectId).collection("audit_logs").add({
+      user: userEmail,
+      action: `Deleted test case ${testCaseId}. Google Sheet sync: ${syncSuccess ? "SUCCESS" : googleSheet?.url ? "FAILED (" + syncErrorMsg + ")" : "NONE"}`,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
     return NextResponse.json({
       success: true,

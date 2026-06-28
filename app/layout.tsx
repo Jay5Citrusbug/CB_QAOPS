@@ -10,6 +10,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "CB QOps - QA Work Management Portal",
   description: "Comprehensive management system for QA teams",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({

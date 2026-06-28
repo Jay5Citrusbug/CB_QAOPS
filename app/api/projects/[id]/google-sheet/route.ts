@@ -419,6 +419,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       googleSheet: admin.firestore.FieldValue.delete(),
     });
 
+    // Fetch and delete all test case documents for this project
+    const testCasesSnap = await projectRef.collection("test_cases").get();
+    const batch = adminDb.batch();
+    testCasesSnap.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+    if (testCasesSnap.size > 0) {
+      await batch.commit();
+    }
+
     await logAudit(projectId, userEmail, "Google Sheet Disconnected");
 
     return NextResponse.json({ success: true });
