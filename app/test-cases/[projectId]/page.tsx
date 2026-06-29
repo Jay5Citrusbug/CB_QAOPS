@@ -179,6 +179,23 @@ function isDateColumn(colName: string): boolean {
   return lower.includes("date");
 }
 
+const DEFAULT_COLUMNS = [
+  "Test Case ID",
+  "Module",
+  "Test Case Title",
+  "Pre-Conditions",
+  "Test Steps",
+  "Test Data",
+  "Expected Result",
+  "Dev Status",
+  "Dev Date Executed",
+  "Dev Notes",
+  "QA Status",
+  "cross browser Verfied ?",
+  "Priority",
+  "JIRA Ticket",
+];
+
 // Date formatter
 function formatDateDisplay(val: string): string {
   if (!val || val === "-") return "";
@@ -1124,22 +1141,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     }
   };
 
-  const DEFAULT_COLUMNS = [
-    "Test Case ID",
-    "Module",
-    "Test Case Title",
-    "Pre-Conditions",
-    "Test Steps",
-    "Test Data",
-    "Expected Result",
-    "Dev Status",
-    "Dev Date Executed",
-    "Dev Notes",
-    "QA Status",
-    "cross browser Verfied ?",
-    "Priority",
-    "JIRA Ticket",
-  ];
+
 
   const googleColumns = useMemo(() => {
     if (sheetConnection?.headers && sheetConnection.headers.length > 0) {
@@ -1394,22 +1396,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
   };
 
   const downloadTemplate = () => {
-    const headers = [
-      "Test Case ID",
-      "Module",
-      "Test Case Title",
-      "Pre-Conditions",
-      "Test Steps",
-      "Test Data",
-      "Expected Result",
-      "Dev Status",
-      "Dev Date Executed",
-      "Dev Notes",
-      "QA Status",
-      "cross browser Verfied ?",
-      "Priority",
-      "JIRA Ticket",
-    ];
+    const headers = DEFAULT_COLUMNS;
 
     const exampleRows = [
       [
