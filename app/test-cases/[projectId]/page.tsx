@@ -2375,7 +2375,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                               const updated = { ...tc, [bulkField]: bulkValue };
                               const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();
                               const normField = normalize(bulkField);
-                              const rawCol = googleColumns.find(col => {
+                              const rawCol = googleColumns.find((col: string) => {
                                 const normCol = normalize(col);
                                 if (normField === "crossbrowserverified") {
                                   return normCol === "crossbrowserverified" || normCol === "crossbrowserverfied";

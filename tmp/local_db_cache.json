@@ -397,10 +397,27 @@
           "nanoseconds": 268000000
         },
         "lastSyncAt": {
-          "seconds": 1782735883,
-          "nanoseconds": 568000000
+          "seconds": 1782738403,
+          "nanoseconds": 760000000
         }
-      }
+      },
+      "googleSheet.lastSyncAt": "2026-06-29T13:09:42.434Z",
+      "googleSheet.headers": [
+        "Test Case ID",
+        "Module",
+        "Test Case Title",
+        "Pre-Conditions",
+        "Test Steps",
+        "Test Data",
+        "Expected Result",
+        "Dev Status",
+        "Dev Date Executed",
+        "Dev Notes",
+        "QA Status",
+        "cross browser Verfied ?",
+        "Priority",
+        "JIRA Ticket"
+      ]
     }
   },
   "tasks": {
@@ -2315,17 +2332,587 @@
     "aETjS6yOpLJmOMf703w7": {
       "user": "jay5.citrusbug@gmail.com",
       "action": "Portal -> Sheet Sync: Updated 1 test cases in bulk",
-      "timestamp": "2026-06-29T12:24:42.069Z"
+      "timestamp": {
+        "seconds": 1782735853,
+        "nanoseconds": 269000000
+      }
     },
     "8wPWhR35qmRTOm1xer8q": {
       "user": "jay5.citrusbug@gmail.com",
       "action": "Portal -> Sheet Sync: Updated 1 test cases in bulk",
-      "timestamp": "2026-06-29T12:24:48.710Z"
+      "timestamp": {
+        "seconds": 1782735887,
+        "nanoseconds": 380000000
+      }
     },
     "AOkrNi59e9ccY4ZAtcIw": {
       "user": "System",
       "action": "Sync Failed: fetch failed",
-      "timestamp": "2026-06-29T12:25:03.408Z"
+      "timestamp": {
+        "seconds": 1782735901,
+        "nanoseconds": 386000000
+      }
+    },
+    "3pMHf7E0awHNwT99DgqV": {
+      "user": "System",
+      "action": "Sync Failed: fetch failed",
+      "timestamp": {
+        "seconds": 1782736032,
+        "nanoseconds": 750000000
+      }
+    },
+    "WoAuvaVlodgNBXZQLccG": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736321,
+        "nanoseconds": 281000000
+      }
+    },
+    "WsdQocQ7ufqNnWStuw82": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736338,
+        "nanoseconds": 851000000
+      }
+    },
+    "T5H6IlnCDuUi4O8OCcNS": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736458,
+        "nanoseconds": 624000000
+      }
+    },
+    "I684p3NYx04ExzLJN32Q": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736457,
+        "nanoseconds": 859000000
+      }
+    },
+    "0zOMSQrdKz0sM28fRj9m": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736390,
+        "nanoseconds": 0
+      }
+    },
+    "i2rLEUnybs2mP2jWsXVd": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736388,
+        "nanoseconds": 728000000
+      }
+    },
+    "Rk10UMVL5ANFFaMw3lKy": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736320,
+        "nanoseconds": 615000000
+      }
+    },
+    "cnJjyZOJVTm48wYNIDRB": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736320,
+        "nanoseconds": 268000000
+      }
+    },
+    "1vroKM7jmdgNxM3IJcxd": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736252,
+        "nanoseconds": 475000000
+      }
+    },
+    "g8fzMYXAE0eMhCOqE9NJ": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736252,
+        "nanoseconds": 149000000
+      }
+    },
+    "BBZoZBs10HIZEVKFWE6R": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Portal -> Sheet Sync: Updated 1 test cases in bulk",
+      "timestamp": {
+        "seconds": 1782736187,
+        "nanoseconds": 15000000
+      }
+    },
+    "yQalPnrJprq8lX18sam4": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736143,
+        "nanoseconds": 261000000
+      }
+    },
+    "WoF7TTjK4N9VBudAw72F": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736142,
+        "nanoseconds": 944000000
+      }
+    },
+    "HTGtbap6I64Zh6vOcKRZ": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736093,
+        "nanoseconds": 815000000
+      }
+    },
+    "tpgD19hKIYZ1qYNaNTjR": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736093,
+        "nanoseconds": 497000000
+      }
+    },
+    "wv50luPVhBVhE8Kh7ufm": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736078,
+        "nanoseconds": 423000000
+      }
+    },
+    "JemAM52zqKrhTutFf6y1": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736078,
+        "nanoseconds": 92000000
+      }
+    },
+    "EImv8fDpHd7YXX2RJOTv": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736012,
+        "nanoseconds": 820000000
+      }
+    },
+    "hVGo9Ucbd4n6TEfI8gZ0": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736012,
+        "nanoseconds": 482000000
+      }
+    },
+    "zFbYFnrD7yB1uqNvnNdj": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782735947,
+        "nanoseconds": 981000000
+      }
+    },
+    "J9wOBgXYgUCeO5PfsVrw": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782735947,
+        "nanoseconds": 642000000
+      }
+    },
+    "7EQJTFKhQyVzZekF9u7X": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Portal -> Sheet Sync: Updated 1 test cases in bulk",
+      "timestamp": {
+        "seconds": 1782735910,
+        "nanoseconds": 243000000
+      }
+    },
+    "BqMPQD6LASQ9lyAKV8XR": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Portal -> Sheet Sync: Updated 1 test cases in bulk",
+      "timestamp": {
+        "seconds": 1782735901,
+        "nanoseconds": 329000000
+      }
+    },
+    "ygCtrqitPH41KbKVv1Gq": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Portal -> Sheet Sync: Updated 1 test cases in bulk",
+      "timestamp": {
+        "seconds": 1782735897,
+        "nanoseconds": 976000000
+      }
+    },
+    "gRXMHDwlBNsdggPJVSPg": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782735882,
+        "nanoseconds": 996000000
+      }
+    },
+    "1n8Ujg8v0nV0ch2MM2QL": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782735882,
+        "nanoseconds": 664000000
+      }
+    },
+    "AdmYyrxVYi8ddh7CK6Zl": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782735818,
+        "nanoseconds": 480000000
+      }
+    },
+    "UDcEjgUYhUr7cXfIWWb9": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782735818,
+        "nanoseconds": 144000000
+      }
+    },
+    "n7Hiyyh695MvwiHrrIfU": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736572,
+        "nanoseconds": 862000000
+      }
+    },
+    "b5njVg6rd8Djgym2Nb11": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736582,
+        "nanoseconds": 470000000
+      }
+    },
+    "3h4dX9woqWlssW6q2kDy": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736720,
+        "nanoseconds": 711000000
+      }
+    },
+    "YKousUbZAyq5yc5bvlm0": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736720,
+        "nanoseconds": 366000000
+      }
+    },
+    "ZxLMIyxKHuXhv090NfMZ": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736655,
+        "nanoseconds": 441000000
+      }
+    },
+    "2N0rkS9UQ3uzbdEyBcej": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736655,
+        "nanoseconds": 115000000
+      }
+    },
+    "VIbuZOEM7pIn1nJVFABK": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736590,
+        "nanoseconds": 595000000
+      }
+    },
+    "FJxdsnvFml1QIzUL6b2m": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736590,
+        "nanoseconds": 263000000
+      }
+    },
+    "SzMCmGEuAJBROJPMDJ9S": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736525,
+        "nanoseconds": 544000000
+      }
+    },
+    "PjW9mBz59oc5n6cNm3VW": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736525,
+        "nanoseconds": 214000000
+      }
+    },
+    "SLKE2nOllDn5LtFm3jWf": {
+      "user": "System",
+      "action": "Sync Failed: fetch failed",
+      "timestamp": {
+        "seconds": 1782736826,
+        "nanoseconds": 349000000
+      }
+    },
+    "ieOBPBYKJjcD9Mpgx7yA": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736980,
+        "nanoseconds": 24000000
+      }
+    },
+    "6yBv5UgGAyDdOpPJVo2O": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736993,
+        "nanoseconds": 457000000
+      }
+    },
+    "U02faeFWkbBJPQUBIxge": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782737111,
+        "nanoseconds": 462000000
+      }
+    },
+    "EY2k1fgMWrJ76fCg4Oem": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782737111,
+        "nanoseconds": 144000000
+      }
+    },
+    "HjQU5sYZ9T5UaEY3lasz": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782737046,
+        "nanoseconds": 386000000
+      }
+    },
+    "zeHS6TputhyQyRKQpHvx": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782737046,
+        "nanoseconds": 56000000
+      }
+    },
+    "GEx9zCVslanJ1c6ajUFW": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736981,
+        "nanoseconds": 567000000
+      }
+    },
+    "2h4z91sHrBX73SFnbRZg": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736981,
+        "nanoseconds": 226000000
+      }
+    },
+    "SfAHRozLOfnPKnmASDGK": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736916,
+        "nanoseconds": 608000000
+      }
+    },
+    "rKGKlWWXJ8V6bHEaHADY": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736916,
+        "nanoseconds": 253000000
+      }
+    },
+    "rzCp883ARqXWHNFqmKSO": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736851,
+        "nanoseconds": 542000000
+      }
+    },
+    "GXPFHXjgWgL54aeViOEP": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736851,
+        "nanoseconds": 211000000
+      }
+    },
+    "d1GzJKA5V2ln2t6oa0wI": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782736785,
+        "nanoseconds": 365000000
+      }
+    },
+    "WfVlh5dVuDpcLeIzpptL": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782736785,
+        "nanoseconds": 46000000
+      }
+    },
+    "EQrQy3tmDEm5dqeJY1hB": {
+      "user": "System",
+      "action": "Sync Failed: fetch failed",
+      "timestamp": {
+        "seconds": 1782737228,
+        "nanoseconds": 130000000
+      }
+    },
+    "dKTtJcgF668QoK4cWD8v": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782737366,
+        "nanoseconds": 463000000
+      }
+    },
+    "RimY7STlymQkwOpwgtA6": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782737374,
+        "nanoseconds": 878000000
+      }
+    },
+    "WaE3zNaBoJ4l0Bz9ZnIR": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782737446,
+        "nanoseconds": 247000000
+      }
+    },
+    "ropBBpGSPWYxv3vr8ew9": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782737445,
+        "nanoseconds": 936000000
+      }
+    },
+    "kzHwlI1y8irb9n6iQCza": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782737379,
+        "nanoseconds": 598000000
+      }
+    },
+    "aB3N22D0Dy8whLnfLthj": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782737379,
+        "nanoseconds": 262000000
+      }
+    },
+    "D0YRODUUUwempORQM87k": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782737313,
+        "nanoseconds": 555000000
+      }
+    },
+    "9n5a09OgCmI4r2kOKomu": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782737312,
+        "nanoseconds": 820000000
+      }
+    },
+    "HPu0nCMXoNTKufsivwq3": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782737247,
+        "nanoseconds": 50000000
+      }
+    },
+    "9fuuXhSpe51YNH6v6t1j": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782737246,
+        "nanoseconds": 473000000
+      }
+    },
+    "x9YfBsXpkuoduvcQdOZG": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": {
+        "seconds": 1782737180,
+        "nanoseconds": 441000000
+      }
+    },
+    "4rT7tjoIsk2ZKJ60AdvX": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": {
+        "seconds": 1782737179,
+        "nanoseconds": 68000000
+      }
+    },
+    "FMs0zyc7BqjCn4xBPF8V": {
+      "user": "System",
+      "action": "Sync Failed: fetch failed",
+      "timestamp": "2026-06-29T12:52:54.907Z"
+    },
+    "3B4rKvb94NUzp2F2dw2e": {
+      "user": "System",
+      "action": "Sync Failed: fetch failed",
+      "timestamp": "2026-06-29T12:55:11.380Z"
+    },
+    "ZGHaM9KpooDEHSwphXgG": {
+      "user": "System",
+      "action": "Sync Failed: fetch failed",
+      "timestamp": "2026-06-29T12:59:23.802Z"
+    },
+    "M5kgP8DyT03iQzpQXkkL": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Started",
+      "timestamp": "2026-06-29T13:07:41.601Z"
+    },
+    "fMky5vQihjjT2hIkDgc7": {
+      "user": "jay5.citrusbug@gmail.com",
+      "action": "Sync Completed. Created: 0, Updated: 0, Inactive: 0, Conflicts: 0",
+      "timestamp": "2026-06-29T13:07:50.607Z"
     }
   },
   "test_cases": {
@@ -3945,7 +4532,6 @@
       "Dev Status": "Not Started",
       "Dev Date Executed": "",
       "Dev Notes": "",
-      "QA Status": "Not Run",
       "cross browser Verfied ?": "N/A",
       "JIRA Ticket": "https://citrusbugtechnolabs.atlassian.net/browse/ZRE-895",
       "testCaseId": "TC-08",
@@ -3958,11 +4544,12 @@
       "devStatus": "Not Started",
       "devDateExecuted": "",
       "devNotes": "",
-      "qaStatus": "Not Run",
       "crossBrowserVerified": "N/A",
       "jiraTicket": "https://citrusbugtechnolabs.atlassian.net/browse/ZRE-895",
       "status": "active",
       "Priority": "Low",
+      "priority": "Low",
+      "qaStatus": "Passed",
       "lastSyncedValues": {
         "Test Case ID": "TC-08",
         "Module": "",
@@ -3974,7 +4561,7 @@
         "Dev Status": "Not Started",
         "Dev Date Executed": "",
         "Dev Notes": "",
-        "QA Status": "Not Run",
+        "QA Status": "Passed",
         "cross browser Verfied ?": "N/A",
         "Priority": "Low",
         "JIRA Ticket": "https://citrusbugtechnolabs.atlassian.net/browse/ZRE-895",
@@ -3988,19 +4575,19 @@
         "devStatus": "Not Started",
         "devDateExecuted": "",
         "devNotes": "",
-        "qaStatus": "Not Run",
+        "qaStatus": "Passed",
         "crossBrowserVerified": "N/A",
         "priority": "Low",
         "jiraTicket": "https://citrusbugtechnolabs.atlassian.net/browse/ZRE-895"
       },
       "lastSyncedAt": {
-        "seconds": 1782734570,
-        "nanoseconds": 753000000
+        "seconds": 1782736186,
+        "nanoseconds": 688000000
       },
-      "priority": "Low",
+      "QA Status": "Passed",
       "updatedAt": {
-        "seconds": 1782734570,
-        "nanoseconds": 753000000
+        "seconds": 1782736186,
+        "nanoseconds": 688000000
       }
     },
     "TC-09": {
@@ -4884,14 +5471,486 @@
       }
     },
     "Qqqwcod6CP8bmFPJXoAZ": {
-      "syncTime": "2026-06-29T12:24:59.553Z",
       "triggeredBy": "System",
       "createdRecords": 0,
       "updatedRecords": 0,
       "inactiveRecords": 0,
       "failedRecords": 0,
       "status": "FAILED",
-      "duration": 1.67
+      "duration": 1.67,
+      "syncTime": {
+        "seconds": 1782735897,
+        "nanoseconds": 692000000
+      }
+    },
+    "DscwxHIP1uPZsE1xaPUC": {
+      "triggeredBy": "System",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "FAILED",
+      "duration": 2.49,
+      "syncTime": {
+        "seconds": 1782736027,
+        "nanoseconds": 560000000
+      }
+    },
+    "X7chl2kLIKIUScF7Y8qx": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 30.41,
+      "syncTime": {
+        "seconds": 1782736306,
+        "nanoseconds": 463000000
+      }
+    },
+    "rPGSey4SCXQQotuvlubP": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.61,
+      "syncTime": {
+        "seconds": 1782736388,
+        "nanoseconds": 272000000
+      }
+    },
+    "zFV8hyVY616r30Bu6QoT": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.2,
+      "syncTime": {
+        "seconds": 1782736319,
+        "nanoseconds": 917000000
+      }
+    },
+    "cOSg2Oxc7hDAcK8vSRAg": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.46,
+      "syncTime": {
+        "seconds": 1782736251,
+        "nanoseconds": 823000000
+      }
+    },
+    "kuQYCoVSmFtRi5Rak6WU": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.16,
+      "syncTime": {
+        "seconds": 1782736142,
+        "nanoseconds": 622000000
+      }
+    },
+    "o8PV07gP8F7PGhejNdF7": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.04,
+      "syncTime": {
+        "seconds": 1782736093,
+        "nanoseconds": 178000000
+      }
+    },
+    "ZuqWreBxk2vLyMzlVq38": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.07,
+      "syncTime": {
+        "seconds": 1782736077,
+        "nanoseconds": 766000000
+      }
+    },
+    "P1ZXodR1g4c7C5t6f9fr": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.33,
+      "syncTime": {
+        "seconds": 1782736012,
+        "nanoseconds": 152000000
+      }
+    },
+    "bvRUfV5J3zXUQdK8Gozm": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.2,
+      "syncTime": {
+        "seconds": 1782735947,
+        "nanoseconds": 314000000
+      }
+    },
+    "llb9WI6cBZiYEWz8Oigc": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.17,
+      "syncTime": {
+        "seconds": 1782735882,
+        "nanoseconds": 332000000
+      }
+    },
+    "zfpX9NjBo9L7ov8HnJVv": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.15,
+      "syncTime": {
+        "seconds": 1782735817,
+        "nanoseconds": 815000000
+      }
+    },
+    "NZjuGOOREh7hySdmRuOH": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 11.27,
+      "syncTime": {
+        "seconds": 1782736562,
+        "nanoseconds": 412000000
+      }
+    },
+    "Ev76Q1S4TYtx7iQHlNWm": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.09,
+      "syncTime": {
+        "seconds": 1782736654,
+        "nanoseconds": 773000000
+      }
+    },
+    "ME8lSKUva2LLy1wuUITn": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.24,
+      "syncTime": {
+        "seconds": 1782736589,
+        "nanoseconds": 920000000
+      }
+    },
+    "Kem42G98p20QgAsBJU5k": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.17,
+      "syncTime": {
+        "seconds": 1782736524,
+        "nanoseconds": 856000000
+      }
+    },
+    "mcPFTZI22FFh6yBAyXwH": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.73,
+      "syncTime": {
+        "seconds": 1782736456,
+        "nanoseconds": 913000000
+      }
+    },
+    "DVJ6pyxKcHHoBuI5vri7": {
+      "triggeredBy": "System",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "FAILED",
+      "duration": 2.92,
+      "syncTime": {
+        "seconds": 1782736819,
+        "nanoseconds": 127000000
+      }
+    },
+    "FVkJIN08qEWG1unJhciK": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 18.93,
+      "syncTime": {
+        "seconds": 1782736970,
+        "nanoseconds": 367000000
+      }
+    },
+    "qa8DAqC5oDGyPiTDAWek": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.14,
+      "syncTime": {
+        "seconds": 1782737110,
+        "nanoseconds": 826000000
+      }
+    },
+    "BDvEFg4xbu405pZRPHwH": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.02,
+      "syncTime": {
+        "seconds": 1782737045,
+        "nanoseconds": 725000000
+      }
+    },
+    "Nsa3oOb1kw33NssoQ778": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.2,
+      "syncTime": {
+        "seconds": 1782736980,
+        "nanoseconds": 888000000
+      }
+    },
+    "YdWnXcUPuay4g5RjF6a8": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.25,
+      "syncTime": {
+        "seconds": 1782736915,
+        "nanoseconds": 924000000
+      }
+    },
+    "OmYIxqy5kNQ57NPy04qG": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.21,
+      "syncTime": {
+        "seconds": 1782736850,
+        "nanoseconds": 883000000
+      }
+    },
+    "W9FPO2VESLUy6B5Crwp0": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.05,
+      "syncTime": {
+        "seconds": 1782736784,
+        "nanoseconds": 731000000
+      }
+    },
+    "2WJJGnBf4f0GgHZot7Hl": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.32,
+      "syncTime": {
+        "seconds": 1782736720,
+        "nanoseconds": 19000000
+      }
+    },
+    "GprOouKxgAaaxTfF6EBe": {
+      "triggeredBy": "System",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "FAILED",
+      "duration": 2.73,
+      "syncTime": {
+        "seconds": 1782737221,
+        "nanoseconds": 993000000
+      }
+    },
+    "pkqASZEBQJfZ62eUF6N1": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 7.21,
+      "syncTime": {
+        "seconds": 1782737359,
+        "nanoseconds": 377000000
+      }
+    },
+    "obgvbAoeWdbrGsaOjvLu": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.91,
+      "syncTime": {
+        "seconds": 1782737445,
+        "nanoseconds": 602000000
+      }
+    },
+    "IfHcIFrOkmbPndXgLUo3": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.2,
+      "syncTime": {
+        "seconds": 1782737378,
+        "nanoseconds": 910000000
+      }
+    },
+    "Zg6N2in8dupahMOp4CNn": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.73,
+      "syncTime": {
+        "seconds": 1782737311,
+        "nanoseconds": 794000000
+      }
+    },
+    "nUOOjfOojKsecTX1qxbY": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 1.83,
+      "syncTime": {
+        "seconds": 1782737246,
+        "nanoseconds": 140000000
+      }
+    },
+    "OxtjPij8P6HwsvYamW1w": {
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 2.86,
+      "syncTime": {
+        "seconds": 1782737178,
+        "nanoseconds": 688000000
+      }
+    },
+    "SUVQYqQ6uYqWFdCBoLNy": {
+      "syncTime": "2026-06-29T12:52:49.322Z",
+      "triggeredBy": "System",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "FAILED",
+      "duration": 3.11
+    },
+    "0pVY2PMXvnUNLuVQfuB4": {
+      "syncTime": "2026-06-29T12:55:04.904Z",
+      "triggeredBy": "System",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "FAILED",
+      "duration": 4.04
+    },
+    "kwGqhFTInVw8A6nD08zG": {
+      "syncTime": "2026-06-29T12:59:18.275Z",
+      "triggeredBy": "System",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "FAILED",
+      "duration": 2.93
+    },
+    "wCy0PN9lXv37WeypsHJO": {
+      "syncTime": "2026-06-29T13:07:34.901Z",
+      "triggeredBy": "jay5.citrusbug@gmail.com",
+      "createdRecords": 0,
+      "updatedRecords": 0,
+      "inactiveRecords": 0,
+      "failedRecords": 0,
+      "status": "COMPLETED",
+      "duration": 6.96
     }
   },
   "notifications": {
