@@ -359,10 +359,8 @@ function MultiSelectDropdown({
   );
 }
 
-export default function ProjectTestCasesPage({ params }: { params: any }) {
-  const resolvedParams = params && typeof (params as any).then === 'function'
-    ? use(params)
-    : (params as any);
+export default function ProjectTestCasesPage({ params }: { params: Promise<{ projectId?: string; projectid?: string }> }) {
+  const resolvedParams = use(params);
   const projectId = (resolvedParams?.projectId || resolvedParams?.projectid) as string;
   const { data: session } = useSession();
   const confirm = useConfirm();

@@ -141,10 +141,8 @@ const DEFAULT_MILESTONES = [
   { key: "postReleaseValidation", label: "Post Release Validation" }
 ];
 
-export default function ProjectDetailPage({ params }: { params: any }) {
-  const resolvedParams = params && typeof (params as any).then === 'function'
-    ? use(params)
-    : (params as any);
+export default function ProjectDetailPage({ params }: { params: Promise<{ projectId?: string; projectid?: string }> }) {
+  const resolvedParams = use(params);
   const projectId = (resolvedParams?.projectId || resolvedParams?.projectid) as string;
   const { data: session } = useSession();
   const confirm = useConfirm();
