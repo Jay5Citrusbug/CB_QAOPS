@@ -141,9 +141,11 @@ const DEFAULT_MILESTONES = [
   { key: "postReleaseValidation", label: "Post Release Validation" }
 ];
 
-export default function ProjectDetailPage({ params }: { params: Promise<{ projectId: string }> }) {
-  const resolvedParams = use(params);
-  const projectId = resolvedParams.projectId;
+export default function ProjectDetailPage({ params }: { params: any }) {
+  const resolvedParams = params && typeof (params as any).then === 'function'
+    ? use(params)
+    : (params as any);
+  const projectId = (resolvedParams?.projectId || resolvedParams?.projectid) as string;
   const { data: session } = useSession();
   const confirm = useConfirm();
 
@@ -505,8 +507,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ projec
           throw new Error("Unsupported file type. Supported types: PDF, DOCX, XLSX, PNG, JPG, TXT, ZIP");
         }
 
-        if (uploadFile.size > 50 * 1024 * 1024) {
-          throw new Error("File size exceeds 50 MB limit");
+        if (uploadFile.size > 10 * 1024 * 1024) {
+          throw new Error("File size exceeds 10 MB limit");
         }
 
         formData.append("file", uploadFile);

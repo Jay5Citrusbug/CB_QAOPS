@@ -28,9 +28,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Empty files are not allowed' }, { status: 400 });
     }
 
-    const MAX_SIZE = 25 * 1024 * 1024;
+    const MAX_SIZE = 10 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: 'File exceeds maximum 25MB limit' }, { status: 400 });
+      return NextResponse.json({ error: 'File exceeds maximum 10MB limit' }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());

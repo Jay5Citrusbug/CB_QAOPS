@@ -103,9 +103,9 @@ export async function POST(request: NextRequest) {
       const ext = name.split('.').pop()?.toLowerCase() || '';
 
       // Size validations
-      const MAX_SIZE = 25 * 1024 * 1024; // 25MB
+      const MAX_SIZE = 10 * 1024 * 1024; // 10MB
       if (file.size > MAX_SIZE) {
-        return NextResponse.json({ error: 'File size exceeds 25MB limit' }, { status: 400 });
+        return NextResponse.json({ error: 'File size exceeds 10MB limit' }, { status: 400 });
       }
       if (file.size === 0) {
         return NextResponse.json({ error: 'Empty files are not allowed' }, { status: 400 });

@@ -107,12 +107,12 @@ export default function MyDrivePage() {
     try {
       if (uploadSource === "file") {
         if (uploadFiles.length === 0) throw new Error("Please select at least one file to upload.");
-        const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+        const MAX_SIZE = 10 * 1024 * 1024; // 10MB
         let successCount = 0;
         const errors: string[] = [];
         for (const file of uploadFiles) {
           if (file.size > MAX_SIZE) {
-            errors.push(`${file.name}: exceeds 50MB limit.`);
+            errors.push(`${file.name}: exceeds 10MB limit.`);
             continue;
           }
           const formData = new FormData();

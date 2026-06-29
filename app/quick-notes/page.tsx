@@ -339,9 +339,9 @@ function NoteModal({
     const files = Array.from(e.target.files || []).slice(0, 5);
     if (files.length === 0) return;
 
-    const MAX_SIZE = 25 * 1024 * 1024; // 25MB
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
     const validFiles = files.filter(f => {
-      if (f.size > MAX_SIZE) { setError(`${f.name} exceeds 25MB limit.`); return false; }
+      if (f.size > MAX_SIZE) { setError(`${f.name} exceeds 10MB limit.`); return false; }
       if (f.size === 0) { setError(`${f.name} is empty.`); return false; }
       return true;
     });

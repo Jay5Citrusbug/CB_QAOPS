@@ -50,10 +50,10 @@ export async function POST(
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    // Max limit: 25MB
-    const MAX_SIZE = 25 * 1024 * 1024;
+    // Max limit: 10MB
+    const MAX_SIZE = 10 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: 'File size exceeds maximum limit of 25MB' }, { status: 400 });
+      return NextResponse.json({ error: 'File size exceeds maximum limit of 10MB' }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());

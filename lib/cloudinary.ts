@@ -50,7 +50,12 @@ export async function uploadToCloudinary(
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
   const publicId = `${Date.now()}_${sanitizedName}`;
-  const resourceType = mimeType.startsWith('image/') ? 'image' : 'raw';
+  let resourceType = 'raw';
+  if (mimeType.startsWith('image/')) {
+    resourceType = 'image';
+  } else if (mimeType.startsWith('video/') || mimeType.startsWith('audio/')) {
+    resourceType = 'video';
+  }
 
   const params: Record<string, string> = {
     folder,
