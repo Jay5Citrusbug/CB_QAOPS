@@ -348,12 +348,43 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         if (!value) return NextResponse.json({ error: "Title cannot be empty" }, { status: 400 });
       }
     } else {
-      if (devStatus !== undefined) updates.devStatus = devStatus;
-      if (devDateExecuted !== undefined) updates.devDateExecuted = devDateExecuted;
-      if (devNotes !== undefined) updates.devNotes = devNotes;
-      if (qaStatus !== undefined) updates.qaStatus = qaStatus;
-      if (crossBrowserVerified !== undefined) updates.crossBrowserVerified = crossBrowserVerified;
-      if (priority !== undefined) updates.priority = priority;
+      const headers = googleSheet?.headers || [];
+      if (devStatus !== undefined) {
+        updates.devStatus = devStatus;
+        const colIdx = findHeaderIndex(headers, "Dev Status");
+        if (colIdx !== -1) updates[headers[colIdx]] = devStatus;
+        else updates["Dev Status"] = devStatus;
+      }
+      if (devDateExecuted !== undefined) {
+        updates.devDateExecuted = devDateExecuted;
+        const colIdx = findHeaderIndex(headers, "Dev Date Executed");
+        if (colIdx !== -1) updates[headers[colIdx]] = devDateExecuted;
+        else updates["Dev Date Executed"] = devDateExecuted;
+      }
+      if (devNotes !== undefined) {
+        updates.devNotes = devNotes;
+        const colIdx = findHeaderIndex(headers, "Dev Notes");
+        if (colIdx !== -1) updates[headers[colIdx]] = devNotes;
+        else updates["Dev Notes"] = devNotes;
+      }
+      if (qaStatus !== undefined) {
+        updates.qaStatus = qaStatus;
+        const colIdx = findHeaderIndex(headers, "QA Status");
+        if (colIdx !== -1) updates[headers[colIdx]] = qaStatus;
+        else updates["QA Status"] = qaStatus;
+      }
+      if (crossBrowserVerified !== undefined) {
+        updates.crossBrowserVerified = crossBrowserVerified;
+        const colIdx = findHeaderIndex(headers, "cross browser Verfied ?");
+        if (colIdx !== -1) updates[headers[colIdx]] = crossBrowserVerified;
+        else updates["cross browser Verfied ?"] = crossBrowserVerified;
+      }
+      if (priority !== undefined) {
+        updates.priority = priority;
+        const colIdx = findHeaderIndex(headers, "Priority");
+        if (colIdx !== -1) updates[headers[colIdx]] = priority;
+        else updates["Priority"] = priority;
+      }
     }
 
     let syncSuccess = false;
@@ -502,12 +533,43 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
             else if (normName === "module") updatedLastSyncedValues.module = value;
             else if (normName === "testcasetitle") updatedLastSyncedValues.title = value;
           } else {
-            if (devStatus !== undefined) updatedLastSyncedValues.devStatus = devStatus;
-            if (devDateExecuted !== undefined) updatedLastSyncedValues.devDateExecuted = devDateExecuted;
-            if (devNotes !== undefined) updatedLastSyncedValues.devNotes = devNotes;
-            if (qaStatus !== undefined) updatedLastSyncedValues.qaStatus = qaStatus;
-            if (crossBrowserVerified !== undefined) updatedLastSyncedValues.crossBrowserVerified = crossBrowserVerified;
-            if (priority !== undefined) updatedLastSyncedValues.priority = priority;
+            const headers = googleSheet?.headers || [];
+            if (devStatus !== undefined) {
+              updatedLastSyncedValues.devStatus = devStatus;
+              const colIdx = findHeaderIndex(headers, "Dev Status");
+              if (colIdx !== -1) updatedLastSyncedValues[headers[colIdx]] = devStatus;
+              else updatedLastSyncedValues["Dev Status"] = devStatus;
+            }
+            if (devDateExecuted !== undefined) {
+              updatedLastSyncedValues.devDateExecuted = devDateExecuted;
+              const colIdx = findHeaderIndex(headers, "Dev Date Executed");
+              if (colIdx !== -1) updatedLastSyncedValues[headers[colIdx]] = devDateExecuted;
+              else updatedLastSyncedValues["Dev Date Executed"] = devDateExecuted;
+            }
+            if (devNotes !== undefined) {
+              updatedLastSyncedValues.devNotes = devNotes;
+              const colIdx = findHeaderIndex(headers, "Dev Notes");
+              if (colIdx !== -1) updatedLastSyncedValues[headers[colIdx]] = devNotes;
+              else updatedLastSyncedValues["Dev Notes"] = devNotes;
+            }
+            if (qaStatus !== undefined) {
+              updatedLastSyncedValues.qaStatus = qaStatus;
+              const colIdx = findHeaderIndex(headers, "QA Status");
+              if (colIdx !== -1) updatedLastSyncedValues[headers[colIdx]] = qaStatus;
+              else updatedLastSyncedValues["QA Status"] = qaStatus;
+            }
+            if (crossBrowserVerified !== undefined) {
+              updatedLastSyncedValues.crossBrowserVerified = crossBrowserVerified;
+              const colIdx = findHeaderIndex(headers, "cross browser Verfied ?");
+              if (colIdx !== -1) updatedLastSyncedValues[headers[colIdx]] = crossBrowserVerified;
+              else updatedLastSyncedValues["cross browser Verfied ?"] = crossBrowserVerified;
+            }
+            if (priority !== undefined) {
+              updatedLastSyncedValues.priority = priority;
+              const colIdx = findHeaderIndex(headers, "Priority");
+              if (colIdx !== -1) updatedLastSyncedValues[headers[colIdx]] = priority;
+              else updatedLastSyncedValues["Priority"] = priority;
+            }
           }
 
           docUpdates.lastSyncedValues = updatedLastSyncedValues;

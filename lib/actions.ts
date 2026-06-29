@@ -386,7 +386,7 @@ export async function createUser(formData: FormData) {
   if ((session?.user as any)?.role !== 'ADMIN') return { error: 'Unauthorized' };
 
   const name = formData.get('name') as string;
-  const email = formData.get('email') as string;
+  const email = (formData.get('email') as string)?.trim().toLowerCase();
   const password = formData.get('password') as string;
   const role = (formData.get('role') as string) || 'USER';
   const projectId = (formData.get('projectId') as string) || null;
@@ -435,7 +435,7 @@ export async function updateUser(userId: string, formData: FormData) {
   if ((session?.user as any)?.role !== 'ADMIN') return { error: 'Unauthorized' };
 
   const name = formData.get('name') as string;
-  const email = formData.get('email') as string;
+  const email = (formData.get('email') as string)?.trim().toLowerCase();
   const password = formData.get('password') as string;
   const role = (formData.get('role') as string) || 'USER';
   const projectId = (formData.get('projectId') as string) || null;
@@ -507,15 +507,16 @@ export async function deleteUser(userId: string) {
 
 async function getUserInfoByEmail(email: string) {
   if (!email) return null;
+  const normalizedEmail = email.trim().toLowerCase();
   try {
-    const snapshot = await adminDb.collection('users').where('email', '==', email).limit(1).get();
+    const snapshot = await adminDb.collection('users').where('email', '==', normalizedEmail).limit(1).get();
     if (snapshot.empty) return null;
     const doc = snapshot.docs[0];
     const data = doc.data();
     return {
       id: doc.id,
-      name: data.name || email,
-      email: data.email || email,
+      name: data.name || normalizedEmail,
+      email: data.email || normalizedEmail,
     };
   } catch (err) {
     console.error('Error fetching user by email:', err);
@@ -590,15 +591,24 @@ async function notifyProjectTeam(projectId: string, message: string, excludeUser
     const project = projDoc.data() || {};
     
     const emails = new Set<string>();
-    if (project.primaryQaEmail) emails.add(project.primaryQaEmail);
-    if (project.supportingQaEmail) emails.add(project.supportingQaEmail);
-    if (project.teamLeadEmail) emails.add(project.teamLeadEmail);
-    if (project.developerEmails) {
-      project.developerEmails.forEach((e: string) => emails.add(e));
-    }
+    const addEmail = (val: any) => {
+      if (!val) return;
+      if (Array.isArray(val)) {
+        val.forEach((e: string) => {
+          if (e && typeof e === 'string') emails.add(e.trim().toLowerCase());
+        });
+      } else if (typeof val === 'string') {
+        emails.add(val.trim().toLowerCase());
+      }
+    };
+
+    addEmail(project.primaryQaEmail);
+    addEmail(project.supportingQaEmail);
+    addEmail(project.teamLeadEmail);
+    addEmail(project.developerEmails);
     
     if (excludeUserEmail) {
-      emails.delete(excludeUserEmail);
+      emails.delete(excludeUserEmail.trim().toLowerCase());
     }
     
     if (emails.size === 0) return;

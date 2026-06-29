@@ -262,15 +262,17 @@ function MultiSelectDropdown({
 
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
-      <div>
+      <div className="relative flex items-center">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className={`inline-flex justify-between items-center w-full px-3 py-2 bg-white border text-slate-700 rounded-xl text-xs font-semibold outline-none shadow-sm hover:border-slate-300 focus:ring-4 focus:ring-[#ed5c37]/5 transition-all text-left gap-2 min-w-[140px] ${
-            selected.length > 0 ? "border-[#ed5c37]/40 bg-orange-50/30" : "border-slate-200"
+          className={`inline-flex justify-between items-center w-full pl-3 ${
+            selected.length > 0 ? "pr-8" : "pr-3"
+          } py-2 bg-white border text-slate-700 rounded-xl text-xs font-semibold outline-none shadow-sm hover:border-slate-300 focus:ring-4 focus:ring-[#ed5c37]/5 transition-all text-left gap-2 min-w-[140px] ${
+            selected.length > 0 ? "border-[#ed5c37]/40 bg-orange-50/30 text-[#ed5c37]" : "border-slate-200"
           }`}
         >
-          <span className="truncate max-w-[120px]">
+          <span className="truncate max-w-[95px]">
             {selected.length === 0
               ? `All ${label}s`
               : selected.length === options.length
@@ -281,20 +283,33 @@ function MultiSelectDropdown({
           </span>
           <ChevronRight className={`w-3.5 h-3.5 text-slate-400 transition-transform shrink-0 ${isOpen ? "rotate-90" : ""}`} />
         </button>
+        {selected.length > 0 && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              clearAll();
+            }}
+            className="absolute right-7 p-0.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+            title={`Clear ${label} filter`}
+          >
+            <X className="w-3 h-3" />
+          </button>
+        )}
       </div>
 
       {isOpen && (
-        <div className="origin-top-right absolute left-0 mt-2 w-64 rounded-2xl shadow-xl bg-white border border-slate-100 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-t-2xl">
-            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+        <div className="origin-top-right absolute left-0 mt-2 w-52 rounded-xl shadow-xl bg-white border border-slate-100 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="px-2.5 py-1.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-t-xl">
+            <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">
               Filter {label}
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {/* Select All / Deselect All toggle */}
               <button
                 type="button"
                 onClick={allSelected ? clearAll : selectAll}
-                className={`text-[9px] font-black uppercase tracking-widest cursor-pointer transition-colors ${
+                className={`text-[8px] font-black uppercase tracking-widest cursor-pointer transition-colors ${
                   allSelected
                     ? "text-[#ed5c37] hover:text-orange-700"
                     : "text-indigo-500 hover:text-indigo-700"
@@ -308,7 +323,7 @@ function MultiSelectDropdown({
                   <button
                     type="button"
                     onClick={clearAll}
-                    className="text-[9px] font-black text-rose-500 hover:text-rose-700 uppercase tracking-widest cursor-pointer"
+                    className="text-[8px] font-black text-rose-500 hover:text-rose-700 uppercase tracking-widest cursor-pointer"
                   >
                     Clear ({selected.length})
                   </button>
@@ -317,17 +332,17 @@ function MultiSelectDropdown({
             </div>
           </div>
 
-          <div className="p-2 border-b border-slate-100">
+          <div className="p-1.5 border-b border-slate-100">
             <input
               type="text"
               placeholder={`Search ${label}...`}
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-xs font-medium focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all"
+              className="w-full px-2 py-1 bg-slate-50 border border-slate-200 text-slate-700 rounded-md text-[11px] font-medium focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all"
             />
           </div>
 
-          <div className="max-h-60 overflow-y-auto p-1.5 space-y-0.5">
+          <div className="p-1 space-y-0.5 max-h-[350px] overflow-y-auto">
             {filteredOptions.map(option => {
               const isChecked = selected.includes(option);
               return (
@@ -335,23 +350,23 @@ function MultiSelectDropdown({
                   type="button"
                   key={option}
                   onClick={() => toggleOption(option)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
                     isChecked
                       ? "bg-orange-50/30 text-[#ed5c37] font-bold"
                       : "text-slate-600 hover:bg-slate-50"
                   }`}
                 >
-                  <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-all ${
+                  <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-all ${
                     isChecked ? "border-[#ed5c37] bg-[#ed5c37] text-white" : "border-slate-300"
                   }`}>
-                    {isChecked && <Check className="w-2.5 h-2.5 stroke-[4px]" />}
+                    {isChecked && <Check className="w-2 h-2 stroke-[4px]" />}
                   </div>
                   <span className="truncate">{option}</span>
                 </button>
               );
             })}
             {filteredOptions.length === 0 && (
-              <div className="text-center py-4 text-xs text-slate-400 font-medium">
+              <div className="text-center py-3 text-[11px] text-slate-400 font-medium">
                 No options found
               </div>
             )}
@@ -359,12 +374,12 @@ function MultiSelectDropdown({
 
           {/* Bottom action bar */}
           {selected.length > 0 && (
-            <div className="p-2 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl flex justify-between items-center">
-              <span className="text-[10px] font-semibold text-slate-400">{selected.length} selected</span>
+            <div className="p-1.5 border-t border-slate-100 bg-slate-50/50 rounded-b-xl flex justify-between items-center">
+              <span className="text-[9px] font-semibold text-slate-400">{selected.length} selected</span>
               <button
                 type="button"
                 onClick={() => { clearAll(); setIsOpen(false); }}
-                className="text-[10px] font-black text-rose-500 hover:text-rose-700 uppercase tracking-widest cursor-pointer px-2 py-1 rounded-lg hover:bg-rose-50 transition-all"
+                className="text-[9px] font-black text-rose-500 hover:text-rose-700 uppercase tracking-widest cursor-pointer px-1.5 py-0.5 rounded-md hover:bg-rose-50 transition-all"
               >
                 Clear Filter
               </button>
@@ -1569,27 +1584,32 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         {/* Global Toolbar buttons */}
         {mode === "google" && (
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowDirectConnectModal(true)}
-              className="btn-primary shadow-sm !py-2.5 !px-4 hover:shadow-[#ed5c37]/20 flex items-center gap-2 cursor-pointer"
-            >
-              <Link2 className="w-4 h-4" /> Connect / Import
-            </button>
-            <button
-              onClick={handleSyncNow}
-              disabled={syncing}
-              className="btn-primary shadow-sm !py-2.5 !px-4 hover:shadow-[#ed5c37]/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-              {syncing ? "Syncing..." : "Sync Now"}
-            </button>
-            <button
-              onClick={handleDisconnectSheet}
-              className="p-2.5 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer"
-              title="Disconnect Google Sheet"
-            >
-              <Link2Off className="w-5 h-5" />
-            </button>
+            {!sheetConnection ? (
+              <button
+                onClick={() => setShowDirectConnectModal(true)}
+                className="btn-primary shadow-sm !py-2.5 !px-4 hover:shadow-[#ed5c37]/20 flex items-center gap-2 cursor-pointer"
+              >
+                <Link2 className="w-4 h-4" /> Connect / Import
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleSyncNow}
+                  disabled={syncing}
+                  className="btn-primary shadow-sm !py-2.5 !px-4 hover:shadow-[#ed5c37]/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+                  {syncing ? "Syncing..." : "Sync Now"}
+                </button>
+                <button
+                  onClick={handleDisconnectSheet}
+                  className="p-2.5 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer"
+                  title="Disconnect Google Sheet"
+                >
+                  <Link2Off className="w-5 h-5" />
+                </button>
+              </>
+            )}
           </div>
         )}
 
@@ -2032,8 +2052,14 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                             <textarea
                               value={tc[col] || ""}
                               onChange={e => handleLocalCellChange(tc._internalId, col, e.target.value)}
-                              rows={Math.max(1, (tc[col] || "").split("\n").length)}
-                              className="w-full min-w-[220px] px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all resize-y whitespace-pre-wrap overflow-y-auto"
+                              rows={1}
+                              ref={(el) => {
+                                if (el) {
+                                  el.style.height = 'auto';
+                                  el.style.height = `${el.scrollHeight}px`;
+                                }
+                              }}
+                              className="w-full min-w-[220px] px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all resize-none whitespace-pre-wrap overflow-hidden"
                               placeholder="—"
                             />
                           )}
@@ -2193,9 +2219,9 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
           {/* Repository Tab Content */}
           {activeTab === "repository" && (
-            <div className="premium-card !p-0 overflow-hidden flex flex-col bg-white">
+            <div className="premium-card !p-0 flex flex-col bg-white" style={{ overflow: "visible" }}>
               {/* Filter and Search Bar */}
-              <div className="p-4 border-b border-slate-100 bg-slate-50/50 space-y-3">
+              <div className="p-4 border-b border-slate-100 bg-slate-50/50 space-y-3 rounded-t-2xl">
                 {/* Row 1: Search + Add Button */}
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="relative flex-1 min-w-[280px] group">
@@ -2344,11 +2370,25 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                         if (!res.ok || data.error) throw new Error(data.error || "Bulk update failed.");
                         // Update local state
                         setTestCases(prev =>
-                          prev.map(tc =>
-                            selectedCaseIds.includes(tc.testCaseId)
-                              ? { ...tc, [bulkField]: bulkValue }
-                              : tc
-                          )
+                          prev.map(tc => {
+                            if (selectedCaseIds.includes(tc.testCaseId)) {
+                              const updated = { ...tc, [bulkField]: bulkValue };
+                              const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();
+                              const normField = normalize(bulkField);
+                              const rawCol = googleColumns.find(col => {
+                                const normCol = normalize(col);
+                                if (normField === "crossbrowserverified") {
+                                  return normCol === "crossbrowserverified" || normCol === "crossbrowserverfied";
+                                }
+                                return normCol === normField;
+                              });
+                              if (rawCol) {
+                                updated[rawCol] = bulkValue;
+                              }
+                              return updated;
+                            }
+                            return tc;
+                          })
                         );
                         setSelectedCaseIds([]);
                         setToast({ message: `Bulk updated ${selectedCaseIds.length} test case(s) successfully!`, type: "success" });
@@ -2559,8 +2599,14 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                                   value={tc[col] || ""}
                                   onChange={e => handleGoogleCellChangeState(tc.testCaseId, col, e.target.value)}
                                   onBlur={e => handleGoogleCellSync(tc.testCaseId, col, e.target.value)}
-                                  rows={Math.max(1, (tc[col] || "").split("\n").length)}
-                                  className="w-full min-w-[220px] px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all resize-y whitespace-pre-wrap overflow-y-auto"
+                                  rows={1}
+                                  ref={(el) => {
+                                    if (el) {
+                                      el.style.height = 'auto';
+                                      el.style.height = `${el.scrollHeight}px`;
+                                    }
+                                  }}
+                                  className="w-full min-w-[220px] px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all resize-none whitespace-pre-wrap overflow-hidden"
                                   placeholder="—"
                                 />
                               )}
@@ -2601,7 +2647,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
               </div>
 
               {totalPages > 1 && (
-                <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between rounded-b-2xl">
                   <span className="text-xs text-slate-500 font-semibold">
                     Page {page} of {totalPages}
                   </span>
