@@ -217,15 +217,6 @@
       ],
       "documents": [],
       "googleSheet": null,
-      "primaryQaName": [
-        "Tirth Mistry mistry Mistry"
-      ],
-      "assignee_name": "Tirth Mistry mistry Mistry",
-      "updated_at": {
-        "seconds": 1782722243,
-        "nanoseconds": 964000000
-      },
-      "status": "ON_HOLD",
       "timeline": {
         "uatSupport": {
           "status": "In Progress",
@@ -277,7 +268,16 @@
       "favoritedBy": [
         "tirth.citrusbug@gmail.com",
         "jay5.citrusbug@gmail.com"
-      ]
+      ],
+      "updated_at": {
+        "seconds": 1782801566,
+        "nanoseconds": 970000000
+      },
+      "primaryQaName": [
+        "Tirth Mistry"
+      ],
+      "assignee_name": "Tirth Mistry",
+      "status": "ACTIVE"
     },
     "QcnSaWAHmkEn9koHlW3j": {
       "code": "PROJ-4514",
@@ -371,11 +371,12 @@
         "seconds": 1782621124,
         "nanoseconds": 956000000
       },
+      "favoritedBy": [],
       "googleSheet": {
         "url": "https://docs.google.com/spreadsheets/d/1HQsorU6rf9PnGIZDO-f8UdkWg8udwc8LsFFUSOrIrMU/edit?usp=sharing",
         "sheetId": "1HQsorU6rf9PnGIZDO-f8UdkWg8udwc8LsFFUSOrIrMU",
         "connectedBy": "jay5.citrusbug@gmail.com",
-        "importedCount": 1,
+        "importedCount": 7,
         "headers": [
           "Test Case ID",
           "Module",
@@ -393,31 +394,14 @@
           "JIRA Ticket"
         ],
         "connectedAt": {
-          "seconds": 1782733886,
-          "nanoseconds": 268000000
+          "seconds": 1782801240,
+          "nanoseconds": 330000000
         },
         "lastSyncAt": {
-          "seconds": 1782738403,
-          "nanoseconds": 760000000
+          "seconds": 1782804560,
+          "nanoseconds": 950000000
         }
-      },
-      "googleSheet.lastSyncAt": "2026-06-29T13:09:42.434Z",
-      "googleSheet.headers": [
-        "Test Case ID",
-        "Module",
-        "Test Case Title",
-        "Pre-Conditions",
-        "Test Steps",
-        "Test Data",
-        "Expected Result",
-        "Dev Status",
-        "Dev Date Executed",
-        "Dev Notes",
-        "QA Status",
-        "cross browser Verfied ?",
-        "Priority",
-        "JIRA Ticket"
-      ]
+      }
     }
   },
   "tasks": {

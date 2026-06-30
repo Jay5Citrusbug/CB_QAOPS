@@ -113,8 +113,8 @@ type LocalNormalisedStatus = "Pass" | "Fail" | "TBD" | "Pending" | "N/A";
 const LOCAL_STATUS_MAP: Record<string, LocalNormalisedStatus> = {
   pass: "Pass", passed: "Pass", "✓": "Pass",
   fail: "Fail", failed: "Fail", "✗": "Fail",
-  tbd: "TBD", "to be done": "TBD",
-  pending: "Pending", "not started": "Pending", "": "Pending", null: "Pending", undefined: "Pending",
+  tbd: "TBD", "to be done": "TBD", blocked: "TBD",
+  pending: "Pending", "not started": "Pending", "not run": "Pending", "": "Pending", null: "Pending", undefined: "Pending",
   "n/a": "N/A", na: "N/A", "not applicable": "N/A",
 };
 
@@ -459,6 +459,18 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
   const [localSearch, setLocalSearch] = useState("");
   const [localModuleFilter, setLocalModuleFilter] = useState<string>("all");
   const [localJiraFilter, setLocalJiraFilter] = useState<string>("all");
+
+  // Read search query from URL on client mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const queryParams = new URLSearchParams(window.location.search);
+      const q = queryParams.get("search") || "";
+      if (q) {
+        setSearch(q);
+        setLocalSearch(q);
+      }
+    }
+  }, []);
 
   // Selection & Bulk Updates
   const [selectedCaseIds, setSelectedCaseIds] = useState<string[]>([]);
@@ -1338,17 +1350,25 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     if (normName === "qastatus") {
       setOverallMetrics((prev: any) => {
         if (!prev) return prev;
-        const newMetrics = { ...prev };
-        const oldVal = (oldValue || "Not Run") as QAStatus;
-        const newVal = (value || "Not Run") as QAStatus;
-
-        const decKey = oldVal === "Not Run" ? "notRun" : oldVal === "Passed" ? "passed" : oldVal === "Failed" ? "failed" : oldVal === "Blocked" ? "blocked" : null;
-        const incKey = newVal === "Not Run" ? "notRun" : newVal === "Passed" ? "passed" : newVal === "Failed" ? "failed" : newVal === "Blocked" ? "blocked" : null;
-
-        if (decKey && newMetrics[decKey] > 0) newMetrics[decKey]--;
-        if (incKey) newMetrics[incKey]++;
-
-        newMetrics.execPercent = newMetrics.total > 0 ? Math.round(((newMetrics.total - newMetrics.notRun) / newMetrics.total) * 100) : 0;
+        const newMetrics = JSON.parse(JSON.stringify(prev));
+        const oldStatus = normalizeLocalStatus(oldValue);
+        const newStatus = normalizeLocalStatus(value);
+        if (newMetrics.qa[oldStatus] > 0) newMetrics.qa[oldStatus]--;
+        newMetrics.qa[newStatus] = (newMetrics.qa[newStatus] || 0) + 1;
+        newMetrics.qa.completed = newMetrics.qa.total - newMetrics.qa.Pending - newMetrics.qa.TBD;
+        newMetrics.qa.passRate = newMetrics.qa.total > 0 ? Math.round((newMetrics.qa.Pass / newMetrics.qa.total) * 100) : 0;
+        return newMetrics;
+      });
+    } else if (normName === "devstatus") {
+      setOverallMetrics((prev: any) => {
+        if (!prev) return prev;
+        const newMetrics = JSON.parse(JSON.stringify(prev));
+        const oldStatus = normalizeLocalStatus(oldValue);
+        const newStatus = normalizeLocalStatus(value);
+        if (newMetrics.dev[oldStatus] > 0) newMetrics.dev[oldStatus]--;
+        newMetrics.dev[newStatus] = (newMetrics.dev[newStatus] || 0) + 1;
+        newMetrics.dev.completed = newMetrics.dev.total - newMetrics.dev.Pending - newMetrics.dev.TBD;
+        newMetrics.dev.passRate = newMetrics.dev.total > 0 ? Math.round((newMetrics.dev.Pass / newMetrics.dev.total) * 100) : 0;
         return newMetrics;
       });
     }
@@ -1391,17 +1411,25 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       if (normName === "qastatus") {
         setOverallMetrics((prev: any) => {
           if (!prev) return prev;
-          const newMetrics = { ...prev };
-          const oldVal = (value || "Not Run") as QAStatus;
-          const newVal = (oldValue || "Not Run") as QAStatus;
-
-          const decKey = oldVal === "Not Run" ? "notRun" : oldVal === "Passed" ? "passed" : oldVal === "Failed" ? "failed" : oldVal === "Blocked" ? "blocked" : null;
-          const incKey = newVal === "Not Run" ? "notRun" : newVal === "Passed" ? "passed" : newVal === "Failed" ? "failed" : newVal === "Blocked" ? "blocked" : null;
-
-          if (decKey && newMetrics[decKey] > 0) newMetrics[decKey]--;
-          if (incKey) newMetrics[incKey]++;
-
-          newMetrics.execPercent = newMetrics.total > 0 ? Math.round(((newMetrics.total - newMetrics.notRun) / newMetrics.total) * 100) : 0;
+          const newMetrics = JSON.parse(JSON.stringify(prev));
+          const oldStatus = normalizeLocalStatus(value);
+          const newStatus = normalizeLocalStatus(oldValue);
+          if (newMetrics.qa[oldStatus] > 0) newMetrics.qa[oldStatus]--;
+          newMetrics.qa[newStatus] = (newMetrics.qa[newStatus] || 0) + 1;
+          newMetrics.qa.completed = newMetrics.qa.total - newMetrics.qa.Pending - newMetrics.qa.TBD;
+          newMetrics.qa.passRate = newMetrics.qa.total > 0 ? Math.round((newMetrics.qa.Pass / newMetrics.qa.total) * 100) : 0;
+          return newMetrics;
+        });
+      } else if (normName === "devstatus") {
+        setOverallMetrics((prev: any) => {
+          if (!prev) return prev;
+          const newMetrics = JSON.parse(JSON.stringify(prev));
+          const oldStatus = normalizeLocalStatus(value);
+          const newStatus = normalizeLocalStatus(oldValue);
+          if (newMetrics.dev[oldStatus] > 0) newMetrics.dev[oldStatus]--;
+          newMetrics.dev[newStatus] = (newMetrics.dev[newStatus] || 0) + 1;
+          newMetrics.dev.completed = newMetrics.dev.total - newMetrics.dev.Pending - newMetrics.dev.TBD;
+          newMetrics.dev.passRate = newMetrics.dev.total > 0 ? Math.round((newMetrics.dev.Pass / newMetrics.dev.total) * 100) : 0;
           return newMetrics;
         });
       }
@@ -1455,26 +1483,28 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         .then(data => {
           if (data.testCases) {
             const all = data.testCases as TestCase[];
-            const total = all.length;
-            const passed = all.filter(t => t.qaStatus === "Passed").length;
-            const failed = all.filter(t => t.qaStatus === "Failed").length;
-            const blocked = all.filter(t => t.qaStatus === "Blocked").length;
-            const notRun = all.filter(t => t.qaStatus === "Not Run" || !t.qaStatus).length;
-            const execPercent = total > 0 ? Math.round(((total - notRun) / total) * 100) : 0;
+            const devCounts = { Pass: 0, Fail: 0, TBD: 0, Pending: 0, "N/A": 0 };
+            const qaCounts = { Pass: 0, Fail: 0, TBD: 0, Pending: 0, "N/A": 0 };
 
-            const prioritiesCount = { Low: 0, Medium: 0, High: 0, Critical: 0 };
             all.forEach(t => {
-              if (t.priority in prioritiesCount) prioritiesCount[t.priority]++;
+              const devStatus = normalizeLocalStatus(t.devStatus);
+              devCounts[devStatus]++;
+
+              const qaStatus = normalizeLocalStatus(t.qaStatus);
+              qaCounts[qaStatus]++;
             });
 
+            const devTotal = all.length;
+            const devCompleted = devTotal - devCounts.Pending - devCounts.TBD;
+            const devPassRate = devTotal > 0 ? Math.round((devCounts.Pass / devTotal) * 100) : 0;
+
+            const qaTotal = all.length;
+            const qaCompleted = qaTotal - qaCounts.Pending - qaCounts.TBD;
+            const qaPassRate = qaTotal > 0 ? Math.round((qaCounts.Pass / qaTotal) * 100) : 0;
+
             setOverallMetrics({
-              total,
-              passed,
-              failed,
-              blocked,
-              notRun,
-              execPercent,
-              prioritiesCount,
+              dev: { total: devTotal, completed: devCompleted, passRate: devPassRate, ...devCounts },
+              qa: { total: qaTotal, completed: qaCompleted, passRate: qaPassRate, ...qaCounts },
             });
           }
         })
@@ -1615,12 +1645,6 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
         {mode === "local" && (
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowDirectConnectModal(true)}
-              className="btn-primary shadow-sm !py-2.5 !px-4 hover:shadow-[#ed5c37]/20 flex items-center gap-2 cursor-pointer"
-            >
-              <Link2 className="w-4 h-4" /> Connect / Import
-            </button>
             <button
               onClick={handleLocalExport}
               className="btn-primary !bg-slate-800 hover:!bg-slate-900 border border-slate-700 shadow-none !py-2.5 !px-4"
@@ -1818,7 +1842,11 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                 )}
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 pt-4 border-t border-slate-100">
+              <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 pt-4 border-t border-slate-100">
+                <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-slate-50">
+                  <span className="text-xl font-black text-slate-700">{localDevSum.total}</span>
+                  <span className="text-[9px] font-black uppercase text-slate-600">Total</span>
+                </div>
                 <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-green-50">
                   <span className="text-xl font-black text-green-700">{localDevSum.Pass}</span>
                   <span className="text-[9px] font-black uppercase text-green-600">Pass</span>
@@ -1833,7 +1861,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                 </div>
                 <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-slate-50">
                   <span className="text-xl font-black text-slate-700">{localDevSum.Pending}</span>
-                  <span className="text-[9px] font-black uppercase text-slate-600">Pending</span>
+                  <span className="text-[9px] font-black uppercase text-slate-600">Not Started</span>
                 </div>
                 <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-yellow-50">
                   <span className="text-xl font-black text-yellow-700">{localDevSum["N/A"]}</span>
@@ -1891,7 +1919,11 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                 )}
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 pt-4 border-t border-slate-100">
+              <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 pt-4 border-t border-slate-100">
+                <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-slate-50">
+                  <span className="text-xl font-black text-slate-700">{localQaSum.total}</span>
+                  <span className="text-[9px] font-black uppercase text-slate-600">Total</span>
+                </div>
                 <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-green-50">
                   <span className="text-xl font-black text-green-700">{localQaSum.Pass}</span>
                   <span className="text-[9px] font-black uppercase text-green-600">Pass</span>
@@ -1906,7 +1938,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                 </div>
                 <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-slate-50">
                   <span className="text-xl font-black text-slate-700">{localQaSum.Pending}</span>
-                  <span className="text-[9px] font-black uppercase text-slate-600">Pending</span>
+                  <span className="text-[9px] font-black uppercase text-slate-600">Not Run</span>
                 </div>
                 <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-yellow-50">
                   <span className="text-xl font-black text-yellow-700">{localQaSum["N/A"]}</span>
@@ -2086,98 +2118,158 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         <div className="space-y-6">
           {/* Dashboard Metrics Panel */}
           {overallMetrics && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="premium-card !p-4 flex flex-col justify-between h-28 relative overflow-hidden bg-gradient-to-br from-white to-slate-50/50">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Cases</span>
-                  <span className="text-3xl font-black text-slate-900 leading-none">{overallMetrics.total}</span>
-                  <div className="absolute right-3 bottom-3 text-slate-100 opacity-20">
-                    <Layers className="w-12 h-12" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Dev Status */}
+              <div className="premium-card p-6 flex flex-col gap-6 relative overflow-hidden bg-white">
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500" />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">Dev Status Summary</h3>
+                    <p className="text-sm font-medium text-slate-500">
+                      {overallMetrics.dev.completed} of {overallMetrics.dev.total} Completed
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-black text-blue-500">{overallMetrics.dev.passRate}%</div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pass Rate</div>
                   </div>
                 </div>
 
-                <div className="premium-card !p-4 flex flex-col justify-between h-28 relative overflow-hidden border-l-4 border-l-emerald-500 bg-gradient-to-br from-white to-emerald-50/10">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Passed</span>
-                  <span className="text-3xl font-black text-emerald-700 leading-none">{overallMetrics.passed}</span>
-                  <span className="text-[9px] font-semibold text-slate-400">
-                    {overallMetrics.total > 0 ? Math.round((overallMetrics.passed / overallMetrics.total) * 100) : 0}%
-                  </span>
+                <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden flex">
+                  {overallMetrics.dev.Pass > 0 && (
+                    <div
+                      className="bg-green-500 h-full transition-all duration-300"
+                      style={{ width: `${(overallMetrics.dev.Pass / overallMetrics.dev.total) * 100}%` }}
+                    />
+                  )}
+                  {overallMetrics.dev.Fail > 0 && (
+                    <div
+                      className="bg-red-500 h-full transition-all duration-300"
+                      style={{ width: `${(overallMetrics.dev.Fail / overallMetrics.dev.total) * 100}%` }}
+                    />
+                  )}
+                  {overallMetrics.dev.TBD > 0 && (
+                    <div
+                      className="bg-blue-400 h-full transition-all duration-300"
+                      style={{ width: `${(overallMetrics.dev.TBD / overallMetrics.dev.total) * 100}%` }}
+                    />
+                  )}
+                  {overallMetrics.dev.Pending > 0 && (
+                    <div
+                      className="bg-slate-300 h-full transition-all duration-300"
+                      style={{ width: `${(overallMetrics.dev.Pending / overallMetrics.dev.total) * 100}%` }}
+                    />
+                  )}
+                  {overallMetrics.dev["N/A"] > 0 && (
+                    <div
+                      className="bg-yellow-400 h-full transition-all duration-300"
+                      style={{ width: `${(overallMetrics.dev["N/A"] / overallMetrics.dev.total) * 100}%` }}
+                    />
+                  )}
                 </div>
 
-                <div className="premium-card !p-4 flex flex-col justify-between h-28 relative overflow-hidden border-l-4 border-l-rose-500 bg-gradient-to-br from-white to-rose-50/10">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Failed</span>
-                  <span className="text-3xl font-black text-rose-700 leading-none">{overallMetrics.failed}</span>
-                  <span className="text-[9px] font-semibold text-slate-400">
-                    {overallMetrics.total > 0 ? Math.round((overallMetrics.failed / overallMetrics.total) * 100) : 0}%
-                  </span>
-                </div>
-
-                <div className="premium-card !p-4 flex flex-col justify-between h-28 relative overflow-hidden border-l-4 border-l-amber-500 bg-gradient-to-br from-white to-amber-50/10">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Blocked</span>
-                  <span className="text-3xl font-black text-amber-700 leading-none">{overallMetrics.blocked}</span>
-                  <span className="text-[9px] font-semibold text-slate-400">
-                    {overallMetrics.total > 0 ? Math.round((overallMetrics.blocked / overallMetrics.total) * 100) : 0}%
-                  </span>
-                </div>
-
-                <div className="premium-card !p-4 flex flex-col justify-between h-28 relative overflow-hidden border-l-4 border-l-slate-400 bg-gradient-to-br from-white to-slate-50/10">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Not Run</span>
-                  <span className="text-3xl font-black text-slate-700 leading-none">{overallMetrics.notRun}</span>
-                  <span className="text-[9px] font-semibold text-slate-400">
-                    {overallMetrics.total > 0 ? Math.round((overallMetrics.notRun / overallMetrics.total) * 100) : 0}%
-                  </span>
-                </div>
-
-                <div className="premium-card !p-4 flex flex-col justify-between h-28 relative overflow-hidden border-l-4 border-l-[#ed5c37] bg-gradient-to-br from-white to-orange-50/10">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#ed5c37]">Completion</span>
-                  <span className="text-3xl font-black text-slate-900 leading-none">{overallMetrics.execPercent}%</span>
-                  <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                    <div className="bg-[#ed5c37] h-1.5 rounded-full" style={{ width: `${overallMetrics.execPercent}%` }} />
+                <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 pt-4 border-t border-slate-100">
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-slate-50">
+                    <span className="text-xl font-black text-slate-700">{overallMetrics.dev.total}</span>
+                    <span className="text-[9px] font-black uppercase text-slate-600">Total</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-green-50">
+                    <span className="text-xl font-black text-green-700">{overallMetrics.dev.Pass}</span>
+                    <span className="text-[9px] font-black uppercase text-green-600">Pass</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-red-50">
+                    <span className="text-xl font-black text-red-700">{overallMetrics.dev.Fail}</span>
+                    <span className="text-[9px] font-black uppercase text-red-600">Fail</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-blue-50">
+                    <span className="text-xl font-black text-blue-700">{overallMetrics.dev.TBD}</span>
+                    <span className="text-[9px] font-black uppercase text-blue-600">TBD</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-slate-50">
+                    <span className="text-xl font-black text-slate-700">{overallMetrics.dev.Pending}</span>
+                    <span className="text-[9px] font-black uppercase text-slate-600">Not Started</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-yellow-50">
+                    <span className="text-xl font-black text-yellow-700">{overallMetrics.dev["N/A"]}</span>
+                    <span className="text-[9px] font-black uppercase text-yellow-600">N/A</span>
                   </div>
                 </div>
               </div>
 
-              {/* Progress bar */}
-              <div className="premium-card !p-5 space-y-3 bg-white">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                  <span className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#ed5c37]" />
-                    QA Execution Progress
-                  </span>
-                  <span>
-                    {overallMetrics.total - overallMetrics.notRun} of {overallMetrics.total} Executed
-                  </span>
+              {/* QA Status */}
+              <div className="premium-card p-6 flex flex-col gap-6 relative overflow-hidden bg-white">
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-[#ed5c37]" />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">QA Status Summary</h3>
+                    <p className="text-sm font-medium text-slate-500">
+                      {overallMetrics.qa.completed} of {overallMetrics.qa.total} Completed
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-black text-[#ed5c37]">{overallMetrics.qa.passRate}%</div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pass Rate</div>
+                  </div>
                 </div>
 
-                <div className="h-4 w-full bg-slate-100 rounded-xl overflow-hidden flex shadow-inner border border-slate-200/50">
-                  {overallMetrics.passed > 0 && (
+                <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden flex">
+                  {overallMetrics.qa.Pass > 0 && (
                     <div
-                      className="bg-emerald-500 h-full transition-all duration-500 hover:brightness-95 cursor-pointer"
-                      style={{ width: `${(overallMetrics.passed / overallMetrics.total) * 100}%` }}
-                      title={`Passed: ${overallMetrics.passed}`}
+                      className="bg-green-500 h-full transition-all duration-300"
+                      style={{ width: `${(overallMetrics.qa.Pass / overallMetrics.qa.total) * 100}%` }}
                     />
                   )}
-                  {overallMetrics.failed > 0 && (
+                  {overallMetrics.qa.Fail > 0 && (
                     <div
-                      className="bg-rose-500 h-full transition-all duration-500 hover:brightness-95 cursor-pointer"
-                      style={{ width: `${(overallMetrics.failed / overallMetrics.total) * 100}%` }}
-                      title={`Failed: ${overallMetrics.failed}`}
+                      className="bg-red-500 h-full transition-all duration-300"
+                      style={{ width: `${(overallMetrics.qa.Fail / overallMetrics.qa.total) * 100}%` }}
                     />
                   )}
-                  {overallMetrics.blocked > 0 && (
+                  {overallMetrics.qa.TBD > 0 && (
                     <div
-                      className="bg-amber-400 h-full transition-all duration-500 hover:brightness-95 cursor-pointer"
-                      style={{ width: `${(overallMetrics.blocked / overallMetrics.total) * 100}%` }}
-                      title={`Blocked: ${overallMetrics.blocked}`}
+                      className="bg-blue-400 h-full transition-all duration-300"
+                      style={{ width: `${(overallMetrics.qa.TBD / overallMetrics.qa.total) * 100}%` }}
                     />
                   )}
-                  {overallMetrics.notRun > 0 && (
+                  {overallMetrics.qa.Pending > 0 && (
                     <div
-                      className="bg-slate-200 h-full transition-all duration-500 hover:brightness-95 cursor-pointer"
-                      style={{ width: `${(overallMetrics.notRun / overallMetrics.total) * 100}%` }}
-                      title={`Not Run: ${overallMetrics.notRun}`}
+                      className="bg-slate-300 h-full transition-all duration-300"
+                      style={{ width: `${(overallMetrics.qa.Pending / overallMetrics.qa.total) * 100}%` }}
                     />
                   )}
+                  {overallMetrics.qa["N/A"] > 0 && (
+                    <div
+                      className="bg-yellow-400 h-full transition-all duration-300"
+                      style={{ width: `${(overallMetrics.qa["N/A"] / overallMetrics.qa.total) * 100}%` }}
+                    />
+                  )}
+                </div>
+
+                <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 pt-4 border-t border-slate-100">
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-slate-50">
+                    <span className="text-xl font-black text-slate-700">{overallMetrics.qa.total}</span>
+                    <span className="text-[9px] font-black uppercase text-slate-600">Total</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-green-50">
+                    <span className="text-xl font-black text-green-700">{overallMetrics.qa.Pass}</span>
+                    <span className="text-[9px] font-black uppercase text-green-600">Pass</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-red-50">
+                    <span className="text-xl font-black text-red-700">{overallMetrics.qa.Fail}</span>
+                    <span className="text-[9px] font-black uppercase text-red-600">Fail</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-blue-50">
+                    <span className="text-xl font-black text-blue-700">{overallMetrics.qa.TBD}</span>
+                    <span className="text-[9px] font-black uppercase text-blue-600">TBD</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-slate-50">
+                    <span className="text-xl font-black text-slate-700">{overallMetrics.qa.Pending}</span>
+                    <span className="text-[9px] font-black uppercase text-slate-600">Not Run</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl flex flex-col items-center justify-center bg-yellow-50">
+                    <span className="text-xl font-black text-yellow-700">{overallMetrics.qa["N/A"]}</span>
+                    <span className="text-[9px] font-black uppercase text-yellow-600">N/A</span>
+                  </div>
                 </div>
               </div>
             </div>

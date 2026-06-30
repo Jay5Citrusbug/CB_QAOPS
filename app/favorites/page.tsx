@@ -136,14 +136,13 @@ export default function FavoritesPage() {
   const fetchTestCases = async (projectsList: Project[]) => {
     setTestCasesLoading(true);
     try {
-      const favoritedProjectsList = projectsList.filter(p => p.favoritedBy?.includes(userEmail));
-      
-      const promises = favoritedProjectsList.map(async (p) => {
+      const promises = projectsList.map(async (p) => {
         const res = await fetch(`/api/projects/${p.id}/test-cases?limit=1000`);
         if (res.ok) {
           const data = await res.json();
           const cases = data.testCases || [];
-          return cases.map((tc: any) => ({
+          const favoritedCases = cases.filter((tc: any) => tc.favoritedBy?.includes(userEmail));
+          return favoritedCases.map((tc: any) => ({
             ...tc,
             projectId: p.id,
             projectName: p.name,
@@ -261,24 +260,12 @@ export default function FavoritesPage() {
   const handleUnfavoriteTestCase = async (projectId: string, testCaseId: string) => {
     try {
       setIsSyncing(true);
-      const res = await toggleProjectFavorite(projectId);
+      const res = await toggleTestCaseFavorite(projectId, testCaseId);
       if (res && "error" in res) {
         setToast({ message: res.error || "Failed to update favorites", type: "error" });
       } else {
-        setToast({ message: "Removed project and its test cases from favorites", type: "success" });
-        setProjects(prev =>
-          prev.map(p => {
-            if (p.id === projectId) {
-              const favs = p.favoritedBy || [];
-              return {
-                ...p,
-                favoritedBy: favs.filter(email => email !== userEmail)
-              };
-            }
-            return p;
-          })
-        );
-        setTestCases(prev => prev.filter(tc => tc.projectId !== projectId));
+        setToast({ message: "Removed test case from favorites", type: "success" });
+        setTestCases(prev => prev.filter(tc => !(tc.projectId === projectId && tc.testCaseId === testCaseId)));
       }
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
@@ -737,9 +724,9 @@ export default function FavoritesPage() {
                       </button>
 
                       <Link
-                        href={`/test-cases/${tc.projectId}`}
+                        href={`/test-cases/${tc.projectId}?search=${tc.testCaseId}`}
                         className="p-2.5 text-slate-500 hover:text-[#ed5c37] hover:bg-slate-100 rounded-xl shadow-xs border border-slate-150 transition-all bg-white flex items-center justify-center"
-                        title="Open Test Case Suite"
+                        title="Open Test Case"
                       >
                         <ExternalLink className="w-4 h-4" />
                       </Link>
