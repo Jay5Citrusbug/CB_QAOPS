@@ -14,20 +14,20 @@ import Link from "next/link";
 
 interface DashboardClientProps {
   session: any;
-  projects: Array<{ id: string; name: string; status: string }>;
-  taskLists: Array<{ id: string; name: string; description: string }>;
-  allTasks: any[];
-  dailyStatuses: any[];
+  projects?: Array<{ id: string; name: string; status: string }>;
+  taskLists?: Array<{ id: string; name: string; description: string }>;
+  allTasks?: any[];
+  dailyStatuses?: any[];
   users?: Array<{ id: string; name: string; email: string; role: string }>;
 }
 
 export default function DashboardClient({
   session,
-  projects,
-  taskLists,
-  allTasks,
-  dailyStatuses,
-  users = []
+  projects: initialProjects,
+  taskLists: initialTaskLists,
+  allTasks: initialAllTasks,
+  dailyStatuses: initialDailyStatuses,
+  users: initialUsers = []
 }: DashboardClientProps) {
   const router = useRouter();
   const userEmail = session?.user?.email || "";
@@ -35,10 +35,40 @@ export default function DashboardClient({
   const userRole = session?.user?.role || "USER";
   const isQaLead = userRole === "ADMIN" || userRole === "TL";
 
+  const [projects, setProjects] = useState<any[]>(() => initialProjects || []);
+  const [taskLists, setTaskLists] = useState<any[]>(() => initialTaskLists || []);
+  const [allTasks, setAllTasks] = useState<any[]>(() => initialAllTasks || []);
+  const [dailyStatuses, setDailyStatuses] = useState<any[]>(() => initialDailyStatuses || []);
+  const [users, setUsers] = useState<any[]>(() => initialUsers || []);
+  const [loadingData, setLoadingData] = useState(() => !initialProjects || initialProjects.length === 0);
+
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!initialProjects || initialProjects.length === 0) {
+      const loadDashboardData = async () => {
+        try {
+          const res = await fetch("/api/dashboard");
+          const data = await res.json();
+          if (data.error) throw new Error(data.error);
+
+          setProjects(data.projects || []);
+          setTaskLists(data.taskLists || []);
+          setAllTasks(data.allTasks || []);
+          setDailyStatuses(data.dailyStatuses || []);
+          setUsers(data.users || []);
+        } catch (err) {
+          console.error("Failed to load dashboard data on client:", err);
+        } finally {
+          setLoadingData(false);
+        }
+      };
+      loadDashboardData();
+    }
+  }, [initialProjects]);
 
   // --- Recent Activity Items (localStorage-backed) ---
   type RecentItem = { id: string; label: string; sub: string; href: string; type: 'project' | 'testcase' | 'projectdoc' | 'qadoc'; visitedAt: number; };
@@ -520,9 +550,13 @@ export default function DashboardClient({
         </div>
       </div>
 
-      {/* View Toggle Tabs for QA Lead / Admin */}
-      {isQaLead && !viewingUserId && (
-        <div className="flex border-b border-slate-200/80 pb-px gap-6 text-sm font-semibold select-none">
+      {loadingData ? (
+        <DashboardSkeleton />
+      ) : (
+        <>
+          {/* View Toggle Tabs for QA Lead / Admin */}
+          {isQaLead && !viewingUserId && (
+            <div className="flex border-b border-slate-200/80 pb-px gap-6 text-sm font-semibold select-none">
           <button
             onClick={() => setActiveTab("MY_DASH")}
             className={`pb-2.5 px-1 relative transition-colors cursor-pointer ${
@@ -1060,6 +1094,8 @@ export default function DashboardClient({
           )}
         </>
       )}
+      </>
+      )}
 
       {/* Quick View Drawer / Modal */}
       {activeTask && (
@@ -1199,6 +1235,76 @@ export default function DashboardClient({
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Skeletons for KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm flex items-center gap-4 animate-pulse">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 shrink-0" />
+            <div className="space-y-2 flex-1">
+              <div className="h-2 bg-slate-200 rounded w-16" />
+              <div className="h-4 bg-slate-200 rounded w-8" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Skeletons for Row 1 (Two Columns) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm min-h-[380px] flex flex-col justify-between animate-pulse">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="h-4 bg-slate-200 rounded w-32" />
+              <div className="h-3 bg-slate-100 rounded w-16" />
+            </div>
+            <div className="space-y-3">
+              {[1, 2, 3].map(idx => (
+                <div key={idx} className="h-16 bg-slate-50 border border-slate-100 rounded-2xl" />
+              ))}
+            </div>
+          </div>
+          <div className="h-8 bg-slate-50 rounded-xl w-24 mx-auto" />
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm min-h-[380px] flex flex-col justify-between animate-pulse">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="h-4 bg-slate-200 rounded w-32" />
+              <div className="h-3 bg-slate-100 rounded w-16" />
+            </div>
+            <div className="space-y-3">
+              {[1, 2, 3].map(idx => (
+                <div key={idx} className="h-16 bg-slate-50 border border-slate-100 rounded-2xl" />
+              ))}
+            </div>
+          </div>
+          <div className="h-8 bg-slate-50 rounded-xl w-24 mx-auto" />
+        </div>
+      </div>
+
+      {/* Skeleton for Quick Access */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm animate-pulse space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-slate-100 shrink-0" />
+            <div className="space-y-1.5">
+              <div className="h-3 bg-slate-200 rounded w-24" />
+              <div className="h-2 bg-slate-100 rounded w-32" />
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(idx => (
+            <div key={idx} className="h-24 bg-slate-50 border border-slate-100 rounded-2xl" />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

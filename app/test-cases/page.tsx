@@ -24,22 +24,25 @@ interface Project {
 
 export default function TestCasesProjectsPage() {
   const { data: session } = useSession();
-  const [projects, setProjects] = useState<Project[]>(() => {
-    if (typeof window !== "undefined") {
-      const cached = localStorage.getItem("cbqops_projects_list");
-      return cached ? JSON.parse(cached) : [];
-    }
-    return [];
-  });
+  const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(() => {
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<"GRID" | "LIST">("GRID");
+
+  // Client-side cache load on mount
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const cached = localStorage.getItem("cbqops_projects_list");
-      return !cached;
+      if (cached) {
+        try {
+          setProjects(JSON.parse(cached));
+          setLoading(false);
+        } catch {
+          // Ignore parse errors
+        }
+      }
     }
-    return true;
-  });
-  const [viewMode, setViewMode] = useState<"GRID" | "LIST">("GRID");
+  }, []);
 
   useEffect(() => {
     const fetchProjects = async () => {

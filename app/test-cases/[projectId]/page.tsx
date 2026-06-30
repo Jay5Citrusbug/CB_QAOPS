@@ -4,8 +4,6 @@ import { useState, useEffect, use, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useConfirm } from "@/components/providers/ConfirmProvider";
-import Papa from "papaparse";
-import * as XLSX from "xlsx";
 import {
   UploadCloud,
   Download,
@@ -413,6 +411,36 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     }
   }, [toast]);
 
+  // Load connection details from localStorage cache on mount (client-side only)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const cachedConnection = localStorage.getItem(`cbqops_gsconnection_${projectId}`);
+      const cachedLocal = localStorage.getItem(`cbqops_testcases_${projectId}`);
+
+      if (cachedConnection) {
+        try {
+          const parsedConn = JSON.parse(cachedConnection);
+          setSheetConnection(parsedConn);
+          setSheetUrl(parsedConn.url || "");
+          setMode("google");
+          setLoading(false);
+        } catch {
+          // Ignore parse error
+        }
+      } else if (cachedLocal) {
+        try {
+          const parsedCases = JSON.parse(cachedLocal);
+          if (parsedCases.length > 0) {
+            setMode("local");
+            setLoading(false);
+          }
+        } catch {
+          // Ignore parse error
+        }
+      }
+    }
+  }, [projectId]);
+
   // Navigation tabs for Google Mode
   const [activeTab, setActiveTab] = useState<"repository" | "history" | "audit">("repository");
 
@@ -431,7 +459,6 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
   const [localLoading, setLocalLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Connection forms
   const [sheetUrl, setSheetUrl] = useState("");
   const [connecting, setConnecting] = useState(false);
   const [validationPreview, setValidationPreview] = useState<any>(null);
@@ -662,7 +689,18 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       }
     };
 
-    setLoading(true);
+    const cachedConnection = localStorage.getItem(`cbqops_gsconnection_${projectId}`);
+    const cachedLocal = localStorage.getItem(`cbqops_testcases_${projectId}`);
+    let hasCache = false;
+    try {
+      hasCache = !!cachedConnection || (!!cachedLocal && JSON.parse(cachedLocal).length > 0);
+    } catch {
+      hasCache = false;
+    }
+
+    if (!hasCache) {
+      setLoading(true);
+    }
     Promise.all([fetchProject(), fetchConnection()]).then(([_, config]) => {
       // Check localStorage-cached connection as fallback if fetchConnection returned null
       const cachedConnection = localStorage.getItem(`cbqops_gsconnection_${projectId}`);
@@ -828,19 +866,25 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     const fileExt = file.name.split(".").pop()?.toLowerCase();
 
     if (fileExt === "csv") {
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: results => {
-          processLocalData(results.data as any[]);
-        },
-        error: err => {
-          setError(`Failed to parse CSV: ${err.message}`);
-        },
-      });
+      try {
+        const Papa = (await import("papaparse")).default;
+        Papa.parse(file, {
+          header: true,
+          skipEmptyLines: true,
+          complete: results => {
+            processLocalData(results.data as any[]);
+          },
+          error: err => {
+            setError(`Failed to parse CSV: ${err.message}`);
+          },
+        });
+      } catch (err: any) {
+        setError(`Failed to load CSV parser: ${err.message}`);
+      }
     } else if (fileExt === "xlsx" || fileExt === "xls") {
       try {
         const buffer = await file.arrayBuffer();
+        const XLSX = await import("xlsx");
         const workbook = XLSX.read(buffer, { type: "array" });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
@@ -860,20 +904,25 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     );
   };
 
-  const handleLocalExport = () => {
+  const handleLocalExport = async () => {
     const exportData = localTestCases.map(tc => {
       const { _internalId, ...rest } = tc;
       return rest;
     });
 
-    const csv = Papa.unparse(exportData);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.download = `test_cases_${project?.name || projectId}_${new Date().toISOString().split("T")[0]}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+    try {
+      const Papa = (await import("papaparse")).default;
+      const csv = Papa.unparse(exportData);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = `test_cases_${project?.name || projectId}_${new Date().toISOString().split("T")[0]}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError(`Failed to load CSV parser: ${err.message}`);
+    }
   };
 
   const handleLocalClear = async () => {
@@ -2116,12 +2165,17 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                           ) : (
                             <textarea
                               value={tc[col] || ""}
-                              onChange={e => handleLocalCellChange(tc._internalId, col, e.target.value)}
+                              onChange={e => {
+                                handleLocalCellChange(tc._internalId, col, e.target.value);
+                                e.target.style.height = 'auto';
+                                e.target.style.height = `${e.target.scrollHeight}px`;
+                              }}
                               rows={1}
                               ref={(el) => {
-                                if (el) {
+                                if (el && !el.dataset.resized) {
                                   el.style.height = 'auto';
                                   el.style.height = `${el.scrollHeight}px`;
+                                  el.dataset.resized = 'true';
                                 }
                               }}
                               className="w-full min-w-[220px] px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all resize-none whitespace-pre-wrap overflow-hidden"
@@ -2722,13 +2776,18 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                               ) : (
                                 <textarea
                                   value={tc[col] || ""}
-                                  onChange={e => handleGoogleCellChangeState(tc.testCaseId, col, e.target.value)}
+                                  onChange={e => {
+                                    handleGoogleCellChangeState(tc.testCaseId, col, e.target.value);
+                                    e.target.style.height = 'auto';
+                                    e.target.style.height = `${e.target.scrollHeight}px`;
+                                  }}
                                   onBlur={e => handleGoogleCellSync(tc.testCaseId, col, e.target.value)}
                                   rows={1}
                                   ref={(el) => {
-                                    if (el) {
+                                    if (el && !el.dataset.resized) {
                                       el.style.height = 'auto';
                                       el.style.height = `${el.scrollHeight}px`;
+                                      el.dataset.resized = 'true';
                                     }
                                   }}
                                   className="w-full min-w-[220px] px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all resize-none whitespace-pre-wrap overflow-hidden"

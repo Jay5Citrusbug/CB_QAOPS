@@ -146,11 +146,13 @@ function saveCache() {
   const path = require('path');
   const cacheDir = process.env.VERCEL ? '/tmp' : path.join(process.cwd(), 'tmp');
   const cachePath = path.join(cacheDir, 'local_db_cache.json');
-  try {
-    fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2), 'utf8');
-  } catch (err) {
-    console.error('Failed to save local Firestore cache:', err);
-  }
+  
+  // Asynchronous non-blocking file write to prevent event loop blocking
+  fs.writeFile(cachePath, JSON.stringify(cacheData, null, 2), 'utf8', (err: any) => {
+    if (err) {
+      console.error('Failed to save local Firestore cache:', err);
+    }
+  });
 }
 
 function updateCacheDoc(colName: string, docId: string, data: any, options?: any) {

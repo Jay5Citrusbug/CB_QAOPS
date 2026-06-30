@@ -65,7 +65,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const doc = await adminDb.collection("projects").doc(projectId).get();
+    const docRef = adminDb.collection("projects").doc(projectId);
+
+    // Fetch project doc, sync history, and audit logs in parallel!
+    const [doc, syncHistorySnap, auditLogsSnap] = await Promise.all([
+      docRef.get(),
+      docRef.collection("sync_history").orderBy("syncTime", "desc").limit(50).get(),
+      docRef.collection("audit_logs").orderBy("timestamp", "desc").limit(50).get()
+    ]);
+
     if (!doc.exists) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
@@ -73,14 +81,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const projectData = doc.data() as any;
     const googleSheet = projectData.googleSheet || null;
 
-    // Fetch Sync History
-    const syncHistorySnap = await adminDb
-      .collection("projects")
-      .doc(projectId)
-      .collection("sync_history")
-      .orderBy("syncTime", "desc")
-      .limit(50)
-      .get();
     const syncHistory = syncHistorySnap.docs.map(d => {
       const data = d.data();
       const syncTimeVal = data.syncTime;
@@ -96,14 +96,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       };
     });
 
-    // Fetch Audit Logs
-    const auditLogsSnap = await adminDb
-      .collection("projects")
-      .doc(projectId)
-      .collection("audit_logs")
-      .orderBy("timestamp", "desc")
-      .limit(50)
-      .get();
     const auditLogs = auditLogsSnap.docs.map(d => {
       const data = d.data();
       const tsVal = data.timestamp;
