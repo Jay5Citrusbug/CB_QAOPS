@@ -122,6 +122,40 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const uniqueModules = Array.from(new Set(allDocs.map(tc => (tc.module || "").trim()).filter(Boolean))).sort();
     const uniquePriorities = Array.from(new Set(allDocs.map(tc => (tc.priority || "").trim()).filter(Boolean))).sort();
 
+    // Compute overall metrics on the server
+    const devCounts: Record<string, number> = { Pass: 0, Fail: 0, TBD: 0, Pending: 0, "N/A": 0 };
+    const qaCounts: Record<string, number> = { Pass: 0, Fail: 0, TBD: 0, Pending: 0, "N/A": 0 };
+
+    const normalizeStatus = (val: any) => {
+      if (!val) return "Pending";
+      const lower = String(val).trim().toLowerCase();
+      if (lower === "pass" || lower === "passed" || lower === "✓") return "Pass";
+      if (lower === "fail" || lower === "failed" || lower === "✗") return "Fail";
+      if (lower === "blocked" || lower === "tbd" || lower === "to be done") return "TBD";
+      if (lower === "n/a" || lower === "na" || lower === "not applicable") return "N/A";
+      return "Pending";
+    };
+
+    allDocs.forEach(tc => {
+      const devStatus = normalizeStatus(tc.devStatus);
+      const qaStatus = normalizeStatus(tc.qaStatus);
+      if (devStatus in devCounts) devCounts[devStatus]++;
+      if (qaStatus in qaCounts) qaCounts[qaStatus]++;
+    });
+
+    const devTotal = allDocs.length;
+    const devCompleted = devTotal - devCounts.Pending - devCounts.TBD;
+    const devPassRate = devTotal > 0 ? Math.round((devCounts.Pass / devTotal) * 100) : 0;
+
+    const qaTotal = allDocs.length;
+    const qaCompleted = qaTotal - qaCounts.Pending - qaCounts.TBD;
+    const qaPassRate = qaTotal > 0 ? Math.round((qaCounts.Pass / qaTotal) * 100) : 0;
+
+    const metrics = {
+      dev: { total: devTotal, completed: devCompleted, passRate: devPassRate, ...devCounts },
+      qa: { total: qaTotal, completed: qaCompleted, passRate: qaPassRate, ...qaCounts },
+    };
+
     return NextResponse.json({
       testCases: paginatedCases,
       total,
@@ -129,6 +163,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       totalPages: Math.ceil(total / limit),
       uniqueModules,
       uniquePriorities,
+      metrics,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

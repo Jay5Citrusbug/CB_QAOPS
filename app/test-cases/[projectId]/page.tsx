@@ -548,7 +548,14 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         }
         // Return cached config without wiping existing state
         const cached = localStorage.getItem(CONNECTION_CACHE_KEY);
-        return cached ? JSON.parse(cached) : null;
+        if (cached) {
+          const cachedConfig = JSON.parse(cached);
+          setSheetConnection((prev: any) => prev ?? cachedConfig);
+          setSheetUrl(prev => prev || cachedConfig.url || "");
+          setMode(prev => prev === "uninitialized" ? "google" : prev);
+          return cachedConfig;
+        }
+        return null;
       }
 
       // Success — update state and refresh cache
@@ -576,7 +583,14 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       }
       // Return from localStorage cache
       const cached = localStorage.getItem(CONNECTION_CACHE_KEY);
-      return cached ? JSON.parse(cached) : null;
+      if (cached) {
+        const cachedConfig = JSON.parse(cached);
+        setSheetConnection((prev: any) => prev ?? cachedConfig);
+        setSheetUrl(prev => prev || cachedConfig.url || "");
+        setMode(prev => prev === "uninitialized" ? "google" : prev);
+        return cachedConfig;
+      }
+      return null;
     }
   };
 
@@ -604,6 +618,9 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       setTotalPages(data.totalPages || 1);
       setModules(data.uniqueModules || []);
       setPriorities(data.uniquePriorities || []);
+      if (data.metrics) {
+        setOverallMetrics(data.metrics);
+      }
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Failed to fetch test cases.");
@@ -964,6 +981,38 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       const res = await fetch(`/api/projects/${projectId}/google-sheet`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: sheetUrl, action: "validate" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to validate Google Sheet.");
+      }
+
+      if (data.success && data.preview) {
+        setValidationPreview(data.preview);
+        setShowPreviewModal(true);
+      }
+    } catch (err: any) {
+      setError(err.message || "Unable to validate Google Sheet.");
+      setToast({ message: err.message || "Unable to validate Google Sheet.", type: "error" });
+    } finally {
+      setConnecting(false);
+      setIsSyncing(false);
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    setError("");
+    setSuccessMessage("");
+    setConnecting(true);
+    setIsSyncing(true);
+    setShowPreviewModal(false);
+
+    try {
+      const res = await fetch(`/api/projects/${projectId}/google-sheet`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: sheetUrl, action: "import" }),
       });
 
@@ -987,6 +1036,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         setMode("google");
         setPage(1);
         setShowDirectConnectModal(false);
+        setValidationPreview(null);
         await Promise.all([fetchConnection(true), fetchTestCases()]);
       }
     } catch (err: any) {
@@ -1477,42 +1527,10 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
   const [overallMetrics, setOverallMetrics] = useState<any>(null);
   useEffect(() => {
-    if (mode === "google" && sheetConnection) {
-      fetch(`/api/projects/${projectId}/test-cases?limit=10000`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.testCases) {
-            const all = data.testCases as TestCase[];
-            const devCounts = { Pass: 0, Fail: 0, TBD: 0, Pending: 0, "N/A": 0 };
-            const qaCounts = { Pass: 0, Fail: 0, TBD: 0, Pending: 0, "N/A": 0 };
-
-            all.forEach(t => {
-              const devStatus = normalizeLocalStatus(t.devStatus);
-              devCounts[devStatus]++;
-
-              const qaStatus = normalizeLocalStatus(t.qaStatus);
-              qaCounts[qaStatus]++;
-            });
-
-            const devTotal = all.length;
-            const devCompleted = devTotal - devCounts.Pending - devCounts.TBD;
-            const devPassRate = devTotal > 0 ? Math.round((devCounts.Pass / devTotal) * 100) : 0;
-
-            const qaTotal = all.length;
-            const qaCompleted = qaTotal - qaCounts.Pending - qaCounts.TBD;
-            const qaPassRate = qaTotal > 0 ? Math.round((qaCounts.Pass / qaTotal) * 100) : 0;
-
-            setOverallMetrics({
-              dev: { total: devTotal, completed: devCompleted, passRate: devPassRate, ...devCounts },
-              qa: { total: qaTotal, completed: qaCompleted, passRate: qaPassRate, ...qaCounts },
-            });
-          }
-        })
-        .catch(err => console.error("Metrics accumulation error:", err));
-    } else {
+    if (mode !== "google") {
       setOverallMetrics(null);
     }
-  }, [testCases, sheetConnection, mode]);
+  }, [mode]);
 
   if (loading) {
     return (
@@ -1568,6 +1586,21 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     <div className="space-y-6 pb-12 animate-in fade-in duration-500 relative">
       {isSyncing && (
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#ed5c37] animate-pulse z-50 rounded-t-2xl" />
+      )}
+      {connecting && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-4 text-center max-w-sm border border-slate-100 animate-in zoom-in-95 duration-200">
+            <RefreshCw className="w-12 h-12 text-[#ed5c37] animate-spin" />
+            <h3 className="font-bold text-lg text-slate-900">
+              {validationPreview ? "Importing Test Cases" : "Validating Connection"}
+            </h3>
+            <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+              {validationPreview
+                ? "Connecting Google Sheet and importing test cases to the secure database. Please do not close this window."
+                : "Verifying Google Sheet API permissions and scanning columns. Please do not close this window."}
+            </p>
+          </div>
+        </div>
       )}
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -3589,6 +3622,105 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                   Requires files to contain at least <strong>Dev Status</strong> and <strong>QA Status</strong> column headers.
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPreviewModal && validationPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-slate-50 rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-100 animate-in zoom-in-95 duration-200 my-8">
+            <div className="p-6 bg-white border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-lg text-slate-900">Google Sheet Validation Preview</h3>
+                <p className="text-xs text-slate-500 font-semibold">Verify the detected structure before importing</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowPreviewModal(false);
+                  setValidationPreview(null);
+                }}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
+              {/* Sheet summary stats */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sheet Name</div>
+                  <div className="text-sm font-black text-slate-800 mt-1 truncate">{validationPreview.sheetName}</div>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Test Cases</div>
+                  <div className="text-sm font-black text-slate-800 mt-1">{validationPreview.totalRows}</div>
+                </div>
+              </div>
+
+              {/* Columns Detected */}
+              <div className="space-y-2">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Columns Detected ({validationPreview.headers?.length})</div>
+                <div className="flex flex-wrap gap-2">
+                  {validationPreview.headers?.map((h: string) => {
+                    const norm = h.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();
+                    const isStandard = ["testcaseid", "tcid", "id", "module", "testcasetitle", "title", "preconditions", "teststeps", "testdata", "expectedresult", "devstatus", "devdateexecuted", "devnotes", "qastatus", "crossbrowserverified", "priority", "jiraticket"].includes(norm);
+                    return (
+                      <span
+                        key={h}
+                        className={`text-xs px-3 py-1.5 rounded-xl font-bold border shadow-xs ${
+                          isStandard
+                            ? "bg-green-50 text-green-700 border-green-200"
+                            : "bg-blue-50 text-blue-700 border-blue-200"
+                        }`}
+                        title={isStandard ? "Standard Column" : "Dynamic Custom Column"}
+                      >
+                        {h}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Warnings / Errors */}
+              {validationPreview.warnings?.length > 0 && (
+                <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 space-y-2">
+                  <div className="text-xs font-black text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Info className="w-4 h-4 text-slate-400 shrink-0" /> Warnings
+                  </div>
+                  <ul className="text-xs text-amber-700 font-semibold list-disc list-inside space-y-1">
+                    {validationPreview.warnings.map((w: string, idx: number) => (
+                      <li key={idx}>{w}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 bg-white border-t border-slate-100 flex items-center justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowPreviewModal(false);
+                  setValidationPreview(null);
+                }}
+                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold shadow-sm transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmImport}
+                disabled={connecting}
+                className="px-5 py-2.5 bg-[#ed5c37] hover:bg-[#d44b28] text-white rounded-xl text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+              >
+                {connecting ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Importing...
+                  </>
+                ) : (
+                  "Confirm & Import"
+                )}
+              </button>
             </div>
           </div>
         </div>

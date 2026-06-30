@@ -24,9 +24,21 @@ interface Project {
 
 export default function TestCasesProjectsPage() {
   const { data: session } = useSession();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("cbqops_projects_list");
+      return cached ? JSON.parse(cached) : [];
+    }
+    return [];
+  });
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("cbqops_projects_list");
+      return !cached;
+    }
+    return true;
+  });
   const [viewMode, setViewMode] = useState<"GRID" | "LIST">("GRID");
 
   useEffect(() => {
@@ -40,9 +52,11 @@ export default function TestCasesProjectsPage() {
           ? data.projects
           : [];
         setProjects(list);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("cbqops_projects_list", JSON.stringify(list));
+        }
       } catch (err) {
         console.error("Failed to fetch projects", err);
-        setProjects([]);
       } finally {
         setLoading(false);
       }

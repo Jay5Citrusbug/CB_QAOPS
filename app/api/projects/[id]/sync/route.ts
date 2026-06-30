@@ -391,6 +391,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     // 5. Apply changes to Portal Firestore
     const batchChunksLimit = 500;
 
+    const syncPromises: Promise<any>[] = [];
+
     // Apply creations
     for (let i = 0; i < toCreateInPortal.length; i += batchChunksLimit) {
       const chunk = toCreateInPortal.slice(i, i + batchChunksLimit);
@@ -404,7 +406,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           lastSyncedValues: tc,
         });
       });
-      await batch.commit();
+      syncPromises.push(batch.commit());
     }
 
     // Apply updates
@@ -415,7 +417,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         const docRef = testCasesCollection.doc(updateItem.testCaseId);
         batch.update(docRef, updateItem.dbData);
       });
-      await batch.commit();
+      syncPromises.push(batch.commit());
     }
 
     // Apply inactive flags
@@ -428,7 +430,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           lastSyncedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       });
-      await batch.commit();
+      syncPromises.push(batch.commit());
+    }
+
+    if (syncPromises.length > 0) {
+      await Promise.all(syncPromises);
     }
 
     // 6. Push Portal changes to Google Sheet in batch

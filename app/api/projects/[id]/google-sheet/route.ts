@@ -295,6 +295,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({
         success: true,
         preview: {
+          sheetName: firstSheetName,
+          headers: headers,
           totalRows: rawRows.length - 1,
           validRows: validCount,
           invalidRows: invalidCount,
@@ -317,6 +319,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
       // Create chunks of 500 for Firestore batch size limit
       const chunkSize = 500;
+      const commitPromises: Promise<any>[] = [];
+
       for (let i = 0; i < testCases.length; i += chunkSize) {
         const chunk = testCases.slice(i, i + chunkSize);
         const batch = adminDb.batch();
@@ -361,7 +365,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           batch.set(docRef, docData);
         });
 
-        await batch.commit();
+        commitPromises.push(batch.commit());
+      }
+
+      if (commitPromises.length > 0) {
+        await Promise.all(commitPromises);
       }
 
       // Update project google sheet settings
