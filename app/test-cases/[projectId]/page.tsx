@@ -411,35 +411,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     }
   }, [toast]);
 
-  // Load connection details from localStorage cache on mount (client-side only)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const cachedConnection = localStorage.getItem(`cbqops_gsconnection_${projectId}`);
-      const cachedLocal = localStorage.getItem(`cbqops_testcases_${projectId}`);
 
-      if (cachedConnection) {
-        try {
-          const parsedConn = JSON.parse(cachedConnection);
-          setSheetConnection(parsedConn);
-          setSheetUrl(parsedConn.url || "");
-          setMode("google");
-          setLoading(false);
-        } catch {
-          // Ignore parse error
-        }
-      } else if (cachedLocal) {
-        try {
-          const parsedCases = JSON.parse(cachedLocal);
-          if (parsedCases.length > 0) {
-            setMode("local");
-            setLoading(false);
-          }
-        } catch {
-          // Ignore parse error
-        }
-      }
-    }
-  }, [projectId]);
 
   // Navigation tabs for Google Mode
   const [activeTab, setActiveTab] = useState<"repository" | "history" | "audit">("repository");
@@ -681,17 +653,28 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
   useEffect(() => {
     const cachedProject = localStorage.getItem(`cbqops_project_${projectId}`);
     const cachedLocal = localStorage.getItem(`cbqops_testcases_${projectId}`);
+    const activeMode = localStorage.getItem(`cbqops_active_mode_${projectId}`);
     
     let hasCache = false;
     if (cachedProject) {
       try {
         const parsedProject = JSON.parse(cachedProject);
         setProject(parsedProject);
-        if (parsedProject.googleSheet && parsedProject.googleSheet.url) {
+        
+        const hasGoogleSheet = parsedProject.googleSheet && parsedProject.googleSheet.url;
+        const hasLocalData = cachedLocal && JSON.parse(cachedLocal).length > 0;
+        
+        if (activeMode === "local" && hasLocalData) {
+          setMode("local");
+        } else if (activeMode === "google" && hasGoogleSheet) {
           setSheetConnection(parsedProject.googleSheet);
           setSheetUrl(parsedProject.googleSheet.url || "");
           setMode("google");
-        } else if (cachedLocal && JSON.parse(cachedLocal).length > 0) {
+        } else if (hasGoogleSheet) {
+          setSheetConnection(parsedProject.googleSheet);
+          setSheetUrl(parsedProject.googleSheet.url || "");
+          setMode("google");
+        } else if (hasLocalData) {
           setMode("local");
         } else {
           setMode("uninitialized");
@@ -721,19 +704,25 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         setProject(data);
         localStorage.setItem(`cbqops_project_${projectId}`, JSON.stringify(data));
 
-        // If the project document in Firestore has a sheet connection, set it instantly
-        if (data.googleSheet && data.googleSheet.url) {
+        const hasGoogleSheet = data.googleSheet && data.googleSheet.url;
+        const cachedLocal = localStorage.getItem(`cbqops_testcases_${projectId}`);
+        const hasLocalData = cachedLocal && JSON.parse(cachedLocal).length > 0;
+        const activeMode = localStorage.getItem(`cbqops_active_mode_${projectId}`);
+
+        if (activeMode === "local" && hasLocalData) {
+          setMode("local");
+        } else if (activeMode === "google" && hasGoogleSheet) {
           setSheetConnection(data.googleSheet);
           setSheetUrl(data.googleSheet.url || "");
           setMode("google");
+        } else if (hasGoogleSheet) {
+          setSheetConnection(data.googleSheet);
+          setSheetUrl(data.googleSheet.url || "");
+          setMode("google");
+        } else if (hasLocalData) {
+          setMode("local");
         } else {
-          // If no Google Sheet connection, check local storage for local mode cached test cases
-          const cachedLocal = localStorage.getItem(`cbqops_testcases_${projectId}`);
-          if (cachedLocal && JSON.parse(cachedLocal).length > 0) {
-            setMode("local");
-          } else {
-            setMode("uninitialized");
-          }
+          setMode("uninitialized");
         }
       } catch (err: any) {
         setError(err.message || "Project not found.");
@@ -741,8 +730,12 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         setLoading(false);
       }
 
-      // Background Fetch: load history and audit logs asynchronously in the background
-      fetchConnection(true);
+      // Background Fetch: only load connection history/audit logs if googleSheet is active AND activeMode is google
+      const activeModeVal = localStorage.getItem(`cbqops_active_mode_${projectId}`);
+      const isGoogleMode = activeModeVal === "google" || (!activeModeVal && data.googleSheet && data.googleSheet.url);
+      if (isGoogleMode) {
+        fetchConnection(true);
+      }
     };
 
     fetchProjectAndConnection();
@@ -878,6 +871,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
     setLocalTestCases(parsedCases);
     setMode("local");
+    localStorage.setItem(`cbqops_active_mode_${projectId}`, "local");
     setLocalModuleFilter("all");
     setLocalJiraFilter("all");
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -894,7 +888,17 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       setLocalFileLoading(true);
       const startTime = Date.now();
 
+      let parsingCompleted = false;
+      const safetyTimer = setTimeout(() => {
+        if (!parsingCompleted) {
+          setLocalFileLoading(false);
+          setError("File parsing took too long. Please ensure the file is valid and not corrupted.");
+        }
+      }, 5000); // 5 seconds safety timeout
+
       const finishLoading = (successCallback: () => void) => {
+        parsingCompleted = true;
+        clearTimeout(safetyTimer);
         setLocalFileLoading(false);
         successCallback();
       };
@@ -902,6 +906,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       if (fileExt === "csv") {
         try {
           const Papa = (await import("papaparse")).default;
+          if (parsingCompleted) return;
           Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
@@ -919,6 +924,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         try {
           const buffer = await file.arrayBuffer();
           const XLSX = await import("xlsx");
+          if (parsingCompleted) return;
           const workbook = XLSX.read(buffer, { type: "array" });
           const firstSheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[firstSheetName];
@@ -970,6 +976,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     if (isConfirmed) {
       setLocalTestCases([]);
       localStorage.removeItem(`cbqops_testcases_${projectId}`);
+      localStorage.removeItem(`cbqops_active_mode_${projectId}`);
       setMode("uninitialized");
       setLocalModuleFilter("all");
       setLocalJiraFilter("all");
@@ -1146,6 +1153,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
           connectedAt: new Date().toISOString(),
         });
         setMode("google");
+        localStorage.setItem(`cbqops_active_mode_${projectId}`, "google");
         setPage(1);
         setShowDirectConnectModal(false);
         setValidationPreview(null);
@@ -1178,6 +1186,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     setTestCases([]);
     setTotalCases(0);
     setMode("uninitialized");
+    localStorage.removeItem(`cbqops_active_mode_${projectId}`);
     setToast({ message: "Google Sheet disconnected successfully!", type: "success" });
 
     try {
@@ -1797,6 +1806,18 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         {/* Global Toolbar buttons */}
         {mode === "google" && (
           <div className="flex items-center gap-3">
+            {typeof window !== "undefined" && localStorage.getItem(`cbqops_testcases_${projectId}`) && (
+              <button
+                onClick={() => {
+                  setMode("local");
+                  localStorage.setItem(`cbqops_active_mode_${projectId}`, "local");
+                }}
+                className="btn-primary !bg-slate-800 hover:!bg-slate-900 border border-slate-700 shadow-none !py-2.5 !px-4 flex items-center gap-2 cursor-pointer transition-all"
+                title="Switch to Local Offline Mode"
+              >
+                <FileSpreadsheet className="w-4 h-4" /> Switch to Local Mode
+              </button>
+            )}
             {!sheetConnection ? (
               <button
                 onClick={() => setShowDirectConnectModal(true)}
@@ -1828,6 +1849,20 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
         {mode === "local" && (
           <div className="flex items-center gap-3">
+            {project?.googleSheet && project.googleSheet.url && (
+              <button
+                onClick={() => {
+                  setMode("google");
+                  localStorage.setItem(`cbqops_active_mode_${projectId}`, "google");
+                  // Trigger background history and logs loading
+                  fetchConnection(true);
+                }}
+                className="btn-primary shadow-sm hover:shadow-[#ed5c37]/20 flex items-center gap-2 cursor-pointer !py-2.5 !px-4"
+                title="Switch to Google Sheet Sync Mode"
+              >
+                <Database className="w-4 h-4" /> Switch to Google Mode
+              </button>
+            )}
             <button
               onClick={handleLocalExport}
               className="btn-primary !bg-slate-800 hover:!bg-slate-900 border border-slate-700 shadow-none !py-2.5 !px-4"
