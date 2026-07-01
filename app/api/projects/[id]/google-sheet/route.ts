@@ -23,6 +23,18 @@ function hasProjectAccess(session: any, projectId: string): boolean {
   return true;
 }
 
+const normalizeStatusValue = (val: any): string => {
+  if (!val) return "Pending";
+  const lower = String(val).trim().toLowerCase();
+  if (lower === "pass" || lower === "passed" || lower === "✓") return "Pass";
+  if (lower === "fail" || lower === "failed" || lower === "✗") return "Fail";
+  if (lower === "blocked" || lower === "tbd" || lower === "to be done") return "TBD";
+  if (lower === "n/a" || lower === "na" || lower === "not applicable") return "N/A";
+  if (lower === "pending" || lower === "not started" || lower === "not run") return "Pending";
+  return "Pending";
+};
+
+
 const REQUIRED_COLUMNS = [
   "Test Case ID",
   "Module",
@@ -343,10 +355,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             testSteps: tc[headers[findHeaderIndex(headers, "Test Steps")]] || "",
             testData: tc[headers[findHeaderIndex(headers, "Test Data")]] || "",
             expectedResult: tc[headers[findHeaderIndex(headers, "Expected Result")]] || "",
-            devStatus: devStatusCol ? tc[devStatusCol] || "Not Started" : "Not Started",
+            devStatus: devStatusCol ? normalizeStatusValue(tc[devStatusCol]) : "Pending",
             devDateExecuted: devDateCol ? tc[devDateCol] || "" : "",
             devNotes: devNotesCol ? tc[devNotesCol] || "" : "",
-            qaStatus: qaStatusCol ? tc[qaStatusCol] || "Not Run" : "Not Run",
+            qaStatus: qaStatusCol ? normalizeStatusValue(tc[qaStatusCol]) : "Pending",
             crossBrowserVerified: cbVerifiedCol ? tc[cbVerifiedCol] || "No" : "No",
             priority: priorityCol ? tc[priorityCol] || "Medium" : "Medium",
             jiraTicket: jiraCol ? tc[jiraCol] || "" : "",

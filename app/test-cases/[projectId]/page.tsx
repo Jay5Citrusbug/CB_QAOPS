@@ -1418,6 +1418,13 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     });
     if (!isConfirmed) return;
 
+    if (mode === "local") {
+      setLocalTestCases(prev => prev.filter(tc => !selectedCaseIds.includes(tc._internalId)));
+      setSelectedCaseIds([]);
+      setToast({ message: "Bulk deleted selected local test cases successfully!", type: "success" });
+      return;
+    }
+
     try {
       setIsSyncing(true);
       let deletedCount = 0;
@@ -2192,11 +2199,152 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
               </div>
             </div>
 
+            {/* Bulk Selection Banner for Local Mode */}
+            {selectedCaseIds.length > 0 && mode === "local" && (
+              <div className="mx-4 mt-3 mb-1 p-3 bg-[#ed5c37]/5 border border-[#ed5c37]/20 rounded-2xl flex flex-wrap items-center gap-3 animate-in slide-in-from-top duration-200">
+                <span className="text-sm font-bold text-[#ed5c37]">
+                  {selectedCaseIds.length} row{selectedCaseIds.length > 1 ? "s" : ""} selected
+                </span>
+                <div className="flex items-center gap-2 ml-2 flex-wrap flex-1">
+                  <span className="text-xs font-semibold text-slate-500">Bulk update:</span>
+                  <select
+                    value={bulkField}
+                    onChange={e => setBulkField(e.target.value as typeof bulkField)}
+                    className="px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-semibold bg-white text-slate-700 outline-none shadow-sm"
+                  >
+                    <option value="qaStatus">QA Status</option>
+                    <option value="devStatus">Dev Status</option>
+                    <option value="priority">Priority</option>
+                    <option value="crossBrowserVerified">Cross Browser</option>
+                  </select>
+                  <span className="text-slate-400 text-xs">→</span>
+                  <select
+                    value={bulkValue}
+                    onChange={e => setBulkValue(e.target.value)}
+                    className="px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-semibold bg-white text-slate-700 outline-none shadow-sm mr-2"
+                  >
+                    {bulkField === "qaStatus" && (
+                      <>
+                        <option value="Pending">Pending</option>
+                        <option value="Pass">Pass</option>
+                        <option value="Fail">Fail</option>
+                        <option value="TBD">TBD</option>
+                        <option value="N/A">N/A</option>
+                      </>
+                    )}
+                    {bulkField === "devStatus" && (
+                      <>
+                        <option value="Pending">Pending</option>
+                        <option value="Pass">Pass</option>
+                        <option value="Fail">Fail</option>
+                        <option value="TBD">TBD</option>
+                        <option value="N/A">N/A</option>
+                      </>
+                    )}
+                    {bulkField === "priority" && (
+                      <>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                      </>
+                    )}
+                    {bulkField === "crossBrowserVerified" && (
+                      <>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                        <option value="N/A">N/A</option>
+                      </>
+                    )}
+                  </select>
+                  <button
+                    onClick={() => {
+                      if (bulkUpdating) return;
+                      setBulkUpdating(true);
+                      setError("");
+
+                      // Normalize column mapping
+                      const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();
+                      const normField = normalize(bulkField);
+                      const rawCol = localColumns.find((col: string) => {
+                        const normCol = normalize(col);
+                        return normCol === normField;
+                      });
+
+                      if (rawCol) {
+                        setLocalTestCases(prev =>
+                          prev.map(tc => {
+                            if (selectedCaseIds.includes(tc._internalId)) {
+                              let valueToSet = bulkValue;
+                              if (normField === "qastatus" || normField === "devstatus") {
+                                valueToSet = normalizeLocalStatus(bulkValue);
+                              }
+                              return {
+                                ...tc,
+                                [rawCol]: valueToSet
+                              };
+                            }
+                            return tc;
+                          })
+                        );
+                        setSelectedCaseIds([]);
+                        setToast({ message: `Bulk updated ${selectedCaseIds.length} local test case(s) successfully!`, type: "success" });
+                      } else {
+                        setError(`This sheet does not have a column matching '${bulkField}'`);
+                      }
+                      setBulkUpdating(false);
+                    }}
+                    disabled={bulkUpdating}
+                    className="btn-primary py-1.5 px-3 shadow-md shadow-[#ed5c37]/10 text-xs flex items-center gap-1 cursor-pointer"
+                  >
+                    {bulkUpdating ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Apply to {selectedCaseIds.length}
+                      </>
+                    )}
+                  </button>
+                  <button
+                    title={`Delete ${selectedCaseIds.length} selected test case(s)`}
+                    onClick={handleBulkDeleteTestCases}
+                    className="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-bold transition-all border border-rose-100 flex items-center gap-1.5 shadow-sm cursor-pointer ml-auto"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete {selectedCaseIds.length}
+                  </button>
+                  <button
+                    title="Clear Selection"
+                    onClick={() => setSelectedCaseIds([])}
+                    className="p-1 text-slate-400 hover:text-slate-600 transition-colors ml-2 cursor-pointer animate-in fade-in"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Dynamic Grid Table */}
             <div className="overflow-auto flex-1">
               <table className="w-full text-left text-sm relative">
                 <thead className="bg-slate-50 border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-500 sticky top-0 z-10 shadow-sm">
                   <tr>
+                    <th className="px-4 py-4 bg-slate-50 w-10">
+                      <input
+                        type="checkbox"
+                        checked={filteredLocalCases.length > 0 && selectedCaseIds.length === filteredLocalCases.length}
+                        ref={el => { if (el) el.indeterminate = selectedCaseIds.length > 0 && selectedCaseIds.length < filteredLocalCases.length; }}
+                        onChange={e => {
+                          if (e.target.checked) {
+                            setSelectedCaseIds(filteredLocalCases.map(tc => tc._internalId));
+                          } else {
+                            setSelectedCaseIds([]);
+                          }
+                        }}
+                        className="w-4 h-4 rounded border-slate-300 text-[#ed5c37] focus:ring-[#ed5c37] cursor-pointer accent-[#ed5c37]"
+                      />
+                    </th>
                     {localColumns.map(col => (
                       <th key={col} className="px-4 py-4 whitespace-nowrap bg-slate-50">
                         {col}
@@ -2206,7 +2354,26 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
                   {filteredLocalCases.map(tc => (
-                    <tr key={tc._internalId} className="hover:bg-slate-50/80 transition-colors">
+                    <tr 
+                      key={tc._internalId} 
+                      className={`hover:bg-slate-50/80 transition-colors group ${
+                        selectedCaseIds.includes(tc._internalId) ? "bg-orange-50/30" : ""
+                      }`}
+                    >
+                      <td className="px-4 py-2 w-10">
+                        <input
+                          type="checkbox"
+                          checked={selectedCaseIds.includes(tc._internalId)}
+                          onChange={e => {
+                            if (e.target.checked) {
+                              setSelectedCaseIds(prev => [...prev, tc._internalId]);
+                            } else {
+                              setSelectedCaseIds(prev => prev.filter(id => id !== tc._internalId));
+                            }
+                          }}
+                          className="w-4 h-4 rounded border-slate-300 text-[#ed5c37] focus:ring-[#ed5c37] cursor-pointer accent-[#ed5c37]"
+                        />
+                      </td>
                       {localColumns.map(col => (
                         <td key={col} className="px-2 py-2 min-w-[160px]">
                           {/* Inline cell renderer based on column type */}
@@ -2282,7 +2449,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                   ))}
                   {filteredLocalCases.length === 0 && (
                     <tr>
-                      <td colSpan={localColumns.length || 1} className="px-4 py-12 text-center text-slate-400">
+                      <td colSpan={(localColumns.length || 1) + 1} className="px-4 py-12 text-center text-slate-400">
                         No rows match your filter.
                       </td>
                     </tr>

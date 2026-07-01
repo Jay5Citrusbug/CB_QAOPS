@@ -25,6 +25,17 @@ function hasProjectAccess(session: any, projectId: string): boolean {
   return true;
 }
 
+const normalizeStatusValue = (val: any): string => {
+  if (!val) return "Pending";
+  const lower = String(val).trim().toLowerCase();
+  if (lower === "pass" || lower === "passed" || lower === "✓") return "Pass";
+  if (lower === "fail" || lower === "failed" || lower === "✗") return "Fail";
+  if (lower === "blocked" || lower === "tbd" || lower === "to be done") return "TBD";
+  if (lower === "n/a" || lower === "na" || lower === "not applicable") return "N/A";
+  if (lower === "pending" || lower === "not started" || lower === "not run") return "Pending";
+  return "Pending";
+};
+
 // Helper function to map 0-indexed column number to Excel letter (A, B, C... Z, AA, AB...)
 function getColLetter(colIndex: number): string {
   let letter = "";
@@ -126,19 +137,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const devCounts: Record<string, number> = { Pass: 0, Fail: 0, TBD: 0, Pending: 0, "N/A": 0 };
     const qaCounts: Record<string, number> = { Pass: 0, Fail: 0, TBD: 0, Pending: 0, "N/A": 0 };
 
-    const normalizeStatus = (val: any) => {
-      if (!val) return "Pending";
-      const lower = String(val).trim().toLowerCase();
-      if (lower === "pass" || lower === "passed" || lower === "✓") return "Pass";
-      if (lower === "fail" || lower === "failed" || lower === "✗") return "Fail";
-      if (lower === "blocked" || lower === "tbd" || lower === "to be done") return "TBD";
-      if (lower === "n/a" || lower === "na" || lower === "not applicable") return "N/A";
-      return "Pending";
-    };
-
     allDocs.forEach(tc => {
-      const devStatus = normalizeStatus(tc.devStatus);
-      const qaStatus = normalizeStatus(tc.qaStatus);
+      const devStatus = normalizeStatusValue(tc.devStatus);
+      const qaStatus = normalizeStatusValue(tc.qaStatus);
       if (devStatus in devCounts) devCounts[devStatus]++;
       if (qaStatus in qaCounts) qaCounts[qaStatus]++;
     });
@@ -366,29 +367,34 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     };
 
     if (columnName) {
-      updates[columnName] = value;
-      
       const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();
       const normName = normalize(columnName);
-      if (normName === "devstatus") updates.devStatus = value;
-      else if (normName === "qastatus") updates.qaStatus = value;
-      else if (normName === "devdateexecuted") updates.devDateExecuted = value;
-      else if (normName === "devnotes") updates.devNotes = value;
-      else if (normName === "crossbrowserverfied" || normName === "crossbrowserverified") updates.crossBrowserVerified = value;
-      else if (normName === "priority") updates.priority = value;
-      else if (normName === "jiraticket") updates.jiraTicket = value;
-      else if (normName === "module") updates.module = value;
+      let finalVal = value;
+      if (normName === "devstatus" || normName === "qastatus") {
+        finalVal = normalizeStatusValue(value);
+      }
+      updates[columnName] = finalVal;
+      
+      if (normName === "devstatus") updates.devStatus = finalVal;
+      else if (normName === "qastatus") updates.qaStatus = finalVal;
+      else if (normName === "devdateexecuted") updates.devDateExecuted = finalVal;
+      else if (normName === "devnotes") updates.devNotes = finalVal;
+      else if (normName === "crossbrowserverfied" || normName === "crossbrowserverified") updates.crossBrowserVerified = finalVal;
+      else if (normName === "priority") updates.priority = finalVal;
+      else if (normName === "jiraticket") updates.jiraTicket = finalVal;
+      else if (normName === "module") updates.module = finalVal;
       else if (normName === "testcasetitle") {
-        updates.title = value;
-        if (!value) return NextResponse.json({ error: "Title cannot be empty" }, { status: 400 });
+        updates.title = finalVal;
+        if (!finalVal) return NextResponse.json({ error: "Title cannot be empty" }, { status: 400 });
       }
     } else {
       const headers = googleSheet?.headers || [];
       if (devStatus !== undefined) {
-        updates.devStatus = devStatus;
+        const normVal = normalizeStatusValue(devStatus);
+        updates.devStatus = normVal;
         const colIdx = findHeaderIndex(headers, "Dev Status");
-        if (colIdx !== -1) updates[headers[colIdx]] = devStatus;
-        else updates["Dev Status"] = devStatus;
+        if (colIdx !== -1) updates[headers[colIdx]] = normVal;
+        else updates["Dev Status"] = normVal;
       }
       if (devDateExecuted !== undefined) {
         updates.devDateExecuted = devDateExecuted;
@@ -403,10 +409,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         else updates["Dev Notes"] = devNotes;
       }
       if (qaStatus !== undefined) {
-        updates.qaStatus = qaStatus;
+        const normVal = normalizeStatusValue(qaStatus);
+        updates.qaStatus = normVal;
         const colIdx = findHeaderIndex(headers, "QA Status");
-        if (colIdx !== -1) updates[headers[colIdx]] = qaStatus;
-        else updates["QA Status"] = qaStatus;
+        if (colIdx !== -1) updates[headers[colIdx]] = normVal;
+        else updates["QA Status"] = normVal;
       }
       if (crossBrowserVerified !== undefined) {
         updates.crossBrowserVerified = crossBrowserVerified;
