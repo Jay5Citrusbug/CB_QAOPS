@@ -863,7 +863,10 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     }
 
     const parsedCases: any[] = cleanRows.map(row => {
-      const newRow: any = { ...row, _internalId: crypto.randomUUID() };
+      const uniqueId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const newRow: any = { ...row, _internalId: uniqueId };
       newRow["Dev Status"] = normalizeLocalStatus(row[devStatusCol]);
       newRow["QA Status"] = normalizeLocalStatus(row[qaStatusCol]);
 

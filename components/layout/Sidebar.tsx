@@ -87,7 +87,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
   return (
     <div className="h-full w-full bg-[#1e293b] text-white flex flex-col border-r border-slate-800 shadow-2xl lg:shadow-none">
       <div className="p-6 text-xl font-bold border-b border-slate-700 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-3 group">
+        <Link href="/dashboard" prefetch={false} className="flex items-center gap-3 group">
           <img src="/logo.svg" alt="Citrusbug Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform" />
           <span className="text-xl font-bold tracking-tight text-white group-hover:text-[#ed5c37] transition-colors">CB QOps</span>
         </Link>
@@ -122,6 +122,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
 
               <Link
                 href={item.href}
+                prefetch={false}
                 draggable={false}
                 onDragStart={(e) => {
                   e.preventDefault();
