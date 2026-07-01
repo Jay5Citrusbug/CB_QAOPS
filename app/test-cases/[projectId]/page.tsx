@@ -457,6 +457,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
   // Local file states (Original functionality)
   const [localTestCases, setLocalTestCases] = useState<any[]>([]);
   const [localLoading, setLocalLoading] = useState(true);
+  const [localFileLoading, setLocalFileLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [sheetUrl, setSheetUrl] = useState("");
@@ -757,8 +758,16 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         const data = await res.json();
 
         if (data.error) {
-          const isQuota = (data.error as string).toLowerCase().includes("quota") ||
-            (data.error as string).toLowerCase().includes("exhausted");
+          const errorStr = String(data.error).toLowerCase();
+          const isNotConnected = errorStr.includes("no google sheet connected");
+          if (isNotConnected) {
+            localStorage.removeItem(`cbqops_gsconnection_${projectId}`);
+            setSheetConnection(null);
+            setMode("uninitialized");
+            return;
+          }
+
+          const isQuota = errorStr.includes("quota") || errorStr.includes("exhausted");
           if (isQuota) {
             consecutiveFailures++;
             const retryMins = Math.round(Math.min(60000 * Math.pow(2, consecutiveFailures), 480000) / 60000);
@@ -865,33 +874,48 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     setError("");
     const fileExt = file.name.split(".").pop()?.toLowerCase();
 
-    if (fileExt === "csv") {
-      try {
-        const Papa = (await import("papaparse")).default;
-        Papa.parse(file, {
-          header: true,
-          skipEmptyLines: true,
-          complete: results => {
-            processLocalData(results.data as any[]);
-          },
-          error: err => {
-            setError(`Failed to parse CSV: ${err.message}`);
-          },
-        });
-      } catch (err: any) {
-        setError(`Failed to load CSV parser: ${err.message}`);
-      }
-    } else if (fileExt === "xlsx" || fileExt === "xls") {
-      try {
-        const buffer = await file.arrayBuffer();
-        const XLSX = await import("xlsx");
-        const workbook = XLSX.read(buffer, { type: "array" });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        const data = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-        processLocalData(data);
-      } catch (err: any) {
-        setError(`Failed to parse Excel file: ${err.message}`);
+    if (fileExt === "csv" || fileExt === "xlsx" || fileExt === "xls") {
+      setLocalFileLoading(true);
+      const startTime = Date.now();
+
+      const finishLoading = async (successCallback: () => void) => {
+        const elapsed = Date.now() - startTime;
+        const minDuration = 4000; // 4 seconds minimum
+        if (elapsed < minDuration) {
+          await new Promise(resolve => setTimeout(resolve, minDuration - elapsed));
+        }
+        setLocalFileLoading(false);
+        successCallback();
+      };
+
+      if (fileExt === "csv") {
+        try {
+          const Papa = (await import("papaparse")).default;
+          Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: results => {
+              finishLoading(() => processLocalData(results.data as any[]));
+            },
+            error: err => {
+              finishLoading(() => setError(`Failed to parse CSV: ${err.message}`));
+            },
+          });
+        } catch (err: any) {
+          finishLoading(() => setError(`Failed to load CSV parser: ${err.message}`));
+        }
+      } else {
+        try {
+          const buffer = await file.arrayBuffer();
+          const XLSX = await import("xlsx");
+          const workbook = XLSX.read(buffer, { type: "array" });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const data = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+          finishLoading(() => processLocalData(data));
+        } catch (err: any) {
+          finishLoading(() => setError(`Failed to parse Excel file: ${err.message}`));
+        }
       }
     } else {
       setError("Unsupported file format. Please upload a .csv, .xlsx, or .xls file.");
@@ -1058,6 +1082,22 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     setIsSyncing(true);
     setShowPreviewModal(false);
 
+    const startTime = Date.now();
+    let apiCompleted = false;
+    let apiData: any = null;
+    let apiError: any = null;
+
+    // Start a 7-second max timer to transition to the table layout
+    const maxTimer = setTimeout(() => {
+      if (!apiCompleted) {
+        // API is still running after 7 seconds, transition screen to table
+        // and let table loader indicate it is still importing.
+        setConnecting(false); 
+        setMode("google"); // Transition to Google mode layout
+        setCasesLoading(true); // Show loader on table
+      }
+    }, 7000);
+
     try {
       const res = await fetch(`/api/projects/${projectId}/google-sheet`, {
         method: "POST",
@@ -1065,19 +1105,37 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         body: JSON.stringify({ url: sheetUrl, action: "import" }),
       });
 
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        throw new Error(data.error || "Failed to import Google Sheet.");
+      apiData = await res.json();
+      if (!res.ok || apiData.error) {
+        throw new Error(apiData.error || "Failed to import Google Sheet.");
+      }
+    } catch (err: any) {
+      apiError = err;
+    } finally {
+      apiCompleted = true;
+      clearTimeout(maxTimer);
+
+      // Enforce a minimum loader duration of 4 seconds
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 4000) {
+        await new Promise(resolve => setTimeout(resolve, 4000 - elapsed));
       }
 
-      if (data.success) {
-        setSuccessMessage(`Google Sheet connected and imported successfully! Imported ${data.importedCount} test cases.`);
+      setConnecting(false);
+      setIsSyncing(false);
+
+      if (apiError) {
+        setError(apiError.message || "Unable to connect Google Sheet.");
+        setToast({ message: apiError.message || "Unable to connect Google Sheet.", type: "error" });
+        setCasesLoading(false);
+      } else if (apiData && apiData.success) {
+        setSuccessMessage(`Google Sheet connected and imported successfully! Imported ${apiData.importedCount} test cases.`);
         setToast({ message: `Google Sheet connected and imported successfully!`, type: "success" });
         setTimeout(() => setSuccessMessage(""), 10000);
 
         setSheetConnection({
           url: sheetUrl,
-          importedCount: data.importedCount,
+          importedCount: apiData.importedCount,
           lastSyncAt: new Date().toISOString(),
           connectedBy: userEmail,
           connectedAt: new Date().toISOString(),
@@ -1086,21 +1144,19 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         setPage(1);
         setShowDirectConnectModal(false);
         setValidationPreview(null);
+
+        // Fetch connection and cases (shows cases loading spinner)
+        setCasesLoading(true);
         await Promise.all([fetchConnection(true), fetchTestCases()]);
+        setCasesLoading(false);
       }
-    } catch (err: any) {
-      setError(err.message || "Unable to connect Google Sheet.");
-      setToast({ message: err.message || "Unable to connect Google Sheet.", type: "error" });
-    } finally {
-      setConnecting(false);
-      setIsSyncing(false);
     }
   };
 
   const handleDisconnectSheet = async () => {
     const isConfirmed = await confirm({
       title: "Disconnect Google Sheet",
-      message: "Are you sure you want to disconnect this Google Sheet? Portal test cases will remain, but synchronization will stop.",
+      message: "Are you sure you want to disconnect this Google Sheet? This will remove the connection and delete all synced test cases from the portal database.",
       confirmText: "Disconnect",
       type: "danger"
     });
@@ -1155,7 +1211,13 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
       const data = await res.json();
       if (!res.ok || data.error) {
-        throw new Error(data.error || "Sync engine failed.");
+        const errorMsg = data.error || "Sync engine failed.";
+        if (String(errorMsg).toLowerCase().includes("no google sheet connected")) {
+          localStorage.removeItem(CONNECTION_CACHE_KEY);
+          setSheetConnection(null);
+          setMode("uninitialized");
+        }
+        throw new Error(errorMsg);
       }
 
       if (data.success) {
@@ -1205,7 +1267,13 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
       const data = await res.json();
       if (!res.ok || data.error) {
-        throw new Error(data.error || "Failed to resolve conflicts.");
+        const errorMsg = data.error || "Failed to resolve conflicts.";
+        if (String(errorMsg).toLowerCase().includes("no google sheet connected")) {
+          localStorage.removeItem(CONNECTION_CACHE_KEY);
+          setSheetConnection(null);
+          setMode("uninitialized");
+        }
+        throw new Error(errorMsg);
       }
 
       if (data.success) {
@@ -1631,22 +1699,43 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     );
   }
 
+  if (error && error.toLowerCase().includes("project not found")) {
+    return (
+      <div className="min-h-[85vh] flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-3xl shadow-xl flex flex-col items-center gap-4 text-center max-w-sm border border-slate-100 animate-in zoom-in-95 duration-200">
+          <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center border border-rose-200">
+            <AlertTriangle className="w-8 h-8 text-rose-500" />
+          </div>
+          <h3 className="font-bold text-xl text-slate-900">Project Not Found</h3>
+          <p className="text-sm text-slate-500 leading-relaxed">
+            The project you are looking for does not exist or has been deleted from the database.
+          </p>
+          <Link href="/test-cases" className="btn-primary mt-2">
+            Back to Projects
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-500 relative">
       {isSyncing && (
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#ed5c37] animate-pulse z-50 rounded-t-2xl" />
       )}
-      {connecting && (
+      {(connecting || localFileLoading) && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-4 text-center max-w-sm border border-slate-100 animate-in zoom-in-95 duration-200">
             <RefreshCw className="w-12 h-12 text-[#ed5c37] animate-spin" />
             <h3 className="font-bold text-lg text-slate-900">
-              {validationPreview ? "Importing Test Cases" : "Validating Connection"}
+              {localFileLoading ? "Importing Test Cases" : (validationPreview ? "Importing Test Cases" : "Validating Connection")}
             </h3>
             <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-              {validationPreview
-                ? "Connecting Google Sheet and importing test cases to the secure database. Please do not close this window."
-                : "Verifying Google Sheet API permissions and scanning columns. Please do not close this window."}
+              {localFileLoading
+                ? "Processing your local file and importing test cases. Please do not close this window."
+                : (validationPreview
+                    ? "Connecting Google Sheet and importing test cases to the secure database. Please do not close this window."
+                    : "Verifying Google Sheet API permissions and scanning columns. Please do not close this window.")}
             </p>
           </div>
         </div>
@@ -2816,15 +2905,170 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
                         </td>
                       </tr>
                     ))}
-                    {testCases.length === 0 && (
+                    {casesLoading ? (
                       <tr>
                         <td colSpan={googleColumns.length + 2} className="px-6 py-16 text-center">
-                          <div className="flex flex-col items-center gap-3">
-                            <Info className="w-8 h-8 text-slate-300" />
-                            <p className="text-slate-400 font-medium text-sm">No test cases match filter criteria.</p>
+                          <div className="flex flex-col items-center justify-center gap-3">
+                            <Loader2 className="w-8 h-8 text-[#ed5c37] animate-spin" />
+                            <p className="text-slate-500 font-semibold text-sm">Loading test cases...</p>
                           </div>
                         </td>
                       </tr>
+                    ) : (
+                      <>
+                        {testCases.map(tc => (
+                          <tr
+                            key={tc.testCaseId}
+                            className={`hover:bg-slate-50/50 transition-colors group ${
+                              tc.status === "inactive" ? "opacity-50 line-through bg-slate-50/30" : ""
+                            } ${selectedCaseIds.includes(tc.testCaseId) ? "bg-orange-50/30" : ""}`}
+                          >
+                            <td className="px-4 py-2">
+                              <input
+                                type="checkbox"
+                                checked={selectedCaseIds.includes(tc.testCaseId)}
+                                onChange={e => {
+                                  if (e.target.checked) {
+                                    setSelectedCaseIds(prev => [...prev, tc.testCaseId]);
+                                  } else {
+                                    setSelectedCaseIds(prev => prev.filter(id => id !== tc.testCaseId));
+                                  }
+                                }}
+                                className="w-4 h-4 rounded border-slate-300 text-[#ed5c37] focus:ring-[#ed5c37] cursor-pointer accent-[#ed5c37]"
+                              />
+                            </td>
+                            {googleColumns.map((col: string) => {
+                              const colKey = col.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();
+                              const isIdCol = colKey === "testcaseid" || colKey === "tcid" || colKey === "id";
+                              const isDevStatus = colKey === "devstatus";
+                              const isQaStatus = colKey === "qastatus";
+                              const isPriority = colKey === "priority";
+                              const isCbVerified = colKey === "crossbrowserverified" || colKey === "crossbrowserverfied";
+                              const isJira = colKey === "jiraticket" || colKey === "jira";
+
+                              const statusVal = tc[col];
+
+                              return (
+                                <td key={col} className="px-4 py-2 border-r border-slate-100 last:border-r-0">
+                                  {isIdCol ? (
+                                    <span className="font-bold text-slate-800 text-xs px-2.5 py-1 bg-slate-100 rounded-lg border border-slate-200 shadow-sm">{statusVal}</span>
+                                  ) : isDevStatus ? (
+                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${
+                                      statusVal === "Passed" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                                      statusVal === "Failed" ? "bg-rose-50 text-rose-700 border-rose-200" :
+                                      statusVal === "Pending" ? "bg-amber-50 text-amber-700 border-amber-200" :
+                                      statusVal === "TBD" ? "bg-slate-100 text-slate-600 border-slate-300" :
+                                      "bg-blue-50 text-blue-700 border-blue-200"
+                                    }`}>
+                                      <span className={`w-1.5 h-1.5 rounded-full ${
+                                        statusVal === "Passed" ? "bg-emerald-500" :
+                                        statusVal === "Failed" ? "bg-rose-500" :
+                                        statusVal === "Pending" ? "bg-amber-500" :
+                                        statusVal === "TBD" ? "bg-slate-400" :
+                                        "bg-blue-500"
+                                      }`} />
+                                      {statusVal}
+                                    </span>
+                                  ) : isQaStatus ? (
+                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${
+                                      statusVal === "Passed" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                                      statusVal === "Failed" ? "bg-rose-700 text-rose-700 border-rose-200" :
+                                      statusVal === "Not Run" ? "bg-slate-100 text-slate-500 border-slate-300" :
+                                      statusVal === "Retest" ? "bg-indigo-50 text-indigo-700 border-indigo-200" :
+                                      "bg-amber-50 text-amber-700 border-amber-200"
+                                    }`}>
+                                      <span className={`w-1.5 h-1.5 rounded-full ${
+                                        statusVal === "Passed" ? "bg-emerald-500" :
+                                        statusVal === "Failed" ? "bg-rose-500" :
+                                        statusVal === "Not Run" ? "bg-slate-400" :
+                                        statusVal === "Retest" ? "bg-indigo-500" :
+                                        "bg-amber-500"
+                                      }`} />
+                                      {statusVal}
+                                    </span>
+                                  ) : isPriority ? (
+                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border shadow-sm ${
+                                      statusVal === "High" ? "bg-rose-50 text-rose-700 border-rose-200" :
+                                      statusVal === "Medium" ? "bg-amber-50 text-amber-700 border-amber-200" :
+                                      "bg-slate-100 text-slate-600 border-slate-300"
+                                    }`}>
+                                      {statusVal}
+                                    </span>
+                                  ) : isCbVerified ? (
+                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border shadow-sm ${
+                                      statusVal === "Yes" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-100 text-slate-500 border-slate-300"
+                                    }`}>
+                                      {statusVal}
+                                    </span>
+                                  ) : isJira ? (
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="font-bold text-slate-700 text-xs">{statusVal || "—"}</span>
+                                      {statusVal && (
+                                        <a
+                                          href={`https://citrusbug.atlassian.net/browse/${statusVal}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="p-1 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+                                          title="Open JIRA Ticket"
+                                        >
+                                          <ExternalLink className="w-3.5 h-3.5" />
+                                        </a>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <textarea
+                                      value={tc[col] || ""}
+                                      onChange={e => {
+                                        handleGoogleCellChangeState(tc.testCaseId, col, e.target.value);
+                                        e.target.style.height = 'auto';
+                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                      }}
+                                      onBlur={e => handleGoogleCellSync(tc.testCaseId, col, e.target.value)}
+                                      rows={1}
+                                      ref={(el) => {
+                                        if (el && !el.dataset.resized) {
+                                          el.style.height = 'auto';
+                                          el.style.height = `${el.scrollHeight}px`;
+                                          el.dataset.resized = 'true';
+                                        }
+                                      }}
+                                      className="w-full min-w-[220px] px-3 py-1.5 text-sm font-medium text-slate-700 bg-transparent border border-transparent rounded-lg hover:border-slate-200 focus:bg-white focus:border-[#ed5c37] focus:ring-2 focus:ring-[#ed5c37]/20 outline-none transition-all resize-none whitespace-pre-wrap overflow-hidden"
+                                      placeholder="—"
+                                    />
+                                  )}
+                                </td>
+                              );
+                            })}
+                            <td className="px-4 py-2 text-right whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  onClick={() => setSelectedCase(tc)}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-[#ed5c37] hover:text-white rounded-xl text-xs font-semibold transition-all shadow-sm cursor-pointer"
+                                >
+                                  Details
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteTestCase(tc.testCaseId)}
+                                  className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-100 hover:border-rose-500 transition-all shadow-sm cursor-pointer opacity-0 group-hover:opacity-100"
+                                  title={`Delete ${tc.testCaseId}`}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                        {testCases.length === 0 && (
+                          <tr>
+                            <td colSpan={googleColumns.length + 2} className="px-6 py-16 text-center">
+                              <div className="flex flex-col items-center gap-3">
+                                <Info className="w-8 h-8 text-slate-300" />
+                                <p className="text-slate-400 font-medium text-sm">No test cases match filter criteria.</p>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
                     )}
                   </tbody>
                 </table>

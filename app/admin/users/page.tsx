@@ -413,7 +413,14 @@ export default function AdminUsersPage() {
               <div className="pt-2 flex gap-3">
                 <button type="button" disabled={loading} onClick={() => setShowModal(false)} className="flex-1 py-3 px-4 rounded-xl font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 disabled:opacity-50 transition-all text-sm">Cancel</button>
                 <button type="submit" disabled={loading} className="flex-1 btn-primary justify-center shadow-lg shadow-orange-500/20 disabled:opacity-50 flex items-center gap-1.5">
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : editingUser ? "Update User" : "Invite User"}
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{editingUser ? "Updating..." : "Inviting..."}</span>
+                    </>
+                  ) : (
+                    <span>{editingUser ? "Update User" : "Invite User"}</span>
+                  )}
                 </button>
               </div>
             </form>

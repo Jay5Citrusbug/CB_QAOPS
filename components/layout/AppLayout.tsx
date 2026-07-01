@@ -15,6 +15,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem("cb_qops_theme", "light");
     document.documentElement.classList.remove("dark");
+
+    // Clear legacy localStorage cache on version update to prevent production mismatches
+    const currentVersion = "2.0.0";
+    const savedVersion = localStorage.getItem("cbqops_app_version");
+    if (savedVersion !== currentVersion) {
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith("cbqops_")) {
+          localStorage.removeItem(key);
+        }
+      });
+      localStorage.setItem("cbqops_app_version", currentVersion);
+      console.log("🧹 Legacy localStorage cache cleared for version " + currentVersion);
+    }
   }, []);
 
   const isLoginPage = pathname === "/login";

@@ -925,7 +925,14 @@ export default function ProjectHubPage() {
               <div className="pt-2 flex gap-4 border-t border-slate-100">
                 <button type="button" disabled={loading} onClick={() => setShowModal(false)} className="flex-1 py-3 px-4 rounded-xl font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 disabled:opacity-50 transition-all text-sm">Cancel</button>
                 <button type="submit" disabled={loading} className="flex-1 btn-primary justify-center shadow-lg shadow-orange-500/20 bg-[#ed5c37] hover:bg-[#d94a28] text-white font-bold py-3 rounded-xl disabled:opacity-50 transition-all text-sm flex items-center gap-1.5">
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isEditing ? "Update Project" : "Save Project")}
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{isEditing ? "Updating..." : "Saving..."}</span>
+                    </>
+                  ) : (
+                    <span>{isEditing ? "Update Project" : "Save Project"}</span>
+                  )}
                 </button>
               </div>
             </form>

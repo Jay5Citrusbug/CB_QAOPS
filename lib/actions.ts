@@ -404,7 +404,16 @@ export async function createUser(formData: FormData) {
       uid = userRecord.uid;
     } catch (authError: any) {
       const errMsg = (authError?.message || '').toLowerCase();
-      if (errMsg.includes('invalid_grant') || errMsg.includes('credential') || errMsg.includes('account not found') || errMsg.includes('oauth2')) {
+      const errCode = authError?.code;
+      if (errCode === 'auth/email-already-exists' || errMsg.includes('already in use') || errMsg.includes('already exists')) {
+        // User already exists in Firebase Auth — retrieve UID and sync details
+        const existingUser = await adminAuth.getUserByEmail(email);
+        uid = existingUser.uid;
+        await adminAuth.updateUser(uid, {
+          password,
+          displayName: name,
+        });
+      } else if (errMsg.includes('invalid_grant') || errMsg.includes('credential') || errMsg.includes('account not found') || errMsg.includes('oauth2')) {
         console.warn("⚠️ Firebase Auth createUser failed due to credential issue. Generating simulated uid.", authError);
         uid = 'simulated_' + Math.random().toString(36).substring(2, 15);
       } else {

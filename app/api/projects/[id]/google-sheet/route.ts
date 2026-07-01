@@ -419,13 +419,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       googleSheet: admin.firestore.FieldValue.delete(),
     });
 
-    // Fetch and delete all test case documents for this project
+    // Fetch and delete all test case documents for this project (chunked to prevent Firestore batch limit error)
     const testCasesSnap = await projectRef.collection("test_cases").get();
-    const batch = adminDb.batch();
-    testCasesSnap.docs.forEach(doc => {
-      batch.delete(doc.ref);
-    });
-    if (testCasesSnap.size > 0) {
+    const docs = testCasesSnap.docs;
+    const chunkSize = 500;
+    for (let i = 0; i < docs.length; i += chunkSize) {
+      const chunk = docs.slice(i, i + chunkSize);
+      const batch = adminDb.batch();
+      chunk.forEach(doc => {
+        batch.delete(doc.ref);
+      });
       await batch.commit();
     }
 
