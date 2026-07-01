@@ -125,6 +125,7 @@ export async function GET(
       documents: p.documents || [],
       timeline: finalTimeline,
       notesAndFlags: p.notesAndFlags || [],
+      googleSheet: p.googleSheet || null,
       createdAt: normalizeDate(p.created_at),
       updated_at: normalizeDate(p.updated_at),
     });

@@ -679,60 +679,73 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
 
   // Initial Fetch Setup
   useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const res = await fetch(`/api/projects/${projectId}`);
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        setProject(data);
-      } catch (err: any) {
-        setError(err.message || "Project not found.");
-      }
-    };
-
-    const cachedConnection = localStorage.getItem(`cbqops_gsconnection_${projectId}`);
+    const cachedProject = localStorage.getItem(`cbqops_project_${projectId}`);
     const cachedLocal = localStorage.getItem(`cbqops_testcases_${projectId}`);
+    
     let hasCache = false;
-    try {
-      hasCache = !!cachedConnection || (!!cachedLocal && JSON.parse(cachedLocal).length > 0);
-    } catch {
-      hasCache = false;
+    if (cachedProject) {
+      try {
+        const parsedProject = JSON.parse(cachedProject);
+        setProject(parsedProject);
+        if (parsedProject.googleSheet && parsedProject.googleSheet.url) {
+          setSheetConnection(parsedProject.googleSheet);
+          setSheetUrl(parsedProject.googleSheet.url || "");
+          setMode("google");
+        } else if (cachedLocal && JSON.parse(cachedLocal).length > 0) {
+          setMode("local");
+        } else {
+          setMode("uninitialized");
+        }
+        setLoading(false); // Load instantly from cache!
+        hasCache = true;
+      } catch {
+        hasCache = false;
+      }
+    } else if (cachedLocal && JSON.parse(cachedLocal).length > 0) {
+      setMode("local");
+      setLoading(false);
+      hasCache = true;
     }
 
     if (!hasCache) {
       setLoading(true);
     }
-    Promise.all([fetchProject(), fetchConnection()]).then(([_, config]) => {
-      // Check localStorage-cached connection as fallback if fetchConnection returned null
-      const cachedConnection = localStorage.getItem(`cbqops_gsconnection_${projectId}`);
-      const cachedLocal = localStorage.getItem(`cbqops_testcases_${projectId}`);
 
-      if (config) {
-        setMode("google");
-      } else if (cachedConnection) {
-        // Firestore may be temporarily unavailable — use localStorage cache to stay in google mode
-        try {
-          const parsedConn = JSON.parse(cachedConnection);
-          setSheetConnection(parsedConn);
-          setSheetUrl(parsedConn.url || "");
+    const fetchProjectAndConnection = async () => {
+      try {
+        // Fetch project metadata (which now includes the googleSheet connection details)
+        const res = await fetch(`/api/projects/${projectId}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        setProject(data);
+        localStorage.setItem(`cbqops_project_${projectId}`, JSON.stringify(data));
+
+        // If the project document in Firestore has a sheet connection, set it instantly
+        if (data.googleSheet && data.googleSheet.url) {
+          setSheetConnection(data.googleSheet);
+          setSheetUrl(data.googleSheet.url || "");
           setMode("google");
-          setSyncWarning("Quota exceeded — please try again in about 1 minute. Your connection and data are preserved.");
-        } catch {
-          // Cache corrupted — fall through
-          localStorage.removeItem(`cbqops_gsconnection_${projectId}`);
+        } else {
+          // If no Google Sheet connection, check local storage for local mode cached test cases
+          const cachedLocal = localStorage.getItem(`cbqops_testcases_${projectId}`);
           if (cachedLocal && JSON.parse(cachedLocal).length > 0) {
             setMode("local");
           } else {
             setMode("uninitialized");
           }
         }
-      } else if (cachedLocal && JSON.parse(cachedLocal).length > 0) {
-        setMode("local");
-      } else {
-        setMode("uninitialized");
+      } catch (err: any) {
+        setError(err.message || "Project not found.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+
+      // Background Fetch: load history and audit logs asynchronously in the background
+      fetchConnection(true);
+    };
+
+    fetchProjectAndConnection();
   }, [projectId]);
 
   // Fetch paginated cases (Google mode)
@@ -878,12 +891,7 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
       setLocalFileLoading(true);
       const startTime = Date.now();
 
-      const finishLoading = async (successCallback: () => void) => {
-        const elapsed = Date.now() - startTime;
-        const minDuration = 4000; // 4 seconds minimum
-        if (elapsed < minDuration) {
-          await new Promise(resolve => setTimeout(resolve, minDuration - elapsed));
-        }
+      const finishLoading = (successCallback: () => void) => {
         setLocalFileLoading(false);
         successCallback();
       };
@@ -1114,12 +1122,6 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
     } finally {
       apiCompleted = true;
       clearTimeout(maxTimer);
-
-      // Enforce a minimum loader duration of 4 seconds
-      const elapsed = Date.now() - startTime;
-      if (elapsed < 4000) {
-        await new Promise(resolve => setTimeout(resolve, 4000 - elapsed));
-      }
 
       setConnecting(false);
       setIsSyncing(false);
