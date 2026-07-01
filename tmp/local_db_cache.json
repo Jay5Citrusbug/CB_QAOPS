@@ -1,12 +1,15 @@
 {
-  "users": {
-    "6q6eBCbJmGOvZQrh0jwoURH0zsB2": {
-      "name": "Ziplyst",
-      "email": "tirth.citrusbug@gmail.com",
-      "role": "USER",
-      "project_id": null,
-      "password": "$2b$10$YPuwHjVaS6QkRpI8OQzjVODeABHqp8ADPBUKqBDZ9iSbbEISIh4xG",
-      "created_at": "2026-07-01T05:41:57.355Z"
-    }
-  }
+  "projects": {},
+  "milestones": {},
+  "test_cases": {},
+  "sync_history": {},
+  "audit_logs": {},
+  "daily_statuses": {},
+  "tasks": {},
+  "task_steps": {},
+  "task_lists": {},
+  "task_activities": {},
+  "notifications": {},
+  "users": {},
+  "settings": {}
 }
