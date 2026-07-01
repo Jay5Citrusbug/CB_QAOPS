@@ -724,17 +724,17 @@ export default function ProjectTestCasesPage({ params }: { params: Promise<{ pro
         } else {
           setMode("uninitialized");
         }
+
+        // Background Fetch: only load connection history/audit logs if googleSheet is active AND activeMode is google
+        const activeModeVal = localStorage.getItem(`cbqops_active_mode_${projectId}`);
+        const isGoogleMode = activeModeVal === "google" || (!activeModeVal && hasGoogleSheet);
+        if (isGoogleMode) {
+          fetchConnection(true);
+        }
       } catch (err: any) {
         setError(err.message || "Project not found.");
       } finally {
         setLoading(false);
-      }
-
-      // Background Fetch: only load connection history/audit logs if googleSheet is active AND activeMode is google
-      const activeModeVal = localStorage.getItem(`cbqops_active_mode_${projectId}`);
-      const isGoogleMode = activeModeVal === "google" || (!activeModeVal && data.googleSheet && data.googleSheet.url);
-      if (isGoogleMode) {
-        fetchConnection(true);
       }
     };
 
