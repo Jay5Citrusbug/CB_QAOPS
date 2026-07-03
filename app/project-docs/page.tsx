@@ -98,7 +98,6 @@ export default function ProjectDocsPage() {
     }
   };
 
-  const userEmail = session?.user?.email;
   useEffect(() => {
     if (userEmail) {
       fetchProjects();

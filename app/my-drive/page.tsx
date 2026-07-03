@@ -85,7 +85,6 @@ export default function MyDrivePage() {
     }
   };
 
-  const userEmail = session?.user?.email;
   useEffect(() => {
     if (userEmail) {
       fetchDriveItems();
