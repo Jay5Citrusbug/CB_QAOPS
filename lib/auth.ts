@@ -1,16 +1,27 @@
 import { NextAuthOptions, DefaultSession, DefaultUser } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import localCacheData from '../tmp/local_db_cache.json';
-
-// Direct cache user lookup — no Firebase dependency at all
+// Direct cache user lookup — no Firebase dependency at all, dynamically read from disk at runtime
 function findUserInCache(email: string): { id: string; data: Record<string, any> } | null {
-  const usersCollection = (localCacheData as any)?.users;
-  if (!usersCollection || typeof usersCollection !== 'object') return null;
-  for (const [docId, userData] of Object.entries(usersCollection)) {
-    const u = userData as any;
-    if (u?.email?.toLowerCase() === email.toLowerCase()) {
-      return { id: docId, data: u };
+  const fs = require('fs');
+  const path = require('path');
+  try {
+    const cacheDir = process.env.VERCEL ? '/tmp' : path.join(process.cwd(), 'tmp');
+    const cachePath = path.join(cacheDir, 'local_db_cache.json');
+    if (!fs.existsSync(cachePath)) return null;
+    
+    const data = fs.readFileSync(cachePath, 'utf8');
+    const localCacheData = JSON.parse(data);
+    const usersCollection = localCacheData?.users;
+    if (!usersCollection || typeof usersCollection !== 'object') return null;
+    
+    for (const [docId, userData] of Object.entries(usersCollection)) {
+      const u = userData as any;
+      if (u?.email?.toLowerCase() === email.toLowerCase()) {
+        return { id: docId, data: u };
+      }
     }
+  } catch (err) {
+    console.error("Failed to read user from local cache:", err);
   }
   return null;
 }
