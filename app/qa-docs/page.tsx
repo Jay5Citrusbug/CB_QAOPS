@@ -93,11 +93,12 @@ export default function QADocsPage() {
     setMounted(true);
   }, []);
 
+  const userEmail = session?.user?.email;
   useEffect(() => {
-    if (session?.user) {
+    if (userEmail) {
       fetchFolders();
     }
-  }, [session]);
+  }, [userEmail]);
 
   useEffect(() => {
     if (toast) {

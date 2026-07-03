@@ -102,7 +102,7 @@ async function seedDatabase() {
   }
 
   // Define collections to seed in order of dependency
-  const collections = ['users', 'projects', 'tasks', 'task_steps', 'daily_statuses'];
+  const collections = ['users', 'projects', 'tasks', 'task_steps', 'daily_statuses', 'prompt_categories', 'prompts'];
 
   for (const collectionName of collections) {
     const items = seedData[collectionName];

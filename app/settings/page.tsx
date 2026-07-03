@@ -92,14 +92,15 @@ export default function SettingsPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [testResult, setTestResult] = useState<{ success?: boolean; error?: string } | null>(null);
 
-  // Sync session name on load
+  // Sync session name on load — use stable primitive to avoid infinite re-renders
+  const sessionUserName = session?.user?.name;
   useEffect(() => {
-    if (session?.user?.name) {
-      const nameParts = session.user.name.split(" ");
+    if (sessionUserName) {
+      const nameParts = sessionUserName.split(" ");
       setFirstName(nameParts[0] || "");
       setLastName(nameParts.slice(1).join(" ") || "");
     }
-  }, [session]);
+  }, [sessionUserName]);
 
   useEffect(() => {
     // Redirect if not authenticated
@@ -108,10 +109,11 @@ export default function SettingsPage() {
     }
   }, [status, router]);
 
-  // Load Discord settings if ADMIN
+  // Load Discord settings if ADMIN — use stable status string, not session object
+  const userRole = (session?.user as any)?.role;
   useEffect(() => {
     async function loadSettings() {
-      if (status !== "authenticated" || (session?.user as any)?.role !== "ADMIN") {
+      if (status !== "authenticated" || userRole !== "ADMIN") {
         setLoadingSettings(false);
         return;
       }
@@ -131,7 +133,7 @@ export default function SettingsPage() {
       }
     }
     loadSettings();
-  }, [session, status]);
+  }, [status, userRole]);
 
   const isAdmin = (session?.user as any)?.role === "ADMIN";
 

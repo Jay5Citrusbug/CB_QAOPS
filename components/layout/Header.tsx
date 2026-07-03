@@ -29,14 +29,15 @@ export default function Header() {
     }
   };
 
+  const userEmail = session?.user?.email;
   useEffect(() => {
-    if (session?.user) {
+    if (userEmail) {
       fetchNotifications();
       // Fetch every 60 seconds
       const interval = setInterval(fetchNotifications, 60000);
       return () => clearInterval(interval);
     }
-  }, [session]);
+  }, [userEmail]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

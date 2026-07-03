@@ -178,12 +178,13 @@ export default function FavoritesPage() {
     }
   };
 
+  const userEmailStable = session?.user?.email;
   useEffect(() => {
-    if (session?.user) {
+    if (userEmailStable) {
       fetchProjectsData();
       fetchQuickNotes();
     }
-  }, [session]);
+  }, [userEmailStable]);
 
   useEffect(() => {
     if (toast) {

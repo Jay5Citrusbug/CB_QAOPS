@@ -153,14 +153,14 @@ export default function MyProjectsPage() {
     }
   };
 
+  const userEmail = session?.user?.email || "";
   useEffect(() => {
-    if (session?.user) {
+    if (userEmail) {
       fetchProjects();
       fetchMilestones();
     }
-  }, [session]);
+  }, [userEmail]);
 
-  const userEmail = session?.user?.email || "";
   const userRole = (session?.user as any)?.role || "";
   const isQaLead = userRole === "ADMIN" || userRole === "TL";
 

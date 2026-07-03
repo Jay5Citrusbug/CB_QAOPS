@@ -98,11 +98,12 @@ export default function ProjectDocsPage() {
     }
   };
 
+  const userEmail = session?.user?.email;
   useEffect(() => {
-    if (session?.user) {
+    if (userEmail) {
       fetchProjects();
     }
-  }, [session]);
+  }, [userEmail]);
 
   useEffect(() => {
     if (toast) {

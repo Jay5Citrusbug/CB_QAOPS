@@ -85,11 +85,12 @@ export default function MyDrivePage() {
     }
   };
 
+  const userEmail = session?.user?.email;
   useEffect(() => {
-    if (session?.user) {
+    if (userEmail) {
       fetchDriveItems();
     }
-  }, [session]);
+  }, [userEmail]);
 
   useEffect(() => {
     if (toast) {

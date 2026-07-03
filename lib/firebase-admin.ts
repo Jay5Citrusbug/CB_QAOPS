@@ -1,5 +1,25 @@
 import admin from "firebase-admin";
-import initialCacheData from "../tmp/local_db_cache.json";
+
+// Default empty cache structure — used as fallback when the local cache file
+// doesn't exist. NEVER import from tmp/local_db_cache.json at build time
+// to prevent local dev data from leaking into production builds.
+const DEFAULT_CACHE_STRUCTURE: Record<string, Record<string, any>> = {
+  users: {},
+  projects: {},
+  milestones: {},
+  test_cases: {},
+  sync_history: {},
+  audit_logs: {},
+  daily_statuses: {},
+  tasks: {},
+  task_steps: {},
+  task_lists: {},
+  task_activities: {},
+  notifications: {},
+  settings: {},
+  prompt_categories: {},
+  prompts: {},
+};
 
 let isMockMode = false;
 let isOfflineMode = false;
@@ -28,8 +48,14 @@ function getAdminApp() {
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
   const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || (projectId ? `${projectId}.appspot.com` : undefined);
 
-  if (!projectId || !clientEmail || !privateKey) {
-    console.warn("⚠️ Firebase Admin SDK environment variables are not configured. Using dummy/mock credentials and forcing offline mode.");
+  const isLocalDev = process.env.NODE_ENV === 'development' && process.env.FIREBASE_CONNECT_PROD !== 'true';
+
+  if (isLocalDev || !projectId || !clientEmail || !privateKey) {
+    if (isLocalDev) {
+      console.warn("⚠️ [Firestore Fallback] Local development detected. Forcing mock credentials and offline mode to prevent production sync. (Set FIREBASE_CONNECT_PROD=true to override)");
+    } else {
+      console.warn("⚠️ Firebase Admin SDK environment variables are not configured. Using dummy/mock credentials and forcing offline mode.");
+    }
     isMockMode = true;
     
     // Only enter offline fallback mode on serverless if environment variables are totally missing,
@@ -119,15 +145,26 @@ function loadCacheIfNeeded() {
     if (!fs.existsSync(cacheDir)) {
       fs.mkdirSync(cacheDir, { recursive: true });
     }
+    // Always start with the bundled initial structure to guarantee all collections exist
+    const baseData = JSON.parse(JSON.stringify(DEFAULT_CACHE_STRUCTURE));
     if (fs.existsSync(cachePath)) {
       const data = fs.readFileSync(cachePath, 'utf8');
-      cacheData = JSON.parse(data);
+      const fileData = JSON.parse(data);
+      // Merge file data ON TOP of base structure: file data wins for existing docs,
+      // but any collection missing from the file gets its initial empty/seeded state.
+      for (const col of Object.keys(fileData)) {
+        if (!baseData[col]) {
+          baseData[col] = {};
+        }
+        Object.assign(baseData[col], fileData[col]);
+      }
+      cacheData = baseData;
       cacheLoaded = true;
       lastCacheReadTime = now;
-      console.log('✅ Loaded Firestore local cache from file.');
+      console.log('✅ Loaded Firestore local cache from file (merged with initial structure).');
     } else {
       // Initialize cacheData from the bundled JSON!
-      cacheData = JSON.parse(JSON.stringify(initialCacheData));
+      cacheData = baseData;
       // Save it to Vercel's /tmp so subsequent writes can succeed
       fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2), 'utf8');
       cacheLoaded = true;
@@ -136,7 +173,7 @@ function loadCacheIfNeeded() {
     }
   } catch (err) {
     console.error('Failed to initialize local Firestore cache:', err);
-    cacheData = {};
+    cacheData = JSON.parse(JSON.stringify(DEFAULT_CACHE_STRUCTURE));
     cacheLoaded = true;
   }
 }
