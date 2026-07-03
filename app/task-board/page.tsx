@@ -198,6 +198,8 @@ export default function TaskBoardPage() {
   // Drawer Inline Edit States
   const [drawerNotes, setDrawerNotes] = useState("");
   const [drawerDesc, setDrawerDesc] = useState("");
+  const [editingStepId, setEditingStepId] = useState<string | null>(null);
+  const [editingStepTitle, setEditingStepTitle] = useState<string>("");
 
   // Completed Section Collapse
   const [completedCollapsed, setCompletedCollapsed] = useState(false);
@@ -279,8 +281,8 @@ export default function TaskBoardPage() {
   }, [selectedListId]);
 
   // Load Single Task Details
-  const fetchTaskDetails = async (taskId: string) => {
-    setLoadingDrawer(true);
+  const fetchTaskDetails = async (taskId: string, silent = false) => {
+    if (!silent) setLoadingDrawer(true);
     try {
       const res = await fetch(`/api/tasks/${taskId}?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
@@ -301,7 +303,7 @@ export default function TaskBoardPage() {
     } catch (err) {
       console.error("Failed to load task details", err);
     } finally {
-      setLoadingDrawer(false);
+      if (!silent) setLoadingDrawer(false);
     }
   };
 
@@ -702,7 +704,7 @@ export default function TaskBoardPage() {
   };
 
   // Update Task Detail Property
-  const handleUpdateTaskDetail = async (updates: Partial<Task>) => {
+  const handleUpdateTaskDetail = async (updates: Partial<Task>, silent = false) => {
     if (!selectedTaskId || !selectedListId) return;
     setIsSyncing(true);
     // Optimistically update tasks state
@@ -722,7 +724,7 @@ export default function TaskBoardPage() {
       if (res.ok) {
         setToast({ message: "Task updated successfully!", type: "success" });
         await Promise.all([
-          fetchTaskDetails(selectedTaskId),
+          fetchTaskDetails(selectedTaskId, silent),
           fetchTasks(selectedListId, true),
           fetchLists(true)
         ]);
@@ -743,6 +745,22 @@ export default function TaskBoardPage() {
     } finally {
       setIsSyncing(false);
     }
+  };
+
+  const saveStepEdit = (idx: number) => {
+    if (!taskDetails) return;
+    if (!editingStepTitle.trim()) {
+      setEditingStepId(null);
+      return;
+    }
+    if (editingStepTitle.trim() === taskDetails.steps[idx].title) {
+      setEditingStepId(null);
+      return;
+    }
+    const newSteps = [...taskDetails.steps];
+    newSteps[idx] = { ...newSteps[idx], title: editingStepTitle.trim() };
+    handleUpdateTaskDetail({ steps: newSteps }, true);
+    setEditingStepId(null);
   };
 
   // Delete Task
@@ -1742,28 +1760,52 @@ export default function TaskBoardPage() {
                 <div className="space-y-1">
                   {taskDetails.steps.map((step, idx) => (
                     <div key={step.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-xl transition-all">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-1">
                         <button
                           type="button"
                           onClick={() => {
                             const newSteps = [...taskDetails.steps];
                             newSteps[idx] = { ...step, isCompleted: !step.isCompleted };
-                            handleUpdateTaskDetail({ steps: newSteps });
+                            handleUpdateTaskDetail({ steps: newSteps }, true);
                           }}
                           className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${step.isCompleted ? "bg-[#F46A3A] border-[#F46A3A] text-white" : "border-slate-300"
                             }`}
                         >
                           {step.isCompleted && <Check className="w-2.5 h-2.5" />}
                         </button>
-                        <span className={`text-sm font-semibold ${step.isCompleted ? "text-slate-400 line-through" : "text-slate-700"}`}>
-                          {step.title}
-                        </span>
+                        {editingStepId === step.id ? (
+                          <input
+                            type="text"
+                            value={editingStepTitle}
+                            onChange={(e) => setEditingStepTitle(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                saveStepEdit(idx);
+                              } else if (e.key === "Escape") {
+                                setEditingStepId(null);
+                              }
+                            }}
+                            onBlur={() => saveStepEdit(idx)}
+                            className="bg-transparent border-b border-[#F46A3A]/30 focus:border-[#F46A3A] outline-none text-sm text-slate-800 font-semibold py-0 px-1 w-full max-w-[280px]"
+                            autoFocus
+                          />
+                        ) : (
+                          <span
+                            onClick={() => {
+                              setEditingStepId(step.id);
+                              setEditingStepTitle(step.title);
+                            }}
+                            className={`text-sm font-semibold cursor-pointer hover:text-[#F46A3A] transition-colors ${step.isCompleted ? "text-slate-400 line-through" : "text-slate-700"}`}
+                          >
+                            {step.title}
+                          </span>
+                        )}
                       </div>
                       <button
                         type="button"
                         onClick={() => {
                           const newSteps = taskDetails.steps.filter((_, i) => i !== idx);
-                          handleUpdateTaskDetail({ steps: newSteps });
+                          handleUpdateTaskDetail({ steps: newSteps }, true);
                         }}
                         className="p-1 text-slate-300 hover:text-red-500 rounded"
                       >
@@ -1784,8 +1826,20 @@ export default function TaskBoardPage() {
                             title: (e.target as HTMLInputElement).value.trim(),
                             isCompleted: false
                           };
-                          handleUpdateTaskDetail({ steps: [...taskDetails.steps, newStep] });
+                          handleUpdateTaskDetail({ steps: [...taskDetails.steps, newStep] }, true);
                           (e.target as HTMLInputElement).value = "";
+                        }
+                      }}
+                      onBlur={(e) => {
+                        const val = e.target.value.trim();
+                        if (val) {
+                          const newStep = {
+                            id: `step_${Date.now()}`,
+                            title: val,
+                            isCompleted: false
+                          };
+                          handleUpdateTaskDetail({ steps: [...taskDetails.steps, newStep] }, true);
+                          e.target.value = "";
                         }
                       }}
                     />

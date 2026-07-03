@@ -229,7 +229,7 @@ export default function ProjectHubPage() {
   };
 
   // Filter QA and Dev users for dropdowns
-  const qaUsers = users.filter(u => u.role === "USER" || u.role === "TL");
+  const qaUsers = users.filter(u => u.role === "USER" || u.role === "TL" || u.role === "ADMIN");
   const devUsers = users.filter(u => u.role === "DEV");
   const tlUsers = users.filter(u => u.role === "TL" || u.role === "ADMIN");
 

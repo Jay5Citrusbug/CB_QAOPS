@@ -133,3 +133,48 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+// PATCH: Rename a QA folder (Admin only)
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    const userRole = (session?.user as any)?.role;
+    if (!session?.user || userRole !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { id, name } = await request.json();
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({ error: 'Folder ID is required' }, { status: 400 });
+    }
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      return NextResponse.json({ error: 'Folder name is required' }, { status: 400 });
+    }
+
+    const trimmedName = name.trim();
+
+    // Verify folder exists
+    const folderDoc = await adminDb.collection('qa_folders').doc(id).get();
+    if (!folderDoc.exists) {
+      return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
+    }
+
+    // Check for duplicate name (excluding itself)
+    const dupeCheck = await adminDb.collection('qa_folders').where('name', '==', trimmedName).get();
+    const otherDupe = dupeCheck.docs.some(doc => doc.id !== id);
+    if (otherDupe) {
+      return NextResponse.json({ error: 'A folder with this name already exists' }, { status: 400 });
+    }
+
+    // Update folder name
+    await adminDb.collection('qa_folders').doc(id).update({
+      name: trimmedName,
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return NextResponse.json({ success: true, id, name: trimmedName });
+  } catch (error: any) {
+    console.error('[QA Folders PATCH]', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

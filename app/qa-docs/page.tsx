@@ -29,7 +29,8 @@ import {
   MoreVertical,
   ShieldCheck,
   FileUp,
-  Eye
+  Eye,
+  Edit3
 } from "lucide-react";
 import DocumentPreviewModal from "@/components/DocumentPreviewModal";
 
@@ -75,6 +76,9 @@ export default function QADocsPage() {
   // Modals state
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [renameFolderId, setRenameFolderId] = useState("");
+  const [renameFolderName, setRenameFolderName] = useState("");
   
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadSource, setUploadSource] = useState<"file" | "link">("file");
@@ -193,6 +197,43 @@ export default function QADocsPage() {
       if (activeFolder?.id === folderId) {
         setActiveFolder(null);
       }
+      fetchFolders();
+    } catch (err: any) {
+      setToast({ message: err.message || "An error occurred", type: "error" });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Rename Folder
+  const handleRenameFolder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!renameFolderId || !renameFolderName.trim()) return;
+
+    try {
+      setIsSyncing(true);
+      const res = await fetch("/api/qa-docs/folders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: renameFolderId, name: renameFolderName }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to rename folder");
+
+      setToast({ message: `Folder renamed to "${data.name}" successfully`, type: "success" });
+      setRenameFolderName("");
+      setRenameFolderId("");
+      setShowRenameModal(false);
+      
+      // Update activeFolder if it is the renamed folder
+      if (activeFolder && activeFolder.id === renameFolderId) {
+        setActiveFolder({
+          ...activeFolder,
+          name: data.name,
+        });
+      }
+      
       fetchFolders();
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
@@ -500,6 +541,17 @@ export default function QADocsPage() {
                             onClick={(e) => e.stopPropagation()}
                           >
                             <button
+                              onClick={() => {
+                                setRenameFolderId(f.id);
+                                setRenameFolderName(f.name);
+                                setShowRenameModal(true);
+                                setActiveMenuFolderId(null);
+                              }}
+                              className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 border-b border-slate-100"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" /> Rename Folder
+                            </button>
+                            <button
                               onClick={() => handleDeleteFolder(f.id, f.name)}
                               className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-1.5"
                             >
@@ -548,6 +600,19 @@ export default function QADocsPage() {
                 </div>
                 <h2 className="text-xl font-extrabold text-slate-800 flex items-center gap-2 mt-1 break-all">
                   <FolderOpen className="w-5 h-5 text-[#ed5c37] fill-orange-50/50 shrink-0" /> {activeFolder.name}
+                  {isAdmin && (
+                    <button
+                      onClick={() => {
+                        setRenameFolderId(activeFolder.id);
+                        setRenameFolderName(activeFolder.name);
+                        setShowRenameModal(true);
+                      }}
+                      className="p-1 hover:bg-slate-200/50 rounded text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                      title="Rename Folder"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </h2>
               </div>
             </div>
@@ -763,6 +828,68 @@ export default function QADocsPage() {
                   className="flex-1 py-2.5 rounded-xl font-bold bg-[#ed5c37] hover:bg-[#d94f2c] text-white text-xs transition-all shadow-md shadow-[#ed5c37]/20 cursor-pointer"
                 >
                   Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1.5: RENAME FOLDER MODAL */}
+      {showRenameModal && (
+        <div 
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-[999] flex items-center justify-center p-4 animate-in fade-in duration-300"
+          onClick={() => setShowRenameModal(false)}
+        >
+          <div 
+            className="bg-white w-full max-w-md rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in scale-in duration-200 border border-slate-100"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 text-[#ed5c37] flex items-center justify-center shadow-xs">
+                  <Folder className="w-5.5 h-5.5 fill-orange-50" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-850 text-base">Rename QA Folder</h3>
+                  <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider mt-0.5">Library Management</span>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowRenameModal(false)}
+                className="p-2 hover:bg-slate-200/50 rounded-xl text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRenameFolder} className="p-6 space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-450 uppercase tracking-wider block">Folder Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. SOP, Automation Training, Prompts"
+                  value={renameFolderName}
+                  onChange={(e) => setRenameFolderName(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3.5 text-xs outline-none focus:ring-2 focus:ring-[#ed5c37]/20 focus:border-[#ed5c37] transition-all font-semibold text-slate-700"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowRenameModal(false)}
+                  className="flex-1 py-2.5 rounded-xl font-bold bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs transition-colors border border-slate-150 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSyncing}
+                  className="flex-1 py-2.5 rounded-xl font-bold bg-[#ed5c37] hover:bg-[#d94f2c] text-white text-xs transition-all shadow-md shadow-[#ed5c37]/20 cursor-pointer"
+                >
+                  Save
                 </button>
               </div>
             </form>
