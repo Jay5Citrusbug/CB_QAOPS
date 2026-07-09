@@ -624,8 +624,9 @@ export default function PromptLibraryPage() {
                         <span>{formatDate(f.createdAt)}</span>
                       </div>
                     </div>
-                  );
-                })
+                  </div>
+                );
+              })
               )}
             </div>
           </>
