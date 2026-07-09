@@ -32,11 +32,17 @@ export async function GET(request: Request) {
         prompt: d.prompt,
         createdBy: d.created_by ?? '',
         createdAt: d.created_at ? (d.created_at.toDate ? d.created_at.toDate().toISOString() : new Date(d.created_at).toISOString()) : null,
+        order: d.order ?? 0,
       };
     });
 
-    // Sort by title
-    prompts.sort((a: any, b: any) => a.title.localeCompare(b.title));
+    // Sort by order ascending, fallback to title
+    prompts.sort((a: any, b: any) => {
+      const orderA = a.order ?? 0;
+      const orderB = b.order ?? 0;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.title.localeCompare(b.title);
+    });
 
     return NextResponse.json(prompts);
   } catch (error: any) {
@@ -73,6 +79,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid category ID' }, { status: 400 });
     }
 
+    const promptsSnap = await adminDb.collection('prompts').where('category_id', '==', categoryId).get();
+    const order = promptsSnap.size;
+
     const now = admin.firestore.FieldValue.serverTimestamp();
     const docRef = await adminDb.collection('prompts').add({
       category_id: categoryId,
@@ -80,6 +89,7 @@ export async function POST(request: Request) {
       prompt: prompt.trim(),
       created_by: userId,
       created_at: now,
+      order,
     });
 
     return NextResponse.json({ id: docRef.id, success: true });

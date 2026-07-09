@@ -23,11 +23,17 @@ export async function GET() {
         description: d.description ?? '',
         createdBy: d.created_by ?? '',
         createdAt: d.created_at ? (d.created_at.toDate ? d.created_at.toDate().toISOString() : new Date(d.created_at).toISOString()) : null,
+        order: d.order ?? 0,
       };
     });
 
-    // Sort alphabetically by name
-    categories.sort((a, b) => a.name.localeCompare(b.name));
+    // Sort by order ascending, fallback to name
+    categories.sort((a, b) => {
+      const orderA = a.order ?? 0;
+      const orderB = b.order ?? 0;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.name.localeCompare(b.name);
+    });
 
     return NextResponse.json(categories);
   } catch (error: any) {
@@ -52,12 +58,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Category name is required' }, { status: 400 });
     }
 
+    const categoriesSnap = await adminDb.collection('prompt_categories').get();
+    const order = categoriesSnap.size;
+
     const now = admin.firestore.FieldValue.serverTimestamp();
     const docRef = await adminDb.collection('prompt_categories').add({
       name: name.trim(),
       description: description ?? '',
       created_by: userId,
       created_at: now,
+      order,
     });
 
     return NextResponse.json({ id: docRef.id, success: true });

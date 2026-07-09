@@ -47,26 +47,28 @@ export default function DashboardClient({
     setMounted(true);
   }, []);
 
+  const fetchDashboardData = async () => {
+    try {
+      const res = await fetch("/api/dashboard?t=" + Date.now(), { cache: 'no-store' });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      setProjects(data.projects || []);
+      setTaskLists(data.taskLists || []);
+      setAllTasks(data.allTasks || []);
+      setDailyStatuses(data.dailyStatuses || []);
+      setUsers(data.users || []);
+    } catch (err) {
+      console.error("Failed to load dashboard data on client:", err);
+    }
+  };
+
   useEffect(() => {
     if (!initialProjects || initialProjects.length === 0) {
-      const loadDashboardData = async () => {
-        try {
-          const res = await fetch("/api/dashboard");
-          const data = await res.json();
-          if (data.error) throw new Error(data.error);
-
-          setProjects(data.projects || []);
-          setTaskLists(data.taskLists || []);
-          setAllTasks(data.allTasks || []);
-          setDailyStatuses(data.dailyStatuses || []);
-          setUsers(data.users || []);
-        } catch (err) {
-          console.error("Failed to load dashboard data on client:", err);
-        } finally {
-          setLoadingData(false);
-        }
-      };
-      loadDashboardData();
+      setLoadingData(true);
+      fetchDashboardData().finally(() => {
+        setLoadingData(false);
+      });
     }
   }, [initialProjects]);
 
@@ -119,17 +121,62 @@ export default function DashboardClient({
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
-
   const todayStr = getLocalDateString(new Date());
 
-  // Check if dates represent the same local calendar day
+  const lastStatusDateStr = useMemo(() => {
+    if (!dailyStatuses || dailyStatuses.length === 0) return null;
+    
+    // Convert all status dates to YYYY-MM-DD format
+    const dates = dailyStatuses
+      .map(s => {
+        if (!s.date) return "";
+        if (s.date.includes('T')) {
+          const [datePart, timePart] = s.date.split('T');
+          if (timePart.startsWith('00:00:00')) {
+            return datePart;
+          } else {
+            const d = new Date(s.date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+          }
+        }
+        return s.date;
+      })
+      .filter(dateStr => dateStr && dateStr < todayStr); // only dates strictly before today
+      
+    if (dates.length === 0) return null;
+    
+    // Sort in descending order to get the most recent date
+    dates.sort((a, b) => b.localeCompare(a));
+    return dates[0];
+  }, [dailyStatuses, todayStr]);
+
+  const yesterdayStr = useMemo(() => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return getLocalDateString(yesterday);
+  }, []);
+
+  const targetDateStr = lastStatusDateStr || yesterdayStr;
+
+  // Check if dates represent the same local calendar day (timezone-safe)
   const isSameDay = (d1Str: string, d2Str: string) => {
     if (!d1Str || !d2Str) return false;
-    const d1 = new Date(d1Str);
-    const d2 = new Date(d2Str);
-    return d1.getFullYear() === d2.getFullYear() &&
-           d1.getMonth() === d2.getMonth() &&
-           d1.getDate() === d2.getDate();
+    if (d1Str.includes('T')) {
+      const [datePart, timePart] = d1Str.split('T');
+      if (timePart.startsWith('00:00:00')) {
+        return datePart === d2Str;
+      } else {
+        const d1 = new Date(d1Str);
+        const year = d1.getFullYear();
+        const month = String(d1.getMonth() + 1).padStart(2, '0');
+        const day = String(d1.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}` === d2Str;
+      }
+    }
+    return d1Str === d2Str;
   };
 
   // Determine whose data to display in standard dashboard cards
@@ -210,13 +257,12 @@ export default function DashboardClient({
   // 6. Metrics
   const metrics = useMemo(() => {
     const totalToday = todayTasks.length;
-    const openTasks = currentViewTasks.filter(t => (t.status === 'To Do' || t.status === 'PENDING' || t.status === 'Open') && t.status !== 'Completed').length;
+    const openTasks = currentViewTasks.filter(t => t.status !== 'Completed' && t.status !== 'COMPLETED').length;
     const inProgress = currentViewTasks.filter(t => t.status === 'In Progress').length;
     
     // Completed today
     const completedToday = currentViewTasks.filter(t => {
-      if (t.status !== 'Completed') return false;
-      return t.completedAt && isSameDay(t.completedAt, todayStr);
+      return (t.status === 'Completed' || t.status === 'COMPLETED') && t.completedAt && isSameDay(t.completedAt, todayStr);
     }).length;
 
     return { totalToday, openTasks, inProgress, completedToday };
@@ -235,20 +281,20 @@ export default function DashboardClient({
       const uTodayTasks = uTasks.filter(t => t.dueDate && isSameDay(t.dueDate, todayStr));
       const tasksTodayCount = uTodayTasks.length;
       
-      const openTasksCount = uTasks.filter(t => (t.status === 'To Do' || t.status === 'PENDING' || t.status === 'Open') && t.status !== 'Completed').length;
+      const openTasksCount = uTasks.filter(t => t.status !== 'Completed' && t.status !== 'COMPLETED').length;
       
       const completedTodayCount = uTasks.filter(t => {
         return t.status === 'Completed' && t.completedAt && isSameDay(t.completedAt, todayStr);
       }).length;
       
-      const uTodayStatuses = dailyStatuses.filter(s => s.date && isSameDay(s.date, todayStr) && (s.userId === u.id || s.user_id === u.id));
-      const hasSubmitted = uTodayStatuses.length > 0;
+      const uLastStatuses = dailyStatuses.filter(s => s.date && isSameDay(s.date, targetDateStr) && (s.userId === u.id || s.user_id === u.id));
+      const hasSubmitted = uLastStatuses.length > 0;
       
       let statusSummary = "";
       let submittedAt = "";
       if (hasSubmitted) {
-        statusSummary = uTodayStatuses[0].workDone || uTodayStatuses[0].work_done || "";
-        submittedAt = uTodayStatuses[0].createdAt || uTodayStatuses[0].created_at || "";
+        statusSummary = uLastStatuses[0].workDone || uLastStatuses[0].work_done || "";
+        submittedAt = uLastStatuses[0].createdAt || uLastStatuses[0].created_at || "";
       }
       
       return {
@@ -261,9 +307,9 @@ export default function DashboardClient({
         submittedAt
       };
     });
-  }, [isQaLead, users, allTasks, dailyStatuses, todayStr]);
+  }, [isQaLead, users, allTasks, dailyStatuses, todayStr, targetDateStr]);
 
-  // 8. Team status submissions list (for Today's Status card on Team Dashboard)
+  // 8. Team status submissions list (for Last Day's Status card on Team Dashboard)
   const teamStatusSubmissions = useMemo(() => {
     if (!users || users.length === 0) return [];
     
@@ -271,14 +317,14 @@ export default function DashboardClient({
     const qaUsers = users.filter(u => u.role === 'USER');
     
     return qaUsers.map(u => {
-      const uTodayStatuses = dailyStatuses.filter(s => s.date && isSameDay(s.date, todayStr) && (s.userId === u.id || s.user_id === u.id));
-      const hasSubmitted = uTodayStatuses.length > 0;
+      const uLastStatuses = dailyStatuses.filter(s => s.date && isSameDay(s.date, targetDateStr) && (s.userId === u.id || s.user_id === u.id));
+      const hasSubmitted = uLastStatuses.length > 0;
       
       let workDone = "";
       let submittedAt = "";
       if (hasSubmitted) {
-        workDone = uTodayStatuses[0].workDone || uTodayStatuses[0].work_done || "";
-        submittedAt = uTodayStatuses[0].createdAt || uTodayStatuses[0].created_at || "";
+        workDone = uLastStatuses[0].workDone || uLastStatuses[0].work_done || "";
+        submittedAt = uLastStatuses[0].createdAt || uLastStatuses[0].created_at || "";
       }
       
       return {
@@ -290,7 +336,7 @@ export default function DashboardClient({
         submittedAt
       };
     });
-  }, [users, dailyStatuses, todayStr]);
+  }, [users, dailyStatuses, targetDateStr]);
 
   // Time-of-day Greeting
   const getGreeting = () => {
@@ -373,6 +419,7 @@ export default function DashboardClient({
           message: isEditing ? "Daily status updated successfully!" : "Daily status submitted successfully!",
           type: "success"
         });
+        await fetchDashboardData();
         startTransition(() => {
           router.refresh();
         });
@@ -452,6 +499,7 @@ export default function DashboardClient({
           const details = await detailsRes.json();
           setActiveTask(details);
         }
+        await fetchDashboardData();
         setToast({ 
           message: isCompleted ? "Task reopened successfully!" : "Task completed successfully!", 
           type: "success" 
@@ -486,6 +534,7 @@ export default function DashboardClient({
       });
       if (res.ok) {
         setActiveTask((prev: any) => ({ ...prev, steps: updatedSteps }));
+        await fetchDashboardData();
         setToast({ 
           message: "Checklist step updated successfully!", 
           type: "success" 
@@ -502,9 +551,19 @@ export default function DashboardClient({
     }
   };
 
-  // Format Date String nicely
+  // Format Date String nicely (timezone-safe for date-only UTC representations)
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "N/A";
+    if (dateStr.includes('T')) {
+      const [datePart, timePart] = dateStr.split('T');
+      if (timePart.startsWith('00:00:00')) {
+        const parts = datePart.split('-');
+        if (parts.length === 3) {
+          const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+          return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+        }
+      }
+    }
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
   };
@@ -647,10 +706,10 @@ export default function DashboardClient({
                     </span>
                   </div>
 
-                  {/* Today's Status State */}
+                  {/* Last Day Status State */}
                   <div className="space-y-3">
                     <div>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Today&apos;s Status</p>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Last Day Status</p>
                       {hasSubmitted ? (
                         <div className="mt-1.5 space-y-1 bg-green-50/35 border border-green-100/50 p-2.5 rounded-xl">
                           <div className="flex items-center gap-1.5 text-green-700 text-xs font-bold">
@@ -663,7 +722,7 @@ export default function DashboardClient({
                         </div>
                       ) : (
                         <div className="mt-1.5 py-3 px-4 bg-slate-50 border border-slate-100 rounded-xl text-center text-xs font-semibold text-slate-400 italic">
-                          No status submitted today
+                          No status submitted
                         </div>
                       )}
                     </div>
@@ -1023,7 +1082,7 @@ export default function DashboardClient({
             )}
           </div>
 
-          {/* Today's Status — only shown for QA Lead / Admin */}
+          {/* Last Day Status — only shown for QA Lead / Admin */}
           {isQaLead && !viewingUserId && (
           <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
             {(
@@ -1031,7 +1090,12 @@ export default function DashboardClient({
               <>
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-black text-slate-800">Today's Status</h2>
+                    <h2 className="text-lg font-black text-slate-800">Last Day Status</h2>
+                    {targetDateStr && (
+                      <span className="text-xs font-bold text-slate-400 bg-slate-100 border border-slate-200/50 px-2.5 py-0.5 rounded-md">
+                        {new Date(targetDateStr + 'T00:00:00').toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </span>
+                    )}
                     <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">
                       {teamStatusSubmissions.filter(s => s.hasSubmitted).length}/{teamStatusSubmissions.length} Submitted
                     </span>
@@ -1063,8 +1127,8 @@ export default function DashboardClient({
                             <Check className="w-2.5 h-2.5" /> {new Date(member.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-[9px] font-bold bg-red-50 text-red-650 border border-red-100 px-2 py-0.5 rounded-md shrink-0">
-                            <X className="w-2.5 h-2.5" /> Pending
+                          <span className="flex items-center gap-1 text-[9px] font-bold bg-red-50 text-red-655 border border-red-100 px-2 py-0.5 rounded-md shrink-0">
+                            <X className="w-2.5 h-2.5" /> Not Submitted
                           </span>
                         )}
                       </div>
@@ -1075,7 +1139,7 @@ export default function DashboardClient({
                         </div>
                       ) : (
                         <div className="text-[11px] text-slate-400 italic font-semibold py-4 text-center">
-                          Waiting for check-in...
+                          No status submitted
                         </div>
                       )}
                     </div>

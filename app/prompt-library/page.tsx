@@ -53,6 +53,8 @@ export default function PromptLibraryPage() {
   const [categories, setCategories] = useState<PromptCategory[]>([]);
   const [activeCategory, setActiveCategory] = useState<PromptCategory | null>(null);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [draggedFolderIndex, setDraggedFolderIndex] = useState<number | null>(null);
+  const [draggedPromptIndex, setDraggedPromptIndex] = useState<number | null>(null);
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState("");
@@ -102,9 +104,9 @@ export default function PromptLibraryPage() {
   }, [toast]);
 
   // Fetch Categories (folders)
-  const fetchCategories = useCallback(async () => {
+  const fetchCategories = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const res = await fetch(`/api/prompt-categories?t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch prompt categories");
       const data = await res.json();
@@ -112,14 +114,14 @@ export default function PromptLibraryPage() {
     } catch (err: any) {
       setError(err.message || "An error occurred while loading folders.");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
   // Fetch Prompts in Folder
-  const fetchPrompts = useCallback(async (catId: string) => {
+  const fetchPrompts = useCallback(async (catId: string, silent = false) => {
     try {
-      setPromptsLoading(true);
+      if (!silent) setPromptsLoading(true);
       const res = await fetch(`/api/prompts?categoryId=${catId}&t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to fetch prompts");
       const data = await res.json();
@@ -127,7 +129,7 @@ export default function PromptLibraryPage() {
     } catch (err: any) {
       setToast({ message: err.message || "Failed to load prompts", type: "error" });
     } finally {
-      setPromptsLoading(false);
+      if (!silent) setPromptsLoading(false);
     }
   }, []);
 
@@ -135,13 +137,13 @@ export default function PromptLibraryPage() {
   const userEmail = session?.user?.email;
   useEffect(() => {
     if (userEmail) {
-      fetchCategories();
+      fetchCategories(false);
     }
   }, [userEmail, fetchCategories]);
 
   useEffect(() => {
     if (activeCategory) {
-      fetchPrompts(activeCategory.id);
+      fetchPrompts(activeCategory.id, false);
     } else {
       setPrompts([]);
     }
@@ -167,7 +169,7 @@ export default function PromptLibraryPage() {
       setNewFolderName("");
       setNewFolderDesc("");
       setShowFolderModal(false);
-      fetchCategories();
+      fetchCategories(true);
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
     } finally {
@@ -205,7 +207,7 @@ export default function PromptLibraryPage() {
         });
       }
 
-      fetchCategories();
+      fetchCategories(true);
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
     } finally {
@@ -239,7 +241,7 @@ export default function PromptLibraryPage() {
       if (activeCategory?.id === folderId) {
         setActiveCategory(null);
       }
-      fetchCategories();
+      fetchCategories(true);
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
     } finally {
@@ -275,7 +277,7 @@ export default function PromptLibraryPage() {
       setPromptContent("");
       setEditingPrompt(null);
 
-      fetchPrompts(activeCategory.id);
+      fetchPrompts(activeCategory.id, true);
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
     } finally {
@@ -306,7 +308,7 @@ export default function PromptLibraryPage() {
 
       setToast({ message: `Deleted prompt template`, type: "success" });
       if (activeCategory) {
-        fetchPrompts(activeCategory.id);
+        fetchPrompts(activeCategory.id, true);
       }
     } catch (err: any) {
       setToast({ message: err.message || "An error occurred", type: "error" });
@@ -322,6 +324,90 @@ export default function PromptLibraryPage() {
     setTimeout(() => {
       setCopiedPromptId(null);
     }, 2000);
+  };
+
+  // Drag and Drop: Folder Reordering
+  const handleFolderDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedFolderIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleFolderDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+  };
+
+  const handleFolderDrop = async (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedFolderIndex === null || draggedFolderIndex === targetIndex) return;
+
+    const updatedCategories = [...categories];
+    const [draggedFolder] = updatedCategories.splice(draggedFolderIndex, 1);
+    updatedCategories.splice(targetIndex, 0, draggedFolder);
+    setCategories(updatedCategories);
+
+    // Save order to backend
+    try {
+      setIsSyncing(true);
+      const res = await fetch("/api/prompt-categories/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: updatedCategories.map((c) => c.id) }),
+      });
+      if (!res.ok) throw new Error("Failed to save folder order");
+      setToast({ message: "Folder order updated successfully", type: "success" });
+    } catch (err: any) {
+      setToast({ message: err.message || "Failed to update order", type: "error" });
+      fetchCategories(true);
+    } finally {
+      setIsSyncing(false);
+      setDraggedFolderIndex(null);
+    }
+  };
+
+  const handleFolderDragEnd = () => {
+    setDraggedFolderIndex(null);
+  };
+
+  // Drag and Drop: Prompt Reordering
+  const handlePromptDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedPromptIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handlePromptDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+  };
+
+  const handlePromptDrop = async (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedPromptIndex === null || draggedPromptIndex === targetIndex || !activeCategory) return;
+
+    const updatedPrompts = [...prompts];
+    const [draggedPrompt] = updatedPrompts.splice(draggedPromptIndex, 1);
+    updatedPrompts.splice(targetIndex, 0, draggedPrompt);
+    setPrompts(updatedPrompts);
+
+    // Save order to backend
+    try {
+      setIsSyncing(true);
+      const res = await fetch("/api/prompts/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: updatedPrompts.map((p) => p.id) }),
+      });
+      if (!res.ok) throw new Error("Failed to save prompt order");
+      setToast({ message: "Prompt order updated successfully", type: "success" });
+    } catch (err: any) {
+      setToast({ message: err.message || "Failed to update order", type: "error" });
+      fetchPrompts(activeCategory.id, true);
+    } finally {
+      setIsSyncing(false);
+      setDraggedPromptIndex(null);
+    }
+  };
+
+  const handlePromptDragEnd = () => {
+    setDraggedPromptIndex(null);
   };
 
   // Format Date Helper
@@ -463,13 +549,23 @@ export default function PromptLibraryPage() {
                   {searchTerm ? "No matching folders found." : "No folders created yet."}
                 </div>
               ) : (
-                filteredFolders.map((f) => (
-                  <div
-                    key={f.id}
-                    onClick={() => setActiveCategory(f)}
-                    className="p-6 bg-white hover:bg-slate-50/50 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between h-44 cursor-pointer group relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 left-0 w-1.5 h-full bg-[#ed5c37]/10 group-hover:bg-[#ed5c37] transition-colors" />
+                filteredFolders.map((f) => {
+                  const originalIndex = categories.findIndex((c) => c.id === f.id);
+                  const isDragged = draggedFolderIndex === originalIndex;
+                  return (
+                    <div
+                      key={f.id}
+                      onClick={() => setActiveCategory(f)}
+                      draggable={!searchTerm.trim()}
+                      onDragStart={(e) => handleFolderDragStart(e, originalIndex)}
+                      onDragOver={(e) => handleFolderDragOver(e, originalIndex)}
+                      onDrop={(e) => handleFolderDrop(e, originalIndex)}
+                      onDragEnd={handleFolderDragEnd}
+                      className={`p-6 bg-white hover:bg-slate-50/50 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between h-44 cursor-pointer group relative ${
+                        !searchTerm.trim() ? "cursor-move" : ""
+                      } ${isDragged ? "opacity-30 border-dashed border-[#ed5c37] scale-95" : ""}`}
+                    >
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-[#ed5c37]/10 group-hover:bg-[#ed5c37] transition-colors rounded-l-[22px]" />
 
                     <div className="flex items-center justify-between relative z-10">
                       <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#ed5c37] group-hover:scale-105 transition-transform shadow-xs">
@@ -490,7 +586,7 @@ export default function PromptLibraryPage() {
 
                         {activeMenuFolderId === f.id && (
                           <div
-                            className="absolute right-0 mt-1 w-36 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1"
+                            className="absolute right-8 top-0 w-36 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1 animate-in fade-in slide-in-from-right-2 duration-150"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <button
@@ -528,8 +624,8 @@ export default function PromptLibraryPage() {
                         <span>{formatDate(f.createdAt)}</span>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </>
@@ -640,11 +736,20 @@ export default function PromptLibraryPage() {
             ) : (
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {filteredPrompts.map((p) => {
+                  const originalIndex = prompts.findIndex((item) => item.id === p.id);
+                  const isDragged = draggedPromptIndex === originalIndex;
                   const isCopied = copiedPromptId === p.id;
                   return (
                     <div
                       key={p.id}
-                      className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#ed5c37]/20 transition-all duration-200 flex flex-col overflow-hidden group relative"
+                      draggable={!promptSearchTerm.trim()}
+                      onDragStart={(e) => handlePromptDragStart(e, originalIndex)}
+                      onDragOver={(e) => handlePromptDragOver(e, originalIndex)}
+                      onDrop={(e) => handlePromptDrop(e, originalIndex)}
+                      onDragEnd={handlePromptDragEnd}
+                      className={`bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#ed5c37]/20 transition-all duration-200 flex flex-col overflow-hidden group relative ${
+                        !promptSearchTerm.trim() ? "cursor-move" : ""
+                      } ${isDragged ? "opacity-30 border-dashed border-[#ed5c37] scale-95" : ""}`}
                     >
                       <div className="absolute top-0 left-0 w-1.5 h-full bg-[#ed5c37]/10 group-hover:bg-[#ed5c37] transition-colors" />
 

@@ -232,7 +232,7 @@ function RichTextEditor({
         onInput={handleInput}
         onKeyDown={handleKeyDown}
         data-placeholder={placeholder}
-        className="min-h-[140px] max-h-[300px] overflow-y-auto px-4 py-3 text-sm text-slate-700 outline-none leading-relaxed
+        className="min-h-[250px] max-h-[500px] overflow-y-auto px-4 py-3 text-sm text-slate-700 outline-none leading-relaxed
           [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5
           [&_b]:font-bold [&_strong]:font-bold [&_i]:italic [&_em]:italic [&_u]:underline
           empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 empty:before:pointer-events-none"
@@ -412,7 +412,7 @@ function NoteModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
       onClick={handleBackdrop}
     >
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-100 animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl h-full max-h-[90vh] md:max-h-[85vh] flex flex-col overflow-hidden border border-slate-100 animate-in zoom-in-95 duration-200">
         {/* Modal Header */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white">
           <div className="flex items-center gap-3">
@@ -432,7 +432,7 @@ function NoteModal({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+        <div className="p-6 space-y-5 flex-1 overflow-y-auto">
           {error && (
             <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 text-red-700 rounded-xl text-sm font-semibold">
               <AlertCircle className="w-4 h-4 shrink-0" />

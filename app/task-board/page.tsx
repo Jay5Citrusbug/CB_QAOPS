@@ -91,6 +91,23 @@ const normalizeDate = (val: any): string | null => {
   return isNaN(d.getTime()) ? null : d.toISOString();
 };
 
+const formatTaskDueDate = (dateStr: string | null): string => {
+  if (!dateStr) return "";
+  const parts = dateStr.split('T')[0].split('-');
+  if (parts.length !== 3) return dateStr;
+  const [year, month, day] = parts;
+  const d = new Date(Number(year), Number(month) - 1, Number(day));
+  return d.toLocaleDateString();
+};
+
+const isTaskOverdue = (dateStr: string | null): boolean => {
+  if (!dateStr) return false;
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const dueStr = dateStr.split('T')[0];
+  return dueStr < todayStr;
+};
+
 const normalizeTask = (t: any): Task => {
   let normalizedStatus = t.status || "To Do";
   if (t.status) {
@@ -1100,8 +1117,8 @@ export default function TaskBoardPage() {
       if (!matchesSearch) return false;
 
       // 2. Status & Tab Filter
-      const todayDate = new Date();
-      todayDate.setHours(0, 0, 0, 0);
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
       switch (activeTab) {
         case "PENDING":
@@ -1110,12 +1127,10 @@ export default function TaskBoardPage() {
           return t.status === "Completed" || t.status === "COMPLETED";
         case "OVERDUE":
           if (t.status === "Completed" || t.status === "COMPLETED" || !t.dueDate) return false;
-          return new Date(t.dueDate) < todayDate;
+          return t.dueDate.split('T')[0] < todayStr;
         case "TODAY":
           if (t.status === "Completed" || t.status === "COMPLETED" || !t.dueDate) return false;
-          const due = new Date(t.dueDate);
-          due.setHours(0, 0, 0, 0);
-          return due.getTime() === todayDate.getTime();
+          return t.dueDate.split('T')[0] === todayStr;
         case "ME":
           return (t.status !== "Completed" && t.status !== "COMPLETED") && t.assignedTo === userEmail;
         case "ALL":
@@ -1440,8 +1455,8 @@ export default function TaskBoardPage() {
                                 }}
                               >
                                 {task.dueDate ? (
-                                  <span className={`flex items-center gap-1 ${new Date(task.dueDate) < new Date() ? "text-red-500 font-bold" : ""}`}>
-                                    <Calendar className="w-3 h-3" /> Due {new Date(task.dueDate).toLocaleDateString()}
+                                  <span className={`flex items-center gap-1 ${isTaskOverdue(task.dueDate) ? "text-red-500 font-bold" : ""}`}>
+                                    <Calendar className="w-3 h-3" /> Due {formatTaskDueDate(task.dueDate)}
                                   </span>
                                 ) : (
                                   <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> No Due Date</span>
@@ -1579,7 +1594,7 @@ export default function TaskBoardPage() {
                   {fastTaskDueDate && (
                     <div className="flex items-center gap-1.5 bg-[#F46A3A]/10 text-[#F46A3A] border border-[#F46A3A]/20 rounded-xl px-2.5 py-1 text-xs font-bold transition-all">
                       <Calendar className="w-3.5 h-3.5" />
-                      <span>{new Date(fastTaskDueDate).toLocaleDateString()}</span>
+                      <span>{formatTaskDueDate(fastTaskDueDate)}</span>
                       <button
                         type="button"
                         onClick={() => setFastTaskDueDate("")}
