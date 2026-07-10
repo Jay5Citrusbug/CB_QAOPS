@@ -207,27 +207,29 @@ export default function SummaryDashboardModal({
              {tableData.length === 0 ? (
                <div className="p-8 text-center text-slate-500 text-sm font-medium">No hours logged for this selection.</div>
              ) : (
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50/50 border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-400">
-                     <tr>
-                        <th className="px-6 py-3">Project Name</th>
-                        <th className="px-6 py-3 text-right">Total Hours Spent</th>
-                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                     {tableData.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                           <td className="px-6 py-4 font-semibold text-slate-700">{row.name}</td>
-                           <td className="px-6 py-4 text-right">
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 rounded-full font-bold text-sm">
-                                 <Clock className="w-3.5 h-3.5 text-slate-400" />
-                                 {formatHours(row.hours)}
-                              </span>
-                           </td>
+                <div className="overflow-x-auto">
+                   <table className="w-full text-left text-sm">
+                     <thead className="bg-slate-50/50 border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-400">
+                        <tr>
+                           <th className="px-6 py-3">Project Name</th>
+                           <th className="px-6 py-3 text-right">Total Hours Spent</th>
                         </tr>
-                     ))}
-                  </tbody>
-                </table>
+                     </thead>
+                     <tbody className="divide-y divide-slate-100">
+                        {tableData.map((row, idx) => (
+                           <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="px-6 py-4 font-semibold text-slate-700">{row.name}</td>
+                              <td className="px-6 py-4 text-right">
+                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 rounded-full font-bold text-sm">
+                                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                    {formatHours(row.hours)}
+                                 </span>
+                              </td>
+                           </tr>
+                        ))}
+                     </tbody>
+                   </table>
+                </div>
              )}
           </div>
 

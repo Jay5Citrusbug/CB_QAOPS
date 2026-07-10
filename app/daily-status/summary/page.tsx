@@ -250,45 +250,47 @@ export default function StatusSummaryPage() {
             <p className="text-xs text-slate-400 mt-1">Try adjusting your filters or time range.</p>
           </div>
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50/50 border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-400">
-              <tr>
-                <th className="px-6 py-4">Project Name</th>
-                <th className="px-6 py-4 text-right">Total Hours Spent</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {tableData.map((row, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-[10px] uppercase">
-                        {row.name.substring(0, 2)}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50/50 border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-400">
+                <tr>
+                  <th className="px-6 py-4">Project Name</th>
+                  <th className="px-6 py-4 text-right">Total Hours Spent</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {tableData.map((row, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-[10px] uppercase">
+                          {row.name.substring(0, 2)}
+                        </div>
+                        <span className="font-semibold text-slate-700">{row.name}</span>
                       </div>
-                      <span className="font-semibold text-slate-700">{row.name}</span>
-                    </div>
-                  </td>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full font-bold text-sm">
+                        <Clock className="w-3.5 h-3.5 text-slate-400" />
+                        {formatHours(row.hours)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot className="border-t-2 border-slate-200 bg-slate-50">
+                <tr>
+                  <td className="px-6 py-4 font-black text-slate-800 text-sm">Grand Total</td>
                   <td className="px-6 py-4 text-right">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full font-bold text-sm">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      {formatHours(row.hours)}
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ed5c37] text-white rounded-full font-black text-sm shadow">
+                      <Clock className="w-3.5 h-3.5" />
+                      {formatHours(tableData.reduce((acc, r) => acc + r.hours, 0))}
                     </span>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot className="border-t-2 border-slate-200 bg-slate-50">
-              <tr>
-                <td className="px-6 py-4 font-black text-slate-800 text-sm">Grand Total</td>
-                <td className="px-6 py-4 text-right">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ed5c37] text-white rounded-full font-black text-sm shadow">
-                    <Clock className="w-3.5 h-3.5" />
-                    {formatHours(tableData.reduce((acc, r) => acc + r.hours, 0))}
-                  </span>
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+              </tfoot>
+            </table>
+          </div>
         )}
       </div>
     </div>

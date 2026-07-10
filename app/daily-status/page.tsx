@@ -486,7 +486,8 @@ export default function DailyStatusPage() {
         ) : (
           /* List View */
           <div className="premium-card !p-0 overflow-hidden">
-             <table className="w-full text-left text-sm">
+             <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 border-b border-slate-100 text-[10px] uppercase font-bold tracking-widest text-slate-500">
                    <tr>
                       {isQaLead && <th className="px-6 py-4">User</th>}
@@ -557,6 +558,7 @@ export default function DailyStatusPage() {
                    ))}
                 </tbody>
              </table>
+             </div>
           </div>
         )}
       </div>
